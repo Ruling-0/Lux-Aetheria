@@ -16,7 +16,9 @@ public class LuxAetheria {
     public static final String MODID = "luxaetheria";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
-    @SidedProxy(clientSide = "com.ruling_0.luxaetheria.ClientProxy", serverSide = "com.ruling_0.luxaetheria.CommonProxy")
+    @SidedProxy(
+        clientSide = "com.ruling_0.luxaetheria.ClientProxy",
+        serverSide = "com.ruling_0.luxaetheria.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler
