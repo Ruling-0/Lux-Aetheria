@@ -17,9 +17,9 @@ public class LuxAetheria {
     public static final Logger LOG = LogManager.getLogger(MODID);
 
     @SidedProxy(
-        clientSide = "com.ruling_0.luxaetheria.ClientProxy",
-        serverSide = "com.ruling_0.luxaetheria.CommonProxy")
-    public static CommonProxy proxy;
+        clientSide = "com.ruling_0.luxaetheria.LAClientProxy",
+        serverSide = "com.ruling_0.luxaetheria.LAProxy")
+    public static LAProxy proxy;
 
     @Mod.EventHandler
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
