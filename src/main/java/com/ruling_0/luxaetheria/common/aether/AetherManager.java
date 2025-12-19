@@ -23,10 +23,10 @@ public class AetherManager {
     }
 
     public void enableReleaser(IAetherReleaser releaser, int dim, int x, int y, int z) {
-        AetherCollectors.forEachInRange(dim, x, y, z, c -> {c.addReleaserInRange(releaser);});
+        AetherCollectors.forEachInRange(dim, x, y, z, c -> c.addReleaserInRange(releaser));
     }
 
     public void disableReleaser(IAetherReleaser releaser, int dim, int x, int y, int z) {
-        AetherCollectors.forEachInRange(dim, x, y, z, c -> {c.removeReleaserInRange(releaser);});
+        AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeReleaserInRange(releaser));
     }
 }

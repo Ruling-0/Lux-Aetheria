@@ -5,14 +5,14 @@ import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 import net.minecraft.tileentity.TileEntity;
 
-public class TECollectorPylon extends TileEntity implements IAetherCollector {
+public class TileEntityCollectorPylon extends TileEntity implements IAetherCollector {
     public int range;
     public long collection;
     public double collectorEfficiency = 1.0D;
     public int collectorsInRange = 0;
     protected AethericEnergyUnit ambient;
 
-    public TECollectorPylon(int range, long collection) {
+    public TileEntityCollectorPylon(int range, long collection) {
         super();
         this.range = range;
         this.collection = collection;

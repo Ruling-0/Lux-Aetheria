@@ -14,6 +14,8 @@ public class LAProxy {
 
         LuxAetheria.LOG.info(LAConfig.greeting);
         LuxAetheria.LOG.info("I am Lux Aetheria at version " + Tags.VERSION);
+
+        EnumBlocks.init();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)

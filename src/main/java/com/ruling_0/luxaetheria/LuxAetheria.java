@@ -1,5 +1,10 @@
 package com.ruling_0.luxaetheria;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
+import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,6 +20,13 @@ public class LuxAetheria {
 
     public static final String MODID = "luxaetheria";
     public static final Logger LOG = LogManager.getLogger(MODID);
+
+    public static CreativeTabs tabLuxAetheria = new CreativeTabs(MODID) {
+        @Override
+        public Item  getTabIconItem() {
+            return Items.quartz;
+        }
+    };
 
     @SidedProxy(
         clientSide = "com.ruling_0.luxaetheria.LAClientProxy",
@@ -32,6 +44,8 @@ public class LuxAetheria {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
+
+        GameRegistry.registerTileEntity(TileEntityCollectorPylon.class, "LATileEntityCollectorPylon");
     }
 
     @Mod.EventHandler
