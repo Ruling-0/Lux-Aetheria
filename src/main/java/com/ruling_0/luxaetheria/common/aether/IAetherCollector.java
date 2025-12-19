@@ -2,7 +2,6 @@ package com.ruling_0.luxaetheria.common.aether;
 
 /**
  * An Interface for things which collect ambient Aether.
- * Provides Aether collection animation.
  */
 public interface IAetherCollector {
     long BASE_PRODUCTION = 30;
