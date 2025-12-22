@@ -6,7 +6,7 @@ package com.ruling_0.luxaetheria.common.aether;
 public interface IAetherCollector {
     long BASE_PRODUCTION = 30;
 
-    long getAetherCollection();
+    long getAetherCollectionAmount();
 
     int getCollectorRange();
 

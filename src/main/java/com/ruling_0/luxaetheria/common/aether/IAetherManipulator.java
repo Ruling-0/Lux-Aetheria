@@ -1,19 +1,24 @@
 package com.ruling_0.luxaetheria.common.aether;
 
 
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import net.minecraft.util.Vec3;
+
 /**
  * An Interface for things which intake and/or output Aether.
  */
 public interface IAetherManipulator {
-    boolean addSource(IAetherManipulator source);
+    boolean addAetherSource(IAetherManipulator source);
 
-    boolean removeSource(IAetherManipulator source);
+    boolean removeAetherSource(IAetherManipulator source);
 
-    IAetherManipulator getSource();
+    IAetherManipulator getAetherSource();
 
-    boolean addSink(IAetherManipulator sink);
+    boolean addAetherSink(IAetherManipulator sink);
 
-    boolean removeSink(IAetherManipulator sink);
+    boolean removeAetherSink(IAetherManipulator sink);
 
-    IAetherManipulator getSink();
+    IAetherManipulator getAetherSink();
+
+    Vec3 getPosVec3();
 }

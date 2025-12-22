@@ -6,6 +6,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class ItemPylonBinder extends Item {
@@ -18,31 +20,38 @@ public class ItemPylonBinder extends Item {
         if (te instanceof IAetherManipulator aetherManipulator) {
             if (boundManipulator != null) {
                 boolean success;
-                if (boundManipulator.getSink() == aetherManipulator) {
-                    success = aetherManipulator.removeSource(boundManipulator);
+                if (boundManipulator.getAetherSink() == aetherManipulator) {
+                    success = aetherManipulator.removeAetherSource(boundManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_source"));
                         return true;
                     }
-                    success = boundManipulator.removeSink(aetherManipulator);
+                    success = boundManipulator.removeAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_sink"));
-                        aetherManipulator.addSource(boundManipulator);
+                        aetherManipulator.addAetherSource(boundManipulator);
                         return true;
                     }
                     boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
                 }
                 else {
-                    success = aetherManipulator.addSource(boundManipulator);
+                    Vec3 boundVec = boundManipulator.getPosVec3();
+                    Vec3 targetVec = Vec3.createVectorHelper(x, y, z);
+                    MovingObjectPosition mop = world.rayTraceBlocks(boundVec, targetVec, true);
+                    if (mop != null) {
+                        player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
+                        return true;
+                    }
+                    success = aetherManipulator.addAetherSource(boundManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_source"));
                         return true;
                     }
-                    success = boundManipulator.addSink(aetherManipulator);
+                    success = boundManipulator.addAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_sink"));
-                        aetherManipulator.removeSource(boundManipulator);
+                        aetherManipulator.removeAetherSource(boundManipulator);
                         return true;
                     }
                     boundManipulator = null;

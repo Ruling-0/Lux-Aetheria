@@ -7,26 +7,51 @@ public class AethericEnergyUnit {
     public long amount = 0L;
     public static final double SQRT3 = Math.sqrt(3.0D);
 
+    public AethericEnergyUnit() {}
+
     public AethericEnergyUnit(long amount) {
         this.amount = amount;
     }
 
+    public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
+        this.setToOther(otherAeU);
+    }
+
+    public void setToOther(AethericEnergyUnit otherAeU) {
+        this.amount = otherAeU.amount;
+        this.aspectRed = otherAeU.aspectRed;
+        this.aspectGreen = otherAeU.aspectGreen;
+        this.aspectBlue = otherAeU.aspectBlue;
+    }
+
     public void merge(AethericEnergyUnit incoming) {
-        double propIncoming = (double) incoming.amount / this.amount;
-        double propCurrent = 1.0D - propIncoming;
-        this.aspectRed = propIncoming * incoming.aspectRed + propCurrent * this.aspectRed;
-        this.aspectGreen = propIncoming * incoming.aspectGreen + propCurrent * this.aspectGreen;
-        this.aspectBlue = propIncoming * incoming.aspectBlue + propCurrent * this.aspectBlue;
-        this.amount += incoming.amount;
+        if (this.amount == 0L) {
+            this.setToOther(incoming);
+        }
+        else {
+            double propIncoming = (double) incoming.amount / this.amount;
+            double propCurrent = 1.0D - propIncoming;
+            this.aspectRed = propIncoming * incoming.aspectRed + propCurrent * this.aspectRed;
+            this.aspectGreen = propIncoming * incoming.aspectGreen + propCurrent * this.aspectGreen;
+            this.aspectBlue = propIncoming * incoming.aspectBlue + propCurrent * this.aspectBlue;
+            this.amount += incoming.amount;
+        }
     }
 
     public void split(AethericEnergyUnit outgoing) {
         this.amount -= outgoing.amount;
-        double propOutgoing = (double) outgoing.amount / this.amount;
-        double propCurrent = 1.0D - propOutgoing;
-        this.aspectRed = (this.aspectRed - propOutgoing * outgoing.aspectRed) / propCurrent;
-        this.aspectGreen = (this.aspectGreen - propOutgoing * outgoing.aspectGreen) / propCurrent;
-        this.aspectBlue = (this.aspectBlue - propOutgoing * outgoing.aspectBlue) / propCurrent;
+        if (this.amount == 0) {
+            this.aspectRed = 1.0D;
+            this.aspectGreen = 1.0D;
+            this.aspectBlue = 1.0D;
+        }
+        else {
+            double propOutgoing = (double) outgoing.amount / this.amount;
+            double propCurrent = 1.0D - propOutgoing;
+            this.aspectRed = (this.aspectRed - propOutgoing * outgoing.aspectRed) / propCurrent;
+            this.aspectGreen = (this.aspectGreen - propOutgoing * outgoing.aspectGreen) / propCurrent;
+            this.aspectBlue = (this.aspectBlue - propOutgoing * outgoing.aspectBlue) / propCurrent;
+        }
     }
 
     public double getMagnitude() {
