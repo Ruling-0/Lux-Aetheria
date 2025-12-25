@@ -8,7 +8,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 // Credit to Et Futurum (Requiem)
-public enum EnumBlocks {
+public enum LABlocks {
     // spotless:off
 
     COLLECTOR_PYLON(true, new BlockCollectorPylon(), "collector_pylon"),
@@ -16,10 +16,10 @@ public enum EnumBlocks {
 
     // spotless:on
 
-    public static final EnumBlocks[] VALUES = values();
+    public static final LABlocks[] VALUES = values();
 
     public static void init() {
-        for (EnumBlocks blockEntry : VALUES) {
+        for (LABlocks blockEntry : VALUES) {
             if (blockEntry.isEnabled()) {
                 blockEntry.block.setCreativeTab(LuxAetheria.tabLuxAetheria);
                 if (blockEntry.getItemBlock() != null || !blockEntry.getHasItemBlock()) {
@@ -51,12 +51,12 @@ public enum EnumBlocks {
     private boolean hasItemBlock;
     private final String name;
 
-    EnumBlocks(Boolean enabled, Block block, String name) {
+    LABlocks(Boolean enabled, Block block, String name) {
         this(enabled, block, null, name);
         this.hasItemBlock = true;
     }
 
-    EnumBlocks(Boolean enabled, Block block, Class<? extends ItemBlock> itemBlock, String name) {
+    LABlocks(Boolean enabled, Block block, Class<? extends ItemBlock> itemBlock, String name) {
         this.isEnabled = enabled;
         this.block = block;
         this.itemBlock = itemBlock;

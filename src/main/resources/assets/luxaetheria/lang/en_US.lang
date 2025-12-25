@@ -1,3 +1,7 @@
+LA.aether.aspect_red="TEMP RED"
+LA.aether.aspect_green="TEMP GREEN"
+LA.aether.aspect_blue="TEMP BLUE"
+
 LA.binder.unbound="Connection unbound."
 LA.binder.bound="Connection bound."
 LA.binder.fail.remove_source="Binding failed: cannot remove source"

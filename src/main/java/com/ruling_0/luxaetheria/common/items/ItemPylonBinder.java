@@ -10,6 +10,8 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import java.util.Iterator;
+
 public class ItemPylonBinder extends Item {
     private IAetherManipulator boundManipulator = null;
 
@@ -20,7 +22,15 @@ public class ItemPylonBinder extends Item {
         if (te instanceof IAetherManipulator aetherManipulator) {
             if (boundManipulator != null) {
                 boolean success;
-                if (boundManipulator.getAetherSink() == aetherManipulator) {
+                boolean isBound = false;
+                Iterator<IAetherManipulator> iter = boundManipulator.getAetherSinksIter();
+                while (iter.hasNext()) {
+                    if (iter.next().equals(aetherManipulator)) {
+                        isBound = true;
+                        break;
+                    }
+                }
+                if (isBound) {
                     success = aetherManipulator.removeAetherSource(boundManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_source"));

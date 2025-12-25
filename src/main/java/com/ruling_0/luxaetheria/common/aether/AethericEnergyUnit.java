@@ -1,27 +1,140 @@
 package com.ruling_0.luxaetheria.common.aether;
 
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
 public class AethericEnergyUnit {
-    public double aspectRed = 1.0D;
-    public double aspectGreen = 1.0D;
-    public double aspectBlue = 1.0D;
     public long amount = 0L;
-    public static final double SQRT3 = Math.sqrt(3.0D);
+    public double[] aspects = {1.0D, 1.0D, 1.0D};
+    public AEUID id;
 
     public AethericEnergyUnit() {}
 
     public AethericEnergyUnit(long amount) {
-        this.amount = amount;
+        this.init(amount, 0, 0, 0, 0);
+    }
+
+    public AethericEnergyUnit(long amount, long origin, long tick, int dim) {
+        this.init(amount, origin, tick, 0, dim);
+    }
+
+    public AethericEnergyUnit(long amount, long origin, long tick, int dim, int output) {
+        this.init(amount, origin, tick, output, dim);
+    }
+
+    public AethericEnergyUnit(long amount, TileEntity te) {
+        this.initFromTE(amount, te, 0, 0);
+    }
+
+    public AethericEnergyUnit(long amount, TileEntity te, long tick) {
+        this.initFromTE(amount, te, tick, 0);
+    }
+
+    public AethericEnergyUnit(long amount, TileEntity te, long tick, int output) {
+        this.initFromTE(amount, te, tick, output);
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
         this.setToOther(otherAeU);
     }
 
-    public void setToOther(AethericEnergyUnit otherAeU) {
+    public static class AEUID {
+        public long origin;
+        public long tick;
+        public int output;
+        public int dim;
+
+        public AEUID(TileEntity te, long tick, int output) {
+            this.origin = CoordinatePacker.pack(te.xCoord, te.yCoord, te.zCoord);
+            this.tick = tick;
+            this.output = output;
+            this.dim = te.getWorldObj().provider.dimensionId;
+        }
+
+        public AEUID(long origin, long tick, int output, int dim) {
+            this.origin = origin;
+            this.tick = tick;
+            this.output = output;
+            this.dim = dim;
+        }
+
+        @Override
+        public String toString() {
+            return Long.toHexString(this.origin) + "-" + Long.toHexString(this.tick)
+                + "-" + Integer.toHexString(this.output) + "-" + Integer.toHexString(this.dim);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (other == null || getClass() != other.getClass()) return false;
+            AEUID that = (AEUID) other;
+            if (this.origin != that.origin) return false;
+            if (this.tick != that.tick) return false;
+            if (this.output != that.output) return false;
+            return this.dim == that.dim;
+        }
+
+        public void writeToNBT(@Nonnull NBTTagCompound compound) {
+            compound.setLong("origin", this.origin);
+            compound.setLong("tick", this.tick);
+            compound.setInteger("output", this.output);
+            compound.setInteger("dim", this.dim);
+        }
+
+        public void readFromNBT(@Nonnull NBTTagCompound compound) {
+            this.origin = compound.getLong("origin");
+            this.tick = compound.getLong("tick");
+            this.output = compound.getInteger("output");
+            this.dim = compound.getInteger("dim");
+        }
+    }
+
+    public void init(long amount, long origin, long tick, int output, int dim) {
+        this.amount = amount;
+        this.id = new AEUID(origin, tick, output, dim);
+    }
+
+    public void initFromTE(long amount, TileEntity te, long tick, int output) {
+        this.amount = amount;
+        this.id = new AEUID(te, tick, output);
+    }
+
+    public void setToOther(@Nonnull AethericEnergyUnit otherAeU) {
         this.amount = otherAeU.amount;
-        this.aspectRed = otherAeU.aspectRed;
-        this.aspectGreen = otherAeU.aspectGreen;
-        this.aspectBlue = otherAeU.aspectBlue;
+        this.aspects = otherAeU.aspects.clone();
+        this.id = otherAeU.id;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+        AethericEnergyUnit that = (AethericEnergyUnit) other;
+        if (this.amount != that.amount) return false;
+        for (int i = 0; i < this.aspects.length; i++) {
+            if (this.aspects[i] != that.aspects[i]) return false;
+        }
+        return this.id == that.id;
+    }
+
+    public void updateID(long tick, int output) {
+        this.id.tick = tick;
+        this.id.output = output;
+    }
+
+    public long getAspectAmount(int index) {
+        return (long) (this.amount * this.aspects[index]);
+    }
+
+    public void reset() {
+        this.amount = 0L;
+        Arrays.fill(this.aspects, 1.0D);
     }
 
     public void merge(AethericEnergyUnit incoming) {
@@ -31,34 +144,53 @@ public class AethericEnergyUnit {
         else {
             double propIncoming = (double) incoming.amount / this.amount;
             double propCurrent = 1.0D - propIncoming;
-            this.aspectRed = propIncoming * incoming.aspectRed + propCurrent * this.aspectRed;
-            this.aspectGreen = propIncoming * incoming.aspectGreen + propCurrent * this.aspectGreen;
-            this.aspectBlue = propIncoming * incoming.aspectBlue + propCurrent * this.aspectBlue;
+            for (int i = 0; i < this.aspects.length; i++) {
+                this.aspects[i] = propIncoming * incoming.aspects[i]
+                    + propCurrent * this.aspects[i];
+            }
             this.amount += incoming.amount;
         }
     }
 
-    public void split(AethericEnergyUnit outgoing) {
+    public void split(@Nonnull AethericEnergyUnit outgoing) {
         this.amount -= outgoing.amount;
         if (this.amount == 0) {
-            this.aspectRed = 1.0D;
-            this.aspectGreen = 1.0D;
-            this.aspectBlue = 1.0D;
+            Arrays.fill(this.aspects, 1.0D);
         }
         else {
             double propOutgoing = (double) outgoing.amount / this.amount;
             double propCurrent = 1.0D - propOutgoing;
-            this.aspectRed = (this.aspectRed - propOutgoing * outgoing.aspectRed) / propCurrent;
-            this.aspectGreen = (this.aspectGreen - propOutgoing * outgoing.aspectGreen) / propCurrent;
-            this.aspectBlue = (this.aspectBlue - propOutgoing * outgoing.aspectBlue) / propCurrent;
+            for (int i = 0; i < this.aspects.length; i++) {
+                this.aspects[i] = propOutgoing * outgoing.aspects[i]
+                    / propCurrent;
+            }
         }
     }
 
-    public double getMagnitude() {
-        return Math.sqrt(this.aspectRed * this.aspectRed + this.aspectGreen * this.aspectGreen + this.aspectBlue * this.aspectBlue) / SQRT3;
+    public void writeToNBT(@Nonnull NBTTagCompound compound) {
+        compound.setLong("amount", this.amount);
+        NBTTagList nbtAspects = new NBTTagList();
+        for (int i = 0; i < this.aspects.length; i++) {
+            NBTTagCompound aspect = new NBTTagCompound();
+            aspect.setByte("index", (byte)i);
+            aspect.setDouble("amount", this.aspects[i]);
+            nbtAspects.appendTag(aspect);
+        }
+        compound.setTag("aspects", nbtAspects);
+        NBTTagCompound nbtID =  new NBTTagCompound();
+        this.id.writeToNBT(nbtID);
+        compound.setTag("id", nbtID);
     }
 
-    public long getEquilibriumAmount() {
-        return (long) Math.cbrt(this.amount);
+    public void readFromNBT(@Nonnull NBTTagCompound compound) {
+        this.amount = compound.getLong("amount");
+        NBTTagList nbtAspects = compound.getTagList("aspects", 10);
+        for (int i = 0; i < nbtAspects.tagCount(); i++) {
+            NBTTagCompound aspect = nbtAspects.getCompoundTagAt(i);
+            int index = aspect.getByte("index") & 0xFF;
+            this.aspects[index] = aspect.getDouble("amount");
+        }
+        NBTTagCompound nbtID = compound.getCompoundTag("id");
+        this.id.readFromNBT(nbtID);
     }
 }
