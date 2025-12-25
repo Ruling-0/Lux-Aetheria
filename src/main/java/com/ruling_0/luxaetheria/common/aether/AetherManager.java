@@ -37,6 +37,7 @@ public class AetherManager {
     }
 
     public void disableCollector(IAetherCollector collector, int dim, int x, int y, int z) {
+        AetherCollectors.remove(dim, x, y, z);
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeCollectorInRange(collector));
     }
 
