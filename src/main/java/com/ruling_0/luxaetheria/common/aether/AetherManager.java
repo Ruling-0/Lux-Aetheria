@@ -1,10 +1,5 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
-import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraft.util.Vec3;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -12,7 +7,15 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.minecraft.util.Vec3;
+
+import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
+import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
+
+import cpw.mods.fml.common.gameevent.TickEvent;
+
 public class AetherManager {
+
     private static ArrayProximityMap4D<IAetherCollector> AetherCollectors;
     private static HashSet<IAetherManipulator> AetherRootCollectors;
     private static Deque<IAetherManipulator> AetherSearchQueue;
@@ -26,11 +29,14 @@ public class AetherManager {
     }
 
     public void enableCollector(IAetherCollector collector, int dim, int x, int y, int z) {
-        //TODO: PR to GTNHLib that returns count from forEachInRange
+        // TODO: PR to GTNHLib that returns count from forEachInRange
         AtomicInteger count = new AtomicInteger();
         AtomicLong totalCollection = new AtomicLong();
         AetherCollectors.forEachInRange(dim, x, y, z, c -> {
-            count.getAndIncrement(); c.addCollectorInRange(collector); totalCollection.getAndAdd(c.getAetherCollectionAmount());});
+            count.getAndIncrement();
+            c.addCollectorInRange(collector);
+            totalCollection.getAndAdd(c.getAetherCollectionAmount());
+        });
         collector.bulkUpdateCollectors(-totalCollection.get(), -count.get());
         AetherCollectors.put(collector, dim, x, y, z, collector.getCollectorRange());
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.add(manipulator);
@@ -50,7 +56,7 @@ public class AetherManager {
     }
 
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
-        //TODO: Process aether chains through BFS starting with collectors. No loops!
+        // TODO: Process aether chains through BFS starting with collectors. No loops!
         /*
          * Starting with known collectors, calculate Aether propagation using BFS.
          * Loops are handled in manipulators' getAetherFromSource
@@ -63,7 +69,7 @@ public class AetherManager {
             Vec3 currPos = curr.getPosVec3();
             Iterator<IAetherManipulator> iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                //TODO: ensure removal/chunk unload handled
+                // TODO: ensure removal/chunk unload handled
                 IAetherManipulator next = iterSinks.next();
                 Vec3 nextPos = next.getPosVec3();
                 if (event.world.rayTraceBlocks(currPos, nextPos, true) != null) {

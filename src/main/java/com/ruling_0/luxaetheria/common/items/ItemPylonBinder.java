@@ -1,6 +1,7 @@
 package com.ruling_0.luxaetheria.common.items;
 
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import java.util.Iterator;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -10,13 +11,15 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import java.util.Iterator;
+import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 
 public class ItemPylonBinder extends Item {
+
     private IAetherManipulator boundManipulator = null;
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide, float hitx, float hity, float hitz) {
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide,
+        float hitx, float hity, float hitz) {
         TileEntity te = world.getTileEntity(x, y, z);
         if (te == null) return false;
         if (te instanceof IAetherManipulator aetherManipulator) {
@@ -25,7 +28,8 @@ public class ItemPylonBinder extends Item {
                 boolean isBound = false;
                 Iterator<IAetherManipulator> iter = boundManipulator.getAetherSinksIter();
                 while (iter.hasNext()) {
-                    if (iter.next().equals(aetherManipulator)) {
+                    if (iter.next()
+                        .equals(aetherManipulator)) {
                         isBound = true;
                         break;
                     }
@@ -44,8 +48,7 @@ public class ItemPylonBinder extends Item {
                     }
                     boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
-                }
-                else {
+                } else {
                     Vec3 boundVec = boundManipulator.getPosVec3();
                     Vec3 targetVec = Vec3.createVectorHelper(x, y, z);
                     MovingObjectPosition mop = world.rayTraceBlocks(boundVec, targetVec, true);
@@ -67,8 +70,7 @@ public class ItemPylonBinder extends Item {
                     boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.bound"));
                 }
-            }
-            else {
+            } else {
                 boundManipulator = aetherManipulator;
             }
             return true;

@@ -1,16 +1,19 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import java.util.Arrays;
+
+import javax.annotation.Nonnull;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 
 public class AethericEnergyUnit {
+
     public long amount = 0L;
-    public double[] aspects = {1.0D, 1.0D, 1.0D};
+    public double[] aspects = { 1.0D, 1.0D, 1.0D };
     public AEUID id;
 
     public AethericEnergyUnit() {}
@@ -44,6 +47,7 @@ public class AethericEnergyUnit {
     }
 
     public static class AEUID {
+
         public long origin;
         public long tick;
         public int output;
@@ -69,8 +73,12 @@ public class AethericEnergyUnit {
 
         @Override
         public String toString() {
-            return Long.toHexString(this.origin) + "-" + Long.toHexString(this.tick)
-                + "-" + Integer.toHexString(this.output) + "-" + Integer.toHexString(this.dim);
+            return Long.toHexString(this.origin) + "-"
+                + Long.toHexString(this.tick)
+                + "-"
+                + Integer.toHexString(this.output)
+                + "-"
+                + Integer.toHexString(this.dim);
         }
 
         @Override
@@ -148,13 +156,11 @@ public class AethericEnergyUnit {
     public void merge(AethericEnergyUnit incoming) {
         if (this.amount == 0L) {
             this.setToOther(incoming);
-        }
-        else {
+        } else {
             double propIncoming = (double) incoming.amount / this.amount;
             double propCurrent = 1.0D - propIncoming;
             for (int i = 0; i < this.aspects.length; i++) {
-                this.aspects[i] = propIncoming * incoming.aspects[i]
-                    + propCurrent * this.aspects[i];
+                this.aspects[i] = propIncoming * incoming.aspects[i] + propCurrent * this.aspects[i];
             }
             this.amount += incoming.amount;
         }
@@ -164,13 +170,11 @@ public class AethericEnergyUnit {
         this.amount -= outgoing.amount;
         if (this.amount == 0) {
             Arrays.fill(this.aspects, 1.0D);
-        }
-        else {
+        } else {
             double propOutgoing = (double) outgoing.amount / this.amount;
             double propCurrent = 1.0D - propOutgoing;
             for (int i = 0; i < this.aspects.length; i++) {
-                this.aspects[i] = propOutgoing * outgoing.aspects[i]
-                    / propCurrent;
+                this.aspects[i] = propOutgoing * outgoing.aspects[i] / propCurrent;
             }
         }
     }
@@ -180,12 +184,12 @@ public class AethericEnergyUnit {
         NBTTagList nbtAspects = new NBTTagList();
         for (int i = 0; i < this.aspects.length; i++) {
             NBTTagCompound aspect = new NBTTagCompound();
-            aspect.setByte("index", (byte)i);
+            aspect.setByte("index", (byte) i);
             aspect.setDouble("amount", this.aspects[i]);
             nbtAspects.appendTag(aspect);
         }
         compound.setTag("aspects", nbtAspects);
-        NBTTagCompound nbtID =  new NBTTagCompound();
+        NBTTagCompound nbtID = new NBTTagCompound();
         this.id.writeToNBT(nbtID);
         compound.setTag("id", nbtID);
     }

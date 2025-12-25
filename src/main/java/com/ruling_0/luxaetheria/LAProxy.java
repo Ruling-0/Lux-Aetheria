@@ -1,12 +1,14 @@
 package com.ruling_0.luxaetheria;
 
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
+
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
 public class LAProxy {
+
     public static final AetherManager aetherManager = new AetherManager();
 
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the

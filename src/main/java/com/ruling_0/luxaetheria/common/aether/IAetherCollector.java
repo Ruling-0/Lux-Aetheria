@@ -4,6 +4,7 @@ package com.ruling_0.luxaetheria.common.aether;
  * An Interface for things which collect ambient Aether.
  */
 public interface IAetherCollector {
+
     long BASE_PRODUCTION = 30;
 
     long getAetherCollectionAmount();

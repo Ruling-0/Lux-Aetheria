@@ -1,11 +1,13 @@
 package com.ruling_0.luxaetheria;
 
-import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+
+import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
+
+import cpw.mods.fml.common.registry.GameRegistry;
 
 // Credit to Et Futurum (Requiem)
 public enum LABlocks {

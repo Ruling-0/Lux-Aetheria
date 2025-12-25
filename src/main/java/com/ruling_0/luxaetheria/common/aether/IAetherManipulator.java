@@ -1,16 +1,18 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import net.minecraft.util.Vec3;
+import java.util.Iterator;
 
 import javax.annotation.Nonnull;
-import java.util.Iterator;
+
+import net.minecraft.util.Vec3;
+
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 
 /**
  * An Interface for things which intake and/or output Aether.
  */
 public interface IAetherManipulator {
+
     boolean addAetherSource(IAetherManipulator source);
 
     boolean removeAetherSource(IAetherManipulator source);
@@ -36,8 +38,9 @@ public interface IAetherManipulator {
      * For a given source, calculates the received aether, introducing loss.
      * If this is called more than once with the same source and tick, the later
      * amounts are released back to the environment.
+     * 
      * @param source The upstream manipulator
-     * @param tick The tick this is calculated on
+     * @param tick   The tick this is calculated on
      */
     boolean getAetherFromSource(IAetherManipulator source, long tick);
 
@@ -49,7 +52,6 @@ public interface IAetherManipulator {
      * Removes the manipulator from source/sink lists of upstream/downstream manipulators.
      */
     void disable();
-
 
     boolean isUpdateable();
 

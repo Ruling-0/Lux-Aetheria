@@ -1,16 +1,18 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
 import com.ruling_0.luxaetheria.LAProxy;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-
 public class TileEntityCollectorPylon extends BaseAetherManipulator implements IAetherCollector {
+
     private final int range;
     private final long collection;
     private long totalLoss = 0;
@@ -19,7 +21,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     private double collectorEfficiency = 1.0D;
     private int collectorsInRange = 0;
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
-    private boolean isEnabled = true; //TODO function for toggling on/off
+    private boolean isEnabled = true; // TODO function for toggling on/off
 
     public TileEntityCollectorPylon(int range, long collection) {
         super(0, 1);
@@ -79,8 +81,9 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     @Override
     public AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist) {
         this.aetherOut.setToOther(this.ambientAether);
-        //TODO: handle insufficient ambient aether
-        this.aetherOut.amount = Math.min(this.getAetherCollectionAmount(), this.ambientAether.amount) / this.aetherSinks.size();
+        // TODO: handle insufficient ambient aether
+        this.aetherOut.amount = Math.min(this.getAetherCollectionAmount(), this.ambientAether.amount)
+            / this.aetherSinks.size();
         long loss = (long) (this.aetherOut.amount * Math.exp(-0.003D * dist));
         this.aetherOut.amount = Math.max(0L, this.aetherOut.amount - loss);
         this.aetherOut.updateID(tick, this.aetherSinks.indexOf(sink));
@@ -98,7 +101,8 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
         this.ambientAether.amount -= this.getAetherCollectionAmount();
         this.ambientAether.amount += this.totalLoss;
         for (Map.Entry<IAetherReleaser, AethericEnergyUnit> entry : this.aetherReleasers.entrySet()) {
-            AethericEnergyUnit newRelease = entry.getKey().getAetherRelease();
+            AethericEnergyUnit newRelease = entry.getKey()
+                .getAetherRelease();
             if (newRelease.equals(entry.getValue())) continue;
             this.ambientAether.split(entry.getValue());
             this.ambientAether.merge(newRelease);
@@ -108,7 +112,8 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     @Override
     public void enable() {
         this.ambientAether.updateID(0, 0, this);
-        LAProxy.aetherManager.enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        LAProxy.aetherManager
+            .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.addAetherSource(this);
         }
@@ -119,7 +124,8 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void disable() {
-        LAProxy.aetherManager.disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        LAProxy.aetherManager
+            .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.removeAetherSource(this);
         }

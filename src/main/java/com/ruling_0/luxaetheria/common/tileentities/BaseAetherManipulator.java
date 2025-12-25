@@ -1,24 +1,27 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
-import com.ruling_0.luxaetheria.LAProxy;
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import java.util.*;
+
+import javax.annotation.Nonnull;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
+
 import org.joml.Vector3i;
 
-import javax.annotation.Nonnull;
-import java.util.*;
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
 public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser {
+
     protected AethericEnergyUnit aetherIn = new AethericEnergyUnit();
     protected AethericEnergyUnit aetherOut = new AethericEnergyUnit();
     protected AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
@@ -49,7 +52,10 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     @Override
     public boolean addAetherSource(IAetherManipulator source) {
         if (this.aetherSources.size() < this.maxAetherSources) {
-            this.aetherSources.put(source, this.getPosVec3().distanceTo(source.getPosVec3()));
+            this.aetherSources.put(
+                source,
+                this.getPosVec3()
+                    .distanceTo(source.getPosVec3()));
             return true;
         }
         return false;
@@ -62,7 +68,8 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
     @Override
     public Iterator<IAetherManipulator> getAetherSourcesIter() {
-        return this.aetherSources.keySet().iterator();
+        return this.aetherSources.keySet()
+            .iterator();
     }
 
     @Override
@@ -102,8 +109,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         if (this.encounteredIDs.add(incoming.id)) {
             this.aetherIn.merge(incoming);
             return true;
-        }
-        else {
+        } else {
             this.aetherRelease.merge(incoming);
         }
         return false;
@@ -152,7 +158,11 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         NBTTagList nbtAetherSources = new NBTTagList();
         for (Map.Entry<IAetherManipulator, Double> entry : this.aetherSources.entrySet()) {
             NBTTagCompound nbtAetherSource = new NBTTagCompound();
-            nbtAetherSource.setLong("coords", entry.getKey().getPosBlockPos().asLong());
+            nbtAetherSource.setLong(
+                "coords",
+                entry.getKey()
+                    .getPosBlockPos()
+                    .asLong());
             nbtAetherSource.setDouble("distance", entry.getValue());
             nbtAetherSources.appendTag(nbtAetherSource);
         }
@@ -161,7 +171,10 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         NBTTagList nbtAetherSinks = new NBTTagList();
         for (IAetherManipulator sink : this.aetherSinks) {
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
-            nbtAetherSink.setLong("coords", sink.getPosBlockPos().asLong());
+            nbtAetherSink.setLong(
+                "coords",
+                sink.getPosBlockPos()
+                    .asLong());
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);

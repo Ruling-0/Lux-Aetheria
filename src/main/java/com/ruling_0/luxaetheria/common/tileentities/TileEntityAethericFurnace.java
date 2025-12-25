@@ -1,26 +1,28 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
-import com.ruling_0.luxaetheria.LAProxy;
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.common.aether.AetherAspects;
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
-import net.minecraft.client.Minecraft;
+import java.util.*;
+
+import javax.annotation.Nonnull;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.Vec3;
-import org.apache.commons.lang3.tuple.Triple;
+
 import org.joml.Vector3i;
 
-import javax.annotation.Nonnull;
-import java.util.*;
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import com.ruling_0.luxaetheria.LAProxy;
+import com.ruling_0.luxaetheria.common.aether.AetherAspects;
+import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser {
+
     public AethericEnergyUnit aetherIn;
     public AethericEnergyUnit aetherOut;
     public AethericEnergyUnit aetherRelease;
@@ -39,7 +41,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     @Override
     public boolean addAetherSource(IAetherManipulator source) {
         if (this.aetherSources.size() < this.maxAetherSources) {
-            this.aetherSources.put(source, this.getPosVec3().distanceTo(source.getPosVec3()));
+            this.aetherSources.put(
+                source,
+                this.getPosVec3()
+                    .distanceTo(source.getPosVec3()));
             return true;
         }
         return false;
@@ -52,7 +57,8 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     @Override
     public Iterator<IAetherManipulator> getAetherSourcesIter() {
-        return this.aetherSources.keySet().iterator();
+        return this.aetherSources.keySet()
+            .iterator();
     }
 
     @Override
@@ -92,8 +98,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         if (this.encounteredIDs.add(incoming.id)) {
             this.aetherIn.merge(incoming);
             return true;
-        }
-        else {
+        } else {
             this.aetherRelease.merge(incoming);
         }
         return false;
@@ -142,7 +147,11 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         NBTTagList nbtAetherSources = new NBTTagList();
         for (Map.Entry<IAetherManipulator, Double> entry : this.aetherSources.entrySet()) {
             NBTTagCompound nbtAetherSource = new NBTTagCompound();
-            nbtAetherSource.setLong("coords", entry.getKey().getPosBlockPos().asLong());
+            nbtAetherSource.setLong(
+                "coords",
+                entry.getKey()
+                    .getPosBlockPos()
+                    .asLong());
             nbtAetherSource.setDouble("distance", entry.getValue());
             nbtAetherSources.appendTag(nbtAetherSource);
         }
@@ -151,7 +160,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         NBTTagList nbtAetherSinks = new NBTTagList();
         for (IAetherManipulator sink : this.aetherSinks) {
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
-            nbtAetherSink.setLong("coords", sink.getPosBlockPos().asLong());
+            nbtAetherSink.setLong(
+                "coords",
+                sink.getPosBlockPos()
+                    .asLong());
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);
@@ -191,7 +203,8 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     @Override
     public void enable() {
-        LAProxy.aetherManager.enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        LAProxy.aetherManager
+            .enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.addAetherSource(this);
         }
@@ -202,7 +215,8 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     @Override
     public void disable() {
-        LAProxy.aetherManager.disableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        LAProxy.aetherManager
+            .disableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.removeAetherSource(this);
         }
@@ -229,25 +243,24 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
 
     protected boolean canSmelt() {
-        if (this.getStackInSlot(0) == null)
-        {
+        if (this.getStackInSlot(0) == null) {
             return false;
-        }
-        else
-        {
-            ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.getStackInSlot(0));
+        } else {
+            ItemStack itemstack = FurnaceRecipes.smelting()
+                .getSmeltingResult(this.getStackInSlot(0));
             if (itemstack == null) return false;
             if (this.getStackInSlot(2) == null) return true;
-            if (!this.getStackInSlot(2).isItemEqual(itemstack)) return false;
+            if (!this.getStackInSlot(2)
+                .isItemEqual(itemstack)) return false;
             int result = getStackInSlot(2).stackSize + itemstack.stackSize;
-            return result <= getInventoryStackLimit() && result <= this.getStackInSlot(2).getMaxStackSize(); //Forge BugFix: Make it respect stack sizes properly.
+            return result <= getInventoryStackLimit() && result <= this.getStackInSlot(2)
+                .getMaxStackSize(); // Forge BugFix: Make it respect stack sizes properly.
         }
     }
 
     @Override
     public void updateEntity() {
-        if (this.aetherIn.getAspectAmount(AetherAspects.RED.index) >= 1
-            && this.canSmelt()) {
+        if (this.aetherIn.getAspectAmount(AetherAspects.RED.index) >= 1 && this.canSmelt()) {
             // This is decremented before checks for non-zero val
             this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
         }
