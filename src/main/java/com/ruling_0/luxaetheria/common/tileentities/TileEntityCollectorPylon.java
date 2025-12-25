@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
+import com.ruling_0.luxaetheria.LAProxy;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
@@ -24,7 +25,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
         super(0, 1);
         this.range = range;
         this.collection = collection;
-        this.ambientAether = new AethericEnergyUnit(BASE_PRODUCTION, this);
+        this.ambientAether = new AethericEnergyUnit(BASE_PRODUCTION);
     }
 
     @Override
@@ -70,19 +71,6 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     }
 
     @Override
-    public boolean addAetherSink(IAetherManipulator sink) {
-        if (this.aetherSinks.size() < this.maxAetherSinks) {
-            return this.aetherSinks.add(sink);
-        }
-        return false;
-    }
-
-    @Override
-    public boolean removeAetherSink(IAetherManipulator sink) {
-        return this.aetherSinks.remove(sink);
-    }
-
-    @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
         return true;
     }
@@ -117,13 +105,43 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
         }
     }
 
+    @Override
     public void enable() {
-        this.aetherOut.amount = this.getAetherCollectionAmount();
-        this.isEnabled = true;
+        this.ambientAether.updateID(0, 0, this);
+        LAProxy.aetherManager.enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        for (IAetherManipulator sink : this.aetherSinks) {
+            sink.addAetherSource(this);
+        }
+        for (IAetherManipulator source : this.aetherSources.keySet()) {
+            source.addAetherSink(this);
+        }
     }
 
+    @Override
     public void disable() {
-        this.aetherOut.amount = 0;
-        this.isEnabled = false;
+        LAProxy.aetherManager.disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        for (IAetherManipulator sink : this.aetherSinks) {
+            sink.removeAetherSource(this);
+        }
+        for (IAetherManipulator source : this.aetherSources.keySet()) {
+            source.removeAetherSink(this);
+        }
+    }
+
+    @Override
+    public void onChunkUnload() {
+        this.disable();
+    }
+
+    @Override
+    public void invalidate() {
+        this.disable();
+        super.invalidate();
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        this.enable();
     }
 }

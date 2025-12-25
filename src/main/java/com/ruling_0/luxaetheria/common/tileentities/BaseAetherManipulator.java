@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import com.ruling_0.luxaetheria.LAProxy;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
@@ -20,7 +21,7 @@ import java.util.*;
 public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser {
     protected AethericEnergyUnit aetherIn = new AethericEnergyUnit();
     protected AethericEnergyUnit aetherOut = new AethericEnergyUnit();
-    protected AethericEnergyUnit aetherRelease;
+    protected AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
 
     protected int maxAetherSources = 1;
@@ -29,10 +30,12 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     protected ArrayList<IAetherManipulator> aetherSinks;
 
     public BaseAetherManipulator() {
+        super();
         this.init(1, 1);
     }
 
     public BaseAetherManipulator(int maxAetherSources, int maxAetherSinks) {
+        super();
         this.init(maxAetherSources, maxAetherSinks);
     }
 
@@ -41,7 +44,6 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         this.maxAetherSinks = maxAetherSinks;
         this.aetherSources = new HashMap<>(maxAetherSources);
         this.aetherSinks = new ArrayList<>(maxAetherSinks);
-        this.aetherRelease = new AethericEnergyUnit(0, this);
     }
 
     @Override

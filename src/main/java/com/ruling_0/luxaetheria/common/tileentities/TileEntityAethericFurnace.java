@@ -33,7 +33,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     public TileEntityAethericFurnace() {
         super();
-        this.aetherRelease = new AethericEnergyUnit(0, this);
+        this.aetherRelease = new AethericEnergyUnit(0);
     }
 
     @Override
@@ -190,8 +190,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
 
     @Override
-    public void onChunkUnload() {
-        this.disable();
+    public void enable() {
+        LAProxy.aetherManager.enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        for (IAetherManipulator sink : this.aetherSinks) {
+            sink.addAetherSource(this);
+        }
+        for (IAetherManipulator source : this.aetherSources.keySet()) {
+            source.addAetherSink(this);
+        }
     }
 
     @Override
@@ -206,9 +212,20 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
 
     @Override
+    public void onChunkUnload() {
+        this.disable();
+    }
+
+    @Override
     public void invalidate() {
         this.disable();
         super.invalidate();
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        this.enable();
     }
 
     protected boolean canSmelt() {

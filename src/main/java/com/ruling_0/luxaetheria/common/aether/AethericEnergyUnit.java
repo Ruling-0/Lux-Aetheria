@@ -50,10 +50,7 @@ public class AethericEnergyUnit {
         public int dim;
 
         public AEUID(TileEntity te, long tick, int output) {
-            this.origin = CoordinatePacker.pack(te.xCoord, te.yCoord, te.zCoord);
-            this.tick = tick;
-            this.output = output;
-            this.dim = te.getWorldObj().provider.dimensionId;
+            this.setVals(te, tick, output);
         }
 
         public AEUID(long origin, long tick, int output, int dim) {
@@ -61,6 +58,13 @@ public class AethericEnergyUnit {
             this.tick = tick;
             this.output = output;
             this.dim = dim;
+        }
+
+        public void setVals(TileEntity te, long tick, int output) {
+            this.origin = CoordinatePacker.pack(te.xCoord, te.yCoord, te.zCoord);
+            this.tick = tick;
+            this.output = output;
+            this.dim = te.getWorldObj().provider.dimensionId;
         }
 
         @Override
@@ -126,6 +130,10 @@ public class AethericEnergyUnit {
     public void updateID(long tick, int output) {
         this.id.tick = tick;
         this.id.output = output;
+    }
+
+    public void updateID(long tick, int output, TileEntity te) {
+        this.id.setVals(te, tick, output);
     }
 
     public long getAspectAmount(int index) {
