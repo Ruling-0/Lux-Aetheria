@@ -55,7 +55,7 @@ public class AetherManager {
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeReleaserInRange(releaser));
     }
 
-    public static void onWorldTick(TickEvent.WorldTickEvent event) {
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
         // TODO: Process aether chains through BFS starting with collectors. No loops!
         /*
          * Starting with known collectors, calculate Aether propagation using BFS.
