@@ -9,6 +9,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 
 public class AethericEnergyUnit {
 
@@ -16,7 +18,9 @@ public class AethericEnergyUnit {
     public double[] aspects = { 1.0D, 1.0D, 1.0D };
     public AEUID id;
 
-    public AethericEnergyUnit() {}
+    public AethericEnergyUnit() {
+        this.init(0, 0, 0, 0, 0);
+    }
 
     public AethericEnergyUnit(long amount) {
         this.init(amount, 0, 0, 0, 0);
@@ -121,6 +125,17 @@ public class AethericEnergyUnit {
         this.amount = otherAeU.amount;
         this.aspects = otherAeU.aspects.clone();
         this.id = otherAeU.id;
+    }
+
+    @Override
+    public String toString() {
+        return this.amount + " ("
+            + EnumChatFormatting.RED + this.aspects[AetherAspects.RED.index]
+            + EnumChatFormatting.RESET + ", "
+            + EnumChatFormatting.GREEN + this.aspects[AetherAspects.GREEN.index]
+            + EnumChatFormatting.RESET + ", "
+            + EnumChatFormatting.BLUE + this.aspects[AetherAspects.BLUE.index]
+            + EnumChatFormatting.RESET + ")";
     }
 
     @Override

@@ -1,7 +1,10 @@
 package com.ruling_0.luxaetheria;
 
+import com.gtnewhorizons.wdmla.impl.WDMlaCommonRegistration;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
+import com.ruling_0.luxaetheria.crossmod.Mods;
+import com.ruling_0.luxaetheria.crossmod.wdmla.LuxAetheriaWDMLAPlugin;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -30,7 +33,12 @@ public class LAProxy {
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) {
+//        if (Mods.WDMLA.isModLoaded()) {
+//            WDMlaCommonRegistration wdmlaCommon = WDMlaCommonRegistration.instance();
+//            LuxAetheriaWDMLAPlugin().register();
+//        }
+    }
 
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}

@@ -20,4 +20,6 @@ public interface IAetherCollector {
     void addReleaserInRange(IAetherReleaser releaser);
 
     void removeReleaserInRange(IAetherReleaser releaser);
+
+    AethericEnergyUnit getAmbientAether();
 }

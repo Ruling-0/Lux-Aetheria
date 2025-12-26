@@ -73,6 +73,11 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     }
 
     @Override
+    public AethericEnergyUnit getAmbientAether() {
+        return this.ambientAether;
+    }
+
+    @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
         return true;
     }
