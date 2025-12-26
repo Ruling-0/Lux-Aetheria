@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
+import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -13,6 +14,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 public enum LABlocks {
     // spotless:off
 
+    AETHERIC_FURNACE(true, new BlockAethericFurnace(false), "aetheric_furnace"),
+    AETHERIC_FURNACE_LIT(true, new BlockAethericFurnace(true), "aetheric_furance_lit"),
     COLLECTOR_PYLON(true, new BlockCollectorPylon(), "collector_pylon"),
     ;
 
@@ -23,7 +26,7 @@ public enum LABlocks {
     public static void init() {
         for (LABlocks blockEntry : VALUES) {
             if (blockEntry.isEnabled()) {
-                blockEntry.block.setCreativeTab(LuxAetheria.tabLuxAetheria);
+                if (blockEntry.addToTab) blockEntry.block.setCreativeTab(LuxAetheria.tabLuxAetheria);
                 if (blockEntry.getItemBlock() != null || !blockEntry.getHasItemBlock()) {
                     /*
                      * This part is used if the getItemBlock() is not ItemBlock.class,
@@ -36,12 +39,15 @@ public enum LABlocks {
                     // Register with default item if getItemBlock() == null but getHasItemBlock() is true.
                     GameRegistry.registerBlock(blockEntry.get(), blockEntry.name);
                 }
+                blockEntry.block.setBlockName(blockEntry.name);
+                blockEntry.block.setBlockTextureName("luxaetheria:" + blockEntry.name);
             }
         }
     }
 
     private final boolean isEnabled;
     private final Block block;
+    private final boolean addToTab;
     /**
      * null == default ItemBlock
      */
@@ -54,14 +60,19 @@ public enum LABlocks {
     private final String name;
 
     LABlocks(Boolean enabled, Block block, String name) {
-        this(enabled, block, null, name);
+        this(enabled, block, name, true);
+    }
+
+    LABlocks(Boolean enabled, Block block, String name, Boolean addToTab) {
+        this(enabled, block, null, name, addToTab);
         this.hasItemBlock = true;
     }
 
-    LABlocks(Boolean enabled, Block block, Class<? extends ItemBlock> itemBlock, String name) {
+    LABlocks(Boolean enabled, Block block, Class<? extends ItemBlock> itemBlock, String name, Boolean addToTab) {
         this.isEnabled = enabled;
         this.block = block;
         this.itemBlock = itemBlock;
+        this.addToTab = addToTab;
         this.hasItemBlock = itemBlock != null;
         this.name = name;
     }
