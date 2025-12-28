@@ -10,7 +10,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
 import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
 
+import com.ruling_0.luxaetheria.api.AetherConstants;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class AetherManager {
 
@@ -23,12 +25,13 @@ public class AetherManager {
 
     public void init() {
         AetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        AetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
         AetherRootCollectors = new HashSet<>();
         AetherSearchQueue = new ArrayDeque<>();
         AetherUpdateQueue = new HashSet<>();
     }
 
-    public void enableCollector(IAetherCollector collector, int dim, int x, int y, int z) {
+    public void enableCollector(@NotNull IAetherCollector collector, int dim, int x, int y, int z) {
         if (collector.isRemote()) return;
         // TODO: PR to GTNHLib that returns count from forEachInRange
         AtomicInteger count = new AtomicInteger();
@@ -40,28 +43,30 @@ public class AetherManager {
         });
         collector.bulkUpdateCollectors(-totalCollection.get(), count.get());
         AetherCollectors.put(collector, dim, x, y, z, collector.getCollectorRange());
+        AetherReleasers.forEachInRange(dim, x, y, z, collector::addReleaserInRange);
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.add(manipulator);
     }
 
-    public void disableCollector(IAetherCollector collector, int dim, int x, int y, int z) {
+    public void disableCollector(@NotNull IAetherCollector collector, int dim, int x, int y, int z) {
         if (collector.isRemote()) return;
         AetherCollectors.remove(dim, x, y, z);
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeCollectorInRange(collector));
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.remove(manipulator);
     }
 
-    public void enableReleaser(IAetherReleaser releaser, int dim, int x, int y, int z) {
+    public void enableReleaser(@NotNull IAetherReleaser releaser, int dim, int x, int y, int z) {
         if (releaser.isRemote()) return;
+        AetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.addReleaserInRange(releaser));
     }
 
-    public void disableReleaser(IAetherReleaser releaser, int dim, int x, int y, int z) {
+    public void disableReleaser(@NotNull IAetherReleaser releaser, int dim, int x, int y, int z) {
         if (releaser.isRemote()) return;
+        AetherReleasers.remove(dim, x, y, z);
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeReleaserInRange(releaser));
     }
 
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        // TODO: Process aether chains through BFS starting with collectors. No loops!
         /*
          * Starting with known collectors, calculate Aether propagation using BFS.
          * Loops are handled in manipulators' getAetherFromSource
