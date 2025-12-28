@@ -15,7 +15,7 @@ public enum LABlocks {
     // spotless:off
 
     AETHERIC_FURNACE(true, new BlockAethericFurnace(false), "aetheric_furnace"),
-    AETHERIC_FURNACE_LIT(true, new BlockAethericFurnace(true), "aetheric_furance_lit"),
+    AETHERIC_FURNACE_LIT(true, new BlockAethericFurnace(true), "aetheric_furance_lit", false),
     COLLECTOR_PYLON(true, new BlockCollectorPylon(), "collector_pylon"),
     ;
 
@@ -40,7 +40,7 @@ public enum LABlocks {
                     GameRegistry.registerBlock(blockEntry.get(), blockEntry.name);
                 }
                 blockEntry.block.setBlockName(blockEntry.name);
-                blockEntry.block.setBlockTextureName("luxaetheria:" + blockEntry.name);
+                blockEntry.block.setBlockTextureName(LuxAetheria.MODID + ":" + blockEntry.name);
             }
         }
     }

@@ -182,6 +182,7 @@ public class AethericEnergyUnit {
     }
 
     public void split(@Nonnull AethericEnergyUnit outgoing) {
+        if (outgoing.amount == 0L) return;
         this.amount -= outgoing.amount;
         if (this.amount == 0) {
             Arrays.fill(this.aspects, 1.0D);

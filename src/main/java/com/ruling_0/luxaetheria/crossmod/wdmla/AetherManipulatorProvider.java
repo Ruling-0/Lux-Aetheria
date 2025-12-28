@@ -35,7 +35,14 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
                 + ": " + aetherOut));
             tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_ambient")
                 + ": " + collector.getAmbientAether()));
+            return;
         }
+        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_in")
+            + ": " + aetherIn));
+        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_out")
+            + ": " + aetherOut));
+        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_release")
+            + ": " + aetherRelease));
     }
 
     @Override

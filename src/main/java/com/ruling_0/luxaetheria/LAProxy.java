@@ -1,10 +1,12 @@
 package com.ruling_0.luxaetheria;
 
 import com.gtnewhorizons.wdmla.impl.WDMlaCommonRegistration;
+import com.ruling_0.luxaetheria.common.aether.AetherEventHandler;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
 import com.ruling_0.luxaetheria.crossmod.Mods;
 import com.ruling_0.luxaetheria.crossmod.wdmla.LuxAetheriaWDMLAPlugin;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -25,6 +27,7 @@ public class LAProxy {
         LuxAetheria.LOG.info("I am Lux Aetheria at version " + Tags.VERSION);
 
         LABlocks.init();
+        LAItems.init();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
@@ -34,18 +37,9 @@ public class LAProxy {
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
-//        if (Mods.WDMLA.isModLoaded()) {
-//            WDMlaCommonRegistration wdmlaCommon = WDMlaCommonRegistration.instance();
-//            LuxAetheriaWDMLAPlugin().register();
-//        }
+        FMLCommonHandler.instance().bus().register(new AetherEventHandler());
     }
 
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
-
-    @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if (!event.side.isServer()) return;
-        aetherManager.onWorldTick(event);
-    }
 }

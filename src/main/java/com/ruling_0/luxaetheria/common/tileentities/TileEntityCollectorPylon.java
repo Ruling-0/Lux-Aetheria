@@ -19,7 +19,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     private final AethericEnergyUnit ambientAether;
 
     private double collectorEfficiency = 1.0D;
-    private int collectorsInRange = 0;
+    private int collectorsInRange = 1;
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
     private boolean isEnabled = true; // TODO function for toggling on/off
 
@@ -43,6 +43,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void addCollectorInRange(IAetherCollector collector) {
+        if (collector == this) return;
         this.collectorsInRange++;
         this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
         this.ambientAether.amount = this.ambientAether.amount - collector.getAetherCollectionAmount();
@@ -64,7 +65,9 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void addReleaserInRange(IAetherReleaser releaser) {
-        this.aetherReleasers.put(releaser, releaser.getAetherRelease());
+        AethericEnergyUnit release = new AethericEnergyUnit(releaser.getAetherRelease());
+        this.aetherRelease.merge(release);
+        this.aetherReleasers.put(releaser, release);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
         // TODO: handle insufficient ambient aether
         this.aetherOut.amount = Math.min(this.getAetherCollectionAmount(), this.ambientAether.amount)
             / this.aetherSinks.size();
-        long loss = (long) (this.aetherOut.amount * Math.exp(-0.003D * dist));
+        long loss = (long) (this.aetherOut.amount * (1 - Math.exp(-0.003D * dist)));
         this.aetherOut.amount = Math.max(0L, this.aetherOut.amount - loss);
         this.aetherOut.updateID(tick, this.aetherSinks.indexOf(sink));
         this.totalLoss += loss;
@@ -103,22 +106,29 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void updateAether() {
+        if (this.aetherSinks.isEmpty()) return;
+
         this.ambientAether.amount -= this.getAetherCollectionAmount();
         this.ambientAether.amount += this.totalLoss;
         for (Map.Entry<IAetherReleaser, AethericEnergyUnit> entry : this.aetherReleasers.entrySet()) {
             AethericEnergyUnit newRelease = entry.getKey()
                 .getAetherRelease();
             if (newRelease.equals(entry.getValue())) continue;
-            this.ambientAether.split(entry.getValue());
-            this.ambientAether.merge(newRelease);
+            this.aetherRelease.split(entry.getValue());
+            this.aetherRelease.merge(newRelease);
+            entry.getValue().setToOther(newRelease);
         }
+        this.ambientAether.merge(this.aetherRelease);
+        this.totalLoss = 0;
     }
 
     @Override
     public void enable() {
         this.ambientAether.updateID(0, 0, this);
-        LAProxy.aetherManager
-            .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        if (!this.worldObj.isRemote) {
+            LAProxy.aetherManager
+                .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        }
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.addAetherSource(this);
         }
@@ -129,8 +139,10 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void disable() {
-        LAProxy.aetherManager
-            .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        if (!this.worldObj.isRemote) {
+            LAProxy.aetherManager
+                .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
+        }
         for (IAetherManipulator sink : this.aetherSinks) {
             sink.removeAetherSource(this);
         }
@@ -154,5 +166,10 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     public void validate() {
         super.validate();
         this.enable();
+    }
+
+    @Override
+    public boolean isRemote() {
+        return this.worldObj.isRemote;
     }
 }

@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.items;
 
 import java.util.Iterator;
 
+import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,7 @@ public class ItemPylonBinder extends Item {
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide,
         float hitx, float hity, float hitz) {
+        if (world.isRemote) return true;
         TileEntity te = world.getTileEntity(x, y, z);
         if (te == null) return false;
         if (te instanceof IAetherManipulator aetherManipulator) {
@@ -51,8 +53,8 @@ public class ItemPylonBinder extends Item {
                 } else {
                     Vec3 boundVec = boundManipulator.getPosVec3();
                     Vec3 targetVec = Vec3.createVectorHelper(x, y, z);
-                    MovingObjectPosition mop = world.rayTraceBlocks(boundVec, targetVec, true);
-                    if (mop != null) {
+                    boolean pathClear = LAUtils.checkRayCollision(world, boundVec, targetVec, true);
+                    if (!pathClear) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
                         return true;
                     }

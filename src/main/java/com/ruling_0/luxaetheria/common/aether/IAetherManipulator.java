@@ -31,6 +31,8 @@ public interface IAetherManipulator {
     @Nonnull
     BlockPos getPosBlockPos();
 
+    boolean validateSink(IAetherManipulator sink);
+
     @Nonnull
     AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist);
 
@@ -38,7 +40,7 @@ public interface IAetherManipulator {
      * For a given source, calculates the received aether, introducing loss.
      * If this is called more than once with the same source and tick, the later
      * amounts are released back to the environment.
-     * 
+     *
      * @param source The upstream manipulator
      * @param tick   The tick this is calculated on
      */

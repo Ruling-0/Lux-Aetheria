@@ -3,7 +3,9 @@ package com.ruling_0.luxaetheria.common.tileentities;
 import java.util.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,13 +31,15 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     protected int maxAetherSources = 1;
     protected int maxAetherSinks = 1;
-    protected HashMap<IAetherManipulator, Double> aetherSources;
-    protected ArrayList<IAetherManipulator> aetherSinks;
-    protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs;
+    protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
+    protected ArrayList<IAetherManipulator> aetherSinks = new ArrayList<>();
+    protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
 
     public TileEntityAethericFurnace() {
         super();
-        this.aetherRelease = new AethericEnergyUnit(0);
+        this.aetherIn = new AethericEnergyUnit();
+        this.aetherOut = new AethericEnergyUnit();
+        this.aetherRelease = new AethericEnergyUnit();
     }
 
     @Override
@@ -82,7 +86,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     @Nonnull
     @Override
     public Vec3 getPosVec3() {
-        return Vec3.createVectorHelper(this.xCoord, this.yCoord, this.zCoord);
+        return Vec3.createVectorHelper(this.xCoord + 0.5, this.yCoord + 0.5, this.zCoord + 0.5);
     }
 
     @Nonnull
@@ -92,11 +96,17 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
 
     @Override
+    public boolean validateSink(@Nullable IAetherManipulator sink) {
+        if (sink == null) return false;
+        return LAUtils.checkRayCollision(this.worldObj, this.getPosVec3(), sink.getPosVec3(), true);
+    }
+    @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = source.getAetherOut(tick, this, dist);
         if (this.encounteredIDs.add(incoming.id)) {
             this.aetherIn.merge(incoming);
+            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
             return true;
         } else {
             this.aetherRelease.merge(incoming);
@@ -268,5 +278,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         this.aetherIn.reset();
         this.aetherRelease.reset();
         this.encounteredIDs = new HashSet<>();
+    }
+
+    @Override
+    public boolean isRemote() {
+        return this.worldObj.isRemote;
     }
 }

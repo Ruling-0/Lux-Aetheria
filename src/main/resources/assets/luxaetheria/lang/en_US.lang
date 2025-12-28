@@ -2,12 +2,13 @@ LA.aether.aspect_red=TEMP RED
 LA.aether.aspect_green=TEMP GREEN
 LA.aether.aspect_blue=TEMP BLUE
 
-LA.binder.unbound=Connection unbound
 LA.binder.bound=Connection bound
-LA.binder.fail.remove_source=Binding failed: cannot remove source
+LA.binder.unbound=Connection unbound
+LA.binder.fail.blocked=Binding failed: no clear line between source and sink
 LA.binder.fail.remove_sink=Binding failed: cannot remove sink
-LA.binder.fail.add_source=Binding failed: invalid source
+LA.binder.fail.remove_source=Binding failed: cannot remove source
 LA.binder.fail.add_sink=Binding failed: invalid sink
+LA.binder.fail.add_source=Binding failed: invalid source
 
 LA.waila.aether_in=Aether In
 LA.waila.aether_out=Aether Out

@@ -3,7 +3,9 @@ package com.ruling_0.luxaetheria.common.tileentities;
 import java.util.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -93,13 +95,19 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     @Nonnull
     @Override
     public Vec3 getPosVec3() {
-        return Vec3.createVectorHelper(this.xCoord, this.yCoord, this.zCoord);
+        return Vec3.createVectorHelper(this.xCoord + 0.5, this.yCoord + 0.5, this.zCoord + 0.5);
     }
 
     @Nonnull
     @Override
     public BlockPos getPosBlockPos() {
         return new BlockPos(this.xCoord, this.yCoord, this.zCoord);
+    }
+
+    @Override
+    public boolean validateSink(@Nullable IAetherManipulator sink) {
+        if (sink == null) return false;
+        return LAUtils.checkRayCollision(this.worldObj, this.getPosVec3(), sink.getPosVec3(), true);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -46,6 +47,7 @@ public class LuxAetheria {
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
 
+        GameRegistry.registerTileEntity(TileEntityAethericFurnace.class, "LATileEntityAethericFurnace");
         GameRegistry.registerTileEntity(TileEntityCollectorPylon.class, "LATileEntityCollectorPylon");
     }
 

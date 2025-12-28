@@ -22,4 +22,6 @@ public interface IAetherCollector {
     void removeReleaserInRange(IAetherReleaser releaser);
 
     AethericEnergyUnit getAmbientAether();
+
+    boolean isRemote();
 }
