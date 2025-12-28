@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria.common.aether;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
@@ -10,40 +11,36 @@ import net.minecraft.tileentity.TileEntity;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
 public class AethericEnergyUnit {
 
-    public long amount = 0L;
-    public double[] aspects = { 1.0D, 1.0D, 1.0D };
-    public AEUID id;
+    protected long amount = 0L;
+    protected double[] aspectRatios = { 0.0D, 0.0D, 0.0D };
+    protected AEUID id;
 
     public AethericEnergyUnit() {
-        this.init(0, 0, 0, 0, 0);
+        this(0);
     }
 
     public AethericEnergyUnit(long amount) {
-        this.init(amount, 0, 0, 0, 0);
+        this(amount, 0, 0, 0, 0);
     }
 
     public AethericEnergyUnit(long amount, long origin, long tick, int dim) {
-        this.init(amount, origin, tick, 0, dim);
+        this(amount, origin, tick, 0, dim);
     }
 
     public AethericEnergyUnit(long amount, long origin, long tick, int dim, int output) {
-        this.init(amount, origin, tick, output, dim);
+        this.amount = amount;
+        Arrays.fill(this.aspectRatios, 1.0D);
+        this.id = new AEUID(origin, tick, output, dim);
     }
 
-    public AethericEnergyUnit(long amount, TileEntity te) {
-        this.initFromTE(amount, te, 0, 0);
-    }
-
-    public AethericEnergyUnit(long amount, TileEntity te, long tick) {
-        this.initFromTE(amount, te, tick, 0);
-    }
-
-    public AethericEnergyUnit(long amount, TileEntity te, long tick, int output) {
-        this.initFromTE(amount, te, tick, output);
+    public AethericEnergyUnit(long amount, double[] aspectRatios, long origin, long tick, int dim, int output) {
+        this(amount, origin, tick, 0, dim);
+        if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
+        else
+            System.arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length, this.aspectRatios.length));
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
@@ -111,31 +108,22 @@ public class AethericEnergyUnit {
         }
     }
 
-    public void init(long amount, long origin, long tick, int output, int dim) {
-        this.amount = amount;
-        this.id = new AEUID(origin, tick, output, dim);
-    }
-
-    public void initFromTE(long amount, TileEntity te, long tick, int output) {
-        this.amount = amount;
-        this.id = new AEUID(te, tick, output);
-    }
-
     public void setToOther(@Nonnull AethericEnergyUnit otherAeU) {
         this.amount = otherAeU.amount;
-        this.aspects = otherAeU.aspects.clone();
+        this.aspectRatios = otherAeU.aspectRatios.clone();
         this.id = otherAeU.id;
     }
 
     @Override
     public String toString() {
+        DecimalFormat df = new DecimalFormat("#.##");
         return this.amount + " ("
-            + EnumChatFormatting.RED + this.aspects[AetherAspects.RED.index]
-            + EnumChatFormatting.RESET + ", "
-            + EnumChatFormatting.GREEN + this.aspects[AetherAspects.GREEN.index]
-            + EnumChatFormatting.RESET + ", "
-            + EnumChatFormatting.BLUE + this.aspects[AetherAspects.BLUE.index]
-            + EnumChatFormatting.RESET + ")";
+            + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index))
+            + EnumChatFormatting.RESET + "%, "
+            + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index))
+            + EnumChatFormatting.RESET + "%, "
+            + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index))
+            + EnumChatFormatting.RESET + "%)";
     }
 
     @Override
@@ -144,8 +132,8 @@ public class AethericEnergyUnit {
         if (other == null || getClass() != other.getClass()) return false;
         AethericEnergyUnit that = (AethericEnergyUnit) other;
         if (this.amount != that.amount) return false;
-        for (int i = 0; i < this.aspects.length; i++) {
-            if (this.aspects[i] != that.aspects[i]) return false;
+        for (int i = 0; i < this.aspectRatios.length; i++) {
+            if (this.aspectRatios[i] != that.aspectRatios[i]) return false;
         }
         return this.id == that.id;
     }
@@ -159,49 +147,95 @@ public class AethericEnergyUnit {
         this.id.setVals(te, tick, output);
     }
 
+    public AEUID getID() {
+        return this.id;
+    }
+
+    public long getAmount() {
+        return this.amount;
+    }
+
+    public void setAmount(long amount) {
+        this.amount = amount;
+    }
+
+    public void addAmount(long amount) {
+        this.amount += amount;
+    }
+
     public long getAspectAmount(int index) {
-        return (long) (this.amount * this.aspects[index]);
+        return (long) (this.amount * this.aspectRatios[index]);
+    }
+
+    public double getAspectRatio(int index) {
+        return this.aspectRatios[index];
     }
 
     public void reset() {
         this.amount = 0L;
-        Arrays.fill(this.aspects, 1.0D);
+        Arrays.fill(this.aspectRatios, 0.0D);
+    }
+
+    protected void recalculateRatios(long[] aspects) {
+        for (int i = 0; i < this.aspectRatios.length; ++i) {
+            this.aspectRatios[i] = (double) aspects[i] / this.amount;
+        }
     }
 
     public void merge(AethericEnergyUnit incoming) {
-        if (this.amount == 0L) {
+        if (this.getAmount() == 0L) {
             this.setToOther(incoming);
-        } else {
-            double propIncoming = (double) incoming.amount / this.amount;
-            double propCurrent = 1.0D - propIncoming;
-            for (int i = 0; i < this.aspects.length; i++) {
-                this.aspects[i] = propIncoming * incoming.aspects[i] + propCurrent * this.aspects[i];
-            }
-            this.amount += incoming.amount;
+            return;
         }
+        long[] tempAspects = new long[AetherAspects.values().length];
+        long tempAmount = this.getAmount();
+        for (int i = 0; i < this.aspectRatios.length; ++i) {
+            tempAspects[i] = this.getAspectAmount(i) + incoming.getAspectAmount(i);
+            if (tempAspects[i] > tempAmount) tempAmount = tempAspects[i];
+        }
+        this.setAmount(tempAmount);
+        this.recalculateRatios(tempAspects);
     }
 
     public void split(@Nonnull AethericEnergyUnit outgoing) {
-        if (outgoing.amount == 0L) return;
-        this.amount -= outgoing.amount;
-        if (this.amount == 0) {
-            Arrays.fill(this.aspects, 1.0D);
-        } else {
-            double propOutgoing = (double) outgoing.amount / this.amount;
-            double propCurrent = 1.0D - propOutgoing;
-            for (int i = 0; i < this.aspects.length; i++) {
-                this.aspects[i] = propOutgoing * outgoing.aspects[i] / propCurrent;
+        if (outgoing.getAmount() == 0L) return;
+        long[] tempIAspects = new long[AetherAspects.values().length];
+        long[] tempOAspects = new long[AetherAspects.values().length];
+        long tempIAmount = 0L;
+        long tempOAmount = 0L;
+        boolean changedOut = false;
+        for (int i = 0; i < this.aspectRatios.length; ++i) {
+            if (this.getAspectAmount(i) < outgoing.getAspectAmount(i)) {
+                changedOut = true;
+                tempOAspects[i] = this.getAspectAmount(i);
+                tempIAspects[i] = 0L;
+                if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
             }
+            tempIAspects[i] = this.getAspectAmount(i) - outgoing.getAspectAmount(i);
+            if (tempIAspects[i] > tempIAmount) tempIAmount = tempIAspects[i];
+            if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
         }
+        this.setAmount(tempIAmount);
+        outgoing.setAmount(tempOAmount);
+        this.recalculateRatios(tempIAspects);
+        if (changedOut) outgoing.recalculateRatios(tempOAspects);
+    }
+
+    public void moveToEquilibrium(@Nonnull AethericEnergyUnit toMove) {
+
+    }
+
+    public void moveToEquilibrium(@Nonnull AethericEnergyUnit toMove, long amount, double[] aspects) {
+
     }
 
     public void writeToNBT(@Nonnull NBTTagCompound compound) {
         compound.setLong("amount", this.amount);
         NBTTagList nbtAspects = new NBTTagList();
-        for (int i = 0; i < this.aspects.length; i++) {
+        for (int i = 0; i < this.aspectRatios.length; i++) {
             NBTTagCompound aspect = new NBTTagCompound();
             aspect.setByte("index", (byte) i);
-            aspect.setDouble("amount", this.aspects[i]);
+            aspect.setDouble("amount", this.aspectRatios[i]);
             nbtAspects.appendTag(aspect);
         }
         compound.setTag("aspects", nbtAspects);
@@ -216,7 +250,7 @@ public class AethericEnergyUnit {
         for (int i = 0; i < nbtAspects.tagCount(); i++) {
             NBTTagCompound aspect = nbtAspects.getCompoundTagAt(i);
             int index = aspect.getByte("index") & 0xFF;
-            this.aspects[index] = aspect.getDouble("amount");
+            this.aspectRatios[index] = aspect.getDouble("amount");
         }
         NBTTagCompound nbtID = compound.getCompoundTag("id");
         this.id.readFromNBT(nbtID);

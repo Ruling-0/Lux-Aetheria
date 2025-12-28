@@ -35,16 +35,11 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     protected ArrayList<IAetherManipulator> aetherSinks;
 
     public BaseAetherManipulator() {
-        super();
-        this.init(1, 1);
+        this(1, 1);
     }
 
     public BaseAetherManipulator(int maxAetherSources, int maxAetherSinks) {
         super();
-        this.init(maxAetherSources, maxAetherSinks);
-    }
-
-    public void init(int maxAetherSources, int maxAetherSinks) {
         this.maxAetherSources = maxAetherSources;
         this.maxAetherSinks = maxAetherSinks;
         this.aetherSources = new HashMap<>(maxAetherSources);
@@ -114,7 +109,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = source.getAetherOut(tick, this, dist);
-        if (this.encounteredIDs.add(incoming.id)) {
+        if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
             return true;
         } else {
@@ -127,11 +122,11 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     @Override
     public AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist) {
         this.aetherOut.setToOther(this.aetherIn);
-        this.aetherOut.amount = this.aetherIn.amount / this.aetherSinks.size();
-        long loss = (long) (this.aetherOut.amount * Math.exp(-0.003D * dist));
-        this.aetherOut.amount = Math.max(0L, this.aetherOut.amount - loss);
+        this.aetherOut.setAmount(this.aetherIn.getAmount() / this.aetherSinks.size());
+        long loss = (long) (this.aetherOut.getAmount() * Math.exp(-0.003D * dist));
+        this.aetherOut.setAmount(Math.max(0L, this.aetherOut.getAmount() - loss));
         AethericEnergyUnit toRelease = new AethericEnergyUnit(this.aetherOut);
-        toRelease.amount = loss;
+        toRelease.setAmount(loss);
         this.aetherRelease.merge(toRelease);
         return this.aetherOut;
     }
