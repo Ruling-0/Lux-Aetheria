@@ -12,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
+import org.jetbrains.annotations.NotNull;
 
 public enum AetherManipulatorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
@@ -21,7 +22,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     public ResourceLocation getUid() { return Identifiers.PROV_AETHERMANIPULATOR; }
 
     @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor) {
+    public void appendTooltip(ITooltip tooltip, @NotNull BlockAccessor accessor) {
         AethericEnergyUnit aetherIn = new AethericEnergyUnit();
         AethericEnergyUnit aetherOut = new AethericEnergyUnit();
         AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
@@ -29,7 +30,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
         aetherIn.readFromNBT((NBTTagCompound) compound.getTag("aetherIn"));
         aetherOut.readFromNBT((NBTTagCompound) compound.getTag("aetherOut"));
         aetherRelease.readFromNBT((NBTTagCompound) compound.getTag("aetherRelease"));
-        TileEntity te =  accessor.getTileEntity();
+        TileEntity te = accessor.getTileEntity();
         if (te instanceof IAetherCollector collector) {
             tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_out")
                 + ": " + aetherOut));
@@ -46,7 +47,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     }
 
     @Override
-    public void appendServerData(NBTTagCompound data, BlockAccessor accessor) {
+    public void appendServerData(NBTTagCompound data, @NotNull BlockAccessor accessor) {
         TileEntity te = accessor.getTileEntity();
         if (te == null) return;
         te.writeToNBT(data);

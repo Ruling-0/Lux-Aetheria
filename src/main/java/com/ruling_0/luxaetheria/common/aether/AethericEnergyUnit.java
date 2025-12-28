@@ -117,7 +117,7 @@ public class AethericEnergyUnit {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("#.##");
+        DecimalFormat df = new DecimalFormat("0.00");
         return this.amount + " ("
             + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index))
             + EnumChatFormatting.RESET + "%, "

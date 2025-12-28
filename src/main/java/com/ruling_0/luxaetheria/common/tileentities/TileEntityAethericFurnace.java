@@ -34,6 +34,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
     protected ArrayList<IAetherManipulator> aetherSinks = new ArrayList<>();
     protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
+    protected boolean doResetAether = false;
 
     public TileEntityAethericFurnace() {
         super();
@@ -102,6 +103,12 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
     @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
+        if (this.doResetAether) {
+            this.doResetAether = false;
+            this.aetherIn.reset();
+            this.aetherRelease.reset();
+            this.encounteredIDs = new HashSet<>();
+        }
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = source.getAetherOut(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
@@ -275,9 +282,8 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
             this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
         }
         super.updateEntity();
-        this.aetherIn.reset();
-        this.aetherRelease.reset();
-        this.encounteredIDs = new HashSet<>();
+        // This is used so the aether values are available to WAILA
+        this.doResetAether = true;
     }
 
     @Override
