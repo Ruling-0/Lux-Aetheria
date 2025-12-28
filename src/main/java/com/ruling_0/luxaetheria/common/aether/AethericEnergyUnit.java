@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.AetherAspects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;

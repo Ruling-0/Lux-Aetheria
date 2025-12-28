@@ -18,7 +18,7 @@ import org.joml.Vector3i;
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.ruling_0.luxaetheria.LAProxy;
-import com.ruling_0.luxaetheria.common.aether.AetherAspects;
+import com.ruling_0.luxaetheria.api.AetherAspects;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;

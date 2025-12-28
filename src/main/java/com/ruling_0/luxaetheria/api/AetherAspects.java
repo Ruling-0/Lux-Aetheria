@@ -1,4 +1,4 @@
-package com.ruling_0.luxaetheria.common.aether;
+package com.ruling_0.luxaetheria.api;
 
 public enum AetherAspects {
 

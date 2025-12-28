@@ -15,6 +15,7 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 public class AetherManager {
 
     private static ArrayProximityMap4D<IAetherCollector> AetherCollectors;
+    private static ArrayProximityMap4D<IAetherReleaser> AetherReleasers;
     private static HashSet<IAetherManipulator> AetherRootCollectors;
     private static Deque<IAetherManipulator> AetherSearchQueue;
     private static HashSet<IAetherManipulator> AetherUpdateQueue;
