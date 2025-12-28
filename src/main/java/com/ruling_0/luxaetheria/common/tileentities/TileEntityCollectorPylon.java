@@ -10,6 +10,7 @@ import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import org.jetbrains.annotations.NotNull;
 
 public class TileEntityCollectorPylon extends BaseAetherManipulator implements IAetherCollector {
 
@@ -50,7 +51,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     }
 
     @Override
-    public void removeCollectorInRange(IAetherCollector collector) {
+    public void removeCollectorInRange(@NotNull IAetherCollector collector) {
         this.collectorsInRange--;
         this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
         this.ambientAether.addAmount(collector.getAetherCollectionAmount());
@@ -64,7 +65,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     }
 
     @Override
-    public void addReleaserInRange(IAetherReleaser releaser) {
+    public void addReleaserInRange(@NotNull IAetherReleaser releaser) {
         AethericEnergyUnit release = new AethericEnergyUnit(releaser.getAetherRelease());
         this.aetherRelease.merge(release);
         this.aetherReleasers.put(releaser, release);

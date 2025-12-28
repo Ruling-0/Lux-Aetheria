@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import net.minecraft.util.EnumChatFormatting;
+import org.jetbrains.annotations.NotNull;
 
 public class AethericEnergyUnit {
 
@@ -36,7 +37,7 @@ public class AethericEnergyUnit {
         this.id = new AEUID(origin, tick, output, dim);
     }
 
-    public AethericEnergyUnit(long amount, double[] aspectRatios, long origin, long tick, int dim, int output) {
+    public AethericEnergyUnit(long amount, double @NotNull [] aspectRatios, long origin, long tick, int dim, int output) {
         this(amount, origin, tick, 0, dim);
         if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
         else
@@ -65,7 +66,7 @@ public class AethericEnergyUnit {
             this.dim = dim;
         }
 
-        public void setVals(TileEntity te, long tick, int output) {
+        public void setVals(@NotNull TileEntity te, long tick, int output) {
             this.origin = CoordinatePacker.pack(te.xCoord, te.yCoord, te.zCoord);
             this.tick = tick;
             this.output = output;
