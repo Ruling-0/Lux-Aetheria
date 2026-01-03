@@ -12,10 +12,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 
-import org.joml.Vector3i;
-
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
@@ -32,7 +29,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
     protected int maxAetherSinks;
     protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
-    protected HashMap<Long, IAetherManipulator> aetherSinks;
+    protected HashMap<Long, Pair<IAetherManipulator, Integer>> aetherSinks;
     protected long[] aetherOutputs;
 
     public BaseAetherManipulator() {
@@ -53,7 +50,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
             for (int i = 0; i < this.maxAetherSinks; ++i) {
                 if (this.aetherOutputs[i] == -1L) {
                     this.aetherOutputs[i] = sink.getPosBlockPos().asLong();
-                    this.aetherSinks.put(sink.getPosBlockPos().asLong(), sink);
+                    this.aetherSinks.put(sink.getPosBlockPos().asLong(), Pair.of(sink, sink.getDimension()));
                     return true;
                 }
             }
@@ -75,7 +72,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     }
 
     @Override
-    public Iterator<Map.Entry<Long, IAetherManipulator>> getAetherSinksIter() {
+    public Iterator<Map.Entry<Long, Pair<IAetherManipulator, Integer>>> getAetherSinksIter() {
         return this.aetherSinks.entrySet().iterator();
     }
 
@@ -91,7 +88,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     @Override
     public IAetherManipulator getOutput(long coords) {
         for (int i = 0; i < this.maxAetherSinks; ++i) {
-            if (this.aetherOutputs[i] == coords) return this.aetherSinks.get(coords);
+            if (this.aetherOutputs[i] == coords) return this.aetherSinks.get(coords).left();
         }
         return null;
     }
@@ -113,6 +110,11 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     @Override
     public BlockPos getPosBlockPos() {
         return new BlockPos(this.xCoord, this.yCoord, this.zCoord);
+    }
+
+    @Override
+    public int getDimension() {
+        return this.worldObj.provider.dimensionId;
     }
 
     @Override
@@ -182,6 +184,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
             if (this.aetherOutputs[i] == -1L) continue;
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
             nbtAetherSink.setLong("coords", this.aetherOutputs[i]);
+            nbtAetherSink.setInteger("dim", this.aetherSinks.get(this.aetherOutputs[i]).right());
             nbtAetherSink.setByte("idx", (byte) i);
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
@@ -200,7 +203,8 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         for (int i = 0; i < nbtAetherSinks.tagCount(); ++i) {
             NBTTagCompound nbtAetherSink = nbtAetherSinks.getCompoundTagAt(i);
             long coords = nbtAetherSink.getLong("coords");
-            this.aetherSinks.put(coords, null);
+            int dim = nbtAetherSink.getInteger("dim");
+            this.aetherSinks.put(coords, Pair.of(null, dim));
             this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
     }

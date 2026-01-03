@@ -1,6 +1,7 @@
 package com.ruling_0.luxaetheria;
 
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
+import cpw.mods.fml.common.event.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -12,10 +13,6 @@ import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 @Mod(modid = LuxAetheria.MODID, version = Tags.VERSION, name = "Lux Aetheria", acceptedMinecraftVersions = "[1.7.10]")
@@ -61,5 +58,10 @@ public class LuxAetheria {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
         proxy.serverStarting(event);
+    }
+
+    @Mod.EventHandler
+    public void serverStopped(FMLServerStoppedEvent event) {
+        proxy.serverStopped(event);
     }
 }

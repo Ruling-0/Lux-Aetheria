@@ -10,9 +10,13 @@ import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.ruling_0.luxaetheria.api.AetherConstants;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraft.client.Minecraft;
+import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.event.world.WorldEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class AetherManager {
@@ -24,7 +28,7 @@ public class AetherManager {
     private static HashSet<IAetherManipulator> AetherUpdateQueue;
     private long serverTick = 0L;
 
-    public void init() {
+    public AetherManager() {
         AetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
         AetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
         AetherRootCollectors = new HashSet<>();
@@ -75,31 +79,33 @@ public class AetherManager {
         AetherSearchQueue.clear();
         AetherSearchQueue.addAll(AetherRootCollectors);
         this.serverTick++;
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         while (!AetherSearchQueue.isEmpty()) {
             IAetherManipulator curr = AetherSearchQueue.pop();
-            Iterator<Map.Entry<Long, IAetherManipulator>> iterSinks = curr.getAetherSinksIter();
+            Iterator<Map.Entry<Long, Pair<IAetherManipulator, Integer>>> iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {
                 // TODO: listen for block updates and only check collision in range
-                Map.Entry<Long, IAetherManipulator> entry = iterSinks.next();
-                if (entry.getValue() == null) {
+                Map.Entry<Long, Pair<IAetherManipulator, Integer>> entry = iterSinks.next();
+                if (entry.getValue().left() == null) {
                     BlockPos pos = new BlockPos();
                     CoordinatePacker.unpack(entry.getKey(), pos);
-                    TileEntity te = Minecraft.getMinecraft().theWorld.getTileEntity(pos.x, pos.y, pos.z);
+                    World dim = server.worldServerForDimension(entry.getValue().right());
+                    TileEntity te = dim.getTileEntity(pos.x, pos.y, pos.z);
                     if (te instanceof IAetherManipulator sink) {
-                        entry.setValue(sink);
+                        entry.setValue(Pair.of(sink, entry.getValue().right()));
                     } else {
                         iterSinks.remove();
                         continue;
                     }
                 }
-                IAetherManipulator next = entry.getValue();
+                IAetherManipulator next = entry.getValue().left();
                 if (curr.validateSink(next)) {
                     AetherSearchQueue.push(next);
                 }
             }
             iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next().getValue();
+                IAetherManipulator next = iterSinks.next().getValue().left();
                 boolean shouldPropagate = next.getAetherFromSource(curr, this.serverTick);
                 if (shouldPropagate) AetherSearchQueue.push(next);
             }
@@ -109,5 +115,13 @@ public class AetherManager {
             curr.updateAether();
         }
         AetherUpdateQueue.clear();
+    }
+
+    public void reset() {
+        AetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        AetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        AetherRootCollectors = new HashSet<>();
+        AetherSearchQueue = new ArrayDeque<>();
+        AetherUpdateQueue = new HashSet<>();
     }
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.ruling_0.luxaetheria.LAProxy;
+import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
@@ -133,14 +134,14 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     public void enable() {
         if (this.worldObj.isRemote) return;
         this.ambientAether.updateID(0, 0, this);
-        LAProxy.aetherManager
+        LuxAetheria.proxy.aetherManager
             .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
     public void disable() {
         if (this.worldObj.isRemote) return;
-        LAProxy.aetherManager
+        LuxAetheria.proxy.aetherManager
             .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 

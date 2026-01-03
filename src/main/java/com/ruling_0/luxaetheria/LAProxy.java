@@ -7,16 +7,13 @@ import com.ruling_0.luxaetheria.common.aether.AetherManager;
 import com.ruling_0.luxaetheria.crossmod.Mods;
 import com.ruling_0.luxaetheria.crossmod.wdmla.LuxAetheriaWDMLAPlugin;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 
 public class LAProxy {
 
-    public static final AetherManager aetherManager = new AetherManager();
+    public final AetherManager aetherManager = new AetherManager();
 
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
@@ -32,7 +29,6 @@ public class LAProxy {
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {
-        aetherManager.init();
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
@@ -42,4 +38,8 @@ public class LAProxy {
 
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
+
+    public void serverStopped(FMLServerStoppedEvent event) {
+        this.aetherManager.reset();
+    }
 }

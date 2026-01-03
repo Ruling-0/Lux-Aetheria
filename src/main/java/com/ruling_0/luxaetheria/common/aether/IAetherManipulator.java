@@ -19,7 +19,7 @@ public interface IAetherManipulator {
 
     boolean removeAetherSink(IAetherManipulator sink);
 
-    Iterator<Map.Entry<Long, IAetherManipulator>> getAetherSinksIter();
+    Iterator<Map.Entry<Long, Pair<IAetherManipulator, Integer>>> getAetherSinksIter();
 
     boolean hasOutput(long coords);
 
@@ -32,6 +32,8 @@ public interface IAetherManipulator {
 
     @Nonnull
     BlockPos getPosBlockPos();
+
+    int getDimension();
 
     boolean validateSink(IAetherManipulator sink);
 
