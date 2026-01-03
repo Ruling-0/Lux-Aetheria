@@ -1,9 +1,11 @@
 package com.ruling_0.luxaetheria.common.aether;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.util.Vec3;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
@@ -13,17 +15,17 @@ import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
  */
 public interface IAetherManipulator {
 
-    boolean addAetherSource(IAetherManipulator source);
-
-    boolean removeAetherSource(IAetherManipulator source);
-
-    Iterator<IAetherManipulator> getAetherSourcesIter();
-
     boolean addAetherSink(IAetherManipulator sink);
 
     boolean removeAetherSink(IAetherManipulator sink);
 
-    Iterator<IAetherManipulator> getAetherSinksIter();
+    Iterator<Map.Entry<Long, IAetherManipulator>> getAetherSinksIter();
+
+    boolean hasOutput(long coords);
+
+    IAetherManipulator getOutput(long coords);
+
+    int getOutputIndex(long coords);
 
     @Nonnull
     Vec3 getPosVec3();

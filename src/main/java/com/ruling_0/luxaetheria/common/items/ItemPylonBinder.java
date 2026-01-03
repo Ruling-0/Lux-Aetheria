@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.items;
 
 import java.util.Iterator;
 
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -26,47 +27,25 @@ public class ItemPylonBinder extends Item {
         if (te == null) return false;
         if (te instanceof IAetherManipulator aetherManipulator) {
             if (boundManipulator != null) {
+                if (boundManipulator.equals(aetherManipulator)) return true;
                 boolean success;
-                boolean isBound = false;
-                Iterator<IAetherManipulator> iter = boundManipulator.getAetherSinksIter();
-                while (iter.hasNext()) {
-                    if (iter.next()
-                        .equals(aetherManipulator)) {
-                        isBound = true;
-                        break;
-                    }
-                }
-                if (isBound) {
-                    success = aetherManipulator.removeAetherSource(boundManipulator);
-                    if (!success) {
-                        player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_source"));
-                        return true;
-                    }
+                BlockPos targetPos = aetherManipulator.getPosBlockPos();
+                if (boundManipulator.hasOutput(targetPos.asLong())) {
                     success = boundManipulator.removeAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_sink"));
-                        aetherManipulator.addAetherSource(boundManipulator);
                         return true;
                     }
                     boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
                 } else {
-                    Vec3 boundVec = boundManipulator.getPosVec3();
-                    Vec3 targetVec = Vec3.createVectorHelper(x, y, z);
-                    boolean pathClear = LAUtils.checkRayCollision(world, boundVec, targetVec, true);
-                    if (!pathClear) {
+                    if (!LAUtils.checkRayCollision(world, boundManipulator, aetherManipulator, true)) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
-                        return true;
-                    }
-                    success = aetherManipulator.addAetherSource(boundManipulator);
-                    if (!success) {
-                        player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_source"));
                         return true;
                     }
                     success = boundManipulator.addAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_sink"));
-                        aetherManipulator.removeAetherSource(boundManipulator);
                         return true;
                     }
                     boundManipulator = null;

@@ -1,17 +1,18 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
 import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
 
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.ruling_0.luxaetheria.api.AetherConstants;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.tileentity.TileEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class AetherManager {
@@ -76,18 +77,29 @@ public class AetherManager {
         this.serverTick++;
         while (!AetherSearchQueue.isEmpty()) {
             IAetherManipulator curr = AetherSearchQueue.pop();
-            Iterator<IAetherManipulator> iterSinks = curr.getAetherSinksIter();
+            Iterator<Map.Entry<Long, IAetherManipulator>> iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {
                 // TODO: listen for block updates and only check collision in range
-                IAetherManipulator next = iterSinks.next();
+                Map.Entry<Long, IAetherManipulator> entry = iterSinks.next();
+                if (entry.getValue() == null) {
+                    BlockPos pos = new BlockPos();
+                    CoordinatePacker.unpack(entry.getKey(), pos);
+                    TileEntity te = Minecraft.getMinecraft().theWorld.getTileEntity(pos.x, pos.y, pos.z);
+                    if (te instanceof IAetherManipulator sink) {
+                        entry.setValue(sink);
+                    } else {
+                        iterSinks.remove();
+                        continue;
+                    }
+                }
+                IAetherManipulator next = entry.getValue();
                 if (curr.validateSink(next)) {
-                    iterSinks.remove();
                     AetherSearchQueue.push(next);
                 }
             }
             iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next();
+                IAetherManipulator next = iterSinks.next().getValue();
                 boolean shouldPropagate = next.getAetherFromSource(curr, this.serverTick);
                 if (shouldPropagate) AetherSearchQueue.push(next);
             }

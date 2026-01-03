@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ruling_0.luxaetheria.utils.LAUtils;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,10 +30,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     public AethericEnergyUnit aetherOut;
     public AethericEnergyUnit aetherRelease;
 
-    protected int maxAetherSources = 1;
     protected int maxAetherSinks = 1;
     protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
-    protected ArrayList<IAetherManipulator> aetherSinks = new ArrayList<>();
+    protected HashMap<Long, IAetherManipulator> aetherSinks;
+    protected long[] aetherOutputs;
     protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
     protected boolean doResetAether = false;
 
@@ -41,47 +42,51 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         this.aetherIn = new AethericEnergyUnit();
         this.aetherOut = new AethericEnergyUnit();
         this.aetherRelease = new AethericEnergyUnit();
-    }
-
-    @Override
-    public boolean addAetherSource(IAetherManipulator source) {
-        if (this.aetherSources.size() < this.maxAetherSources) {
-            this.aetherSources.put(
-                source,
-                this.getPosVec3()
-                    .distanceTo(source.getPosVec3()));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean removeAetherSource(IAetherManipulator source) {
-        return this.aetherSources.remove(source) != null;
-    }
-
-    @Override
-    public Iterator<IAetherManipulator> getAetherSourcesIter() {
-        return this.aetherSources.keySet()
-            .iterator();
+        this.aetherSinks = new HashMap<>(this.maxAetherSinks);
+        this.aetherOutputs = new long[this.maxAetherSinks];
+        for (int i = 0; i < this.maxAetherSinks; ++i) this.aetherOutputs[i] = -1L;
     }
 
     @Override
     public boolean addAetherSink(IAetherManipulator sink) {
         if (this.aetherSinks.size() < this.maxAetherSinks) {
-            return this.aetherSinks.add(sink);
+            this.aetherSinks.put(sink.getPosBlockPos().asLong(), sink);
         }
         return false;
     }
 
     @Override
     public boolean removeAetherSink(IAetherManipulator sink) {
-        return this.aetherSinks.remove(sink);
+        return this.aetherSinks.remove(sink.getPosBlockPos().asLong()) != null;
     }
 
     @Override
-    public Iterator<IAetherManipulator> getAetherSinksIter() {
-        return this.aetherSinks.iterator();
+    public Iterator<Map.Entry<Long, IAetherManipulator>> getAetherSinksIter() {
+        return this.aetherSinks.entrySet().iterator();
+    }
+
+    @Override
+    public boolean hasOutput(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public IAetherManipulator getOutput(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return this.aetherSinks.get(coords);
+        }
+        return null;
+    }
+
+    public int getOutputIndex(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return i;
+        }
+        return -1;
     }
 
     @Nonnull
@@ -108,6 +113,9 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
             this.aetherIn.reset();
             this.aetherRelease.reset();
             this.encounteredIDs = new HashSet<>();
+        }
+        if (!this.aetherSources.containsKey(source)) {
+            this.aetherSources.put(source, this.getPosBlockPos().distance(source.getPosBlockPos()));
         }
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = source.getAetherOut(tick, this, dist);
@@ -161,26 +169,12 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         this.aetherRelease.writeToNBT(nbtAetherRelease);
         compound.setTag("aetherRelease", nbtAetherRelease);
 
-        NBTTagList nbtAetherSources = new NBTTagList();
-        for (Map.Entry<IAetherManipulator, Double> entry : this.aetherSources.entrySet()) {
-            NBTTagCompound nbtAetherSource = new NBTTagCompound();
-            nbtAetherSource.setLong(
-                "coords",
-                entry.getKey()
-                    .getPosBlockPos()
-                    .asLong());
-            nbtAetherSource.setDouble("distance", entry.getValue());
-            nbtAetherSources.appendTag(nbtAetherSource);
-        }
-        compound.setTag("aetherSources", nbtAetherSources);
-
         NBTTagList nbtAetherSinks = new NBTTagList();
-        for (IAetherManipulator sink : this.aetherSinks) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == -1L) continue;
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
-            nbtAetherSink.setLong(
-                "coords",
-                sink.getPosBlockPos()
-                    .asLong());
+            nbtAetherSink.setLong("coords", this.aetherOutputs[i]);
+            nbtAetherSink.setByte("idx", (byte) i);
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);
@@ -194,52 +188,27 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         this.aetherOut.readFromNBT(compound.getCompoundTag("aetherOut"));
         this.aetherRelease.readFromNBT(compound.getCompoundTag("aetherRelease"));
 
-        NBTTagList nbtAetherSources = compound.getTagList("aetherSources", 10);
-        for (int i = 0; i < nbtAetherSources.tagCount(); i++) {
-            NBTTagCompound nbtAetherSource = nbtAetherSources.getCompoundTagAt(i);
-            long coords = nbtAetherSource.getLong("coords");
-            Vector3i vec = new Vector3i();
-            CoordinatePacker.unpack(coords, vec);
-            double dist = nbtAetherSource.getDouble("distance");
-            if (this.worldObj.getTileEntity(vec.x, vec.y, vec.z) instanceof IAetherManipulator source) {
-                this.aetherSources.put(source, dist);
-            }
-        }
-
         NBTTagList nbtAetherSinks = compound.getTagList("aetherSinks", 10);
-        for (int i = 0; i < nbtAetherSinks.tagCount(); i++) {
+        for (int i = 0; i < nbtAetherSinks.tagCount(); ++i) {
             NBTTagCompound nbtAetherSink = nbtAetherSinks.getCompoundTagAt(i);
             long coords = nbtAetherSink.getLong("coords");
-            Vector3i vec = new Vector3i();
-            CoordinatePacker.unpack(coords, vec);
-            if (this.worldObj.getTileEntity(vec.x, vec.y, vec.z) instanceof IAetherManipulator sink) {
-                this.aetherSinks.add(sink);
-            }
+            this.aetherSinks.put(coords, null);
+            this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
     }
 
     @Override
     public void enable() {
+        if (this.worldObj.isRemote) return;
         LAProxy.aetherManager
             .enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
-        for (IAetherManipulator sink : this.aetherSinks) {
-            sink.addAetherSource(this);
-        }
-        for (IAetherManipulator source : this.aetherSources.keySet()) {
-            source.addAetherSink(this);
-        }
     }
 
     @Override
     public void disable() {
+        if (this.worldObj.isRemote) return;
         LAProxy.aetherManager
             .disableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
-        for (IAetherManipulator sink : this.aetherSinks) {
-            sink.removeAetherSource(this);
-        }
-        for (IAetherManipulator source : this.aetherSources.keySet()) {
-            source.removeAetherSink(this);
-        }
     }
 
     @Override

@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.ruling_0.luxaetheria.utils.LAUtils;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -29,62 +30,77 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     protected AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
 
-    protected int maxAetherSources = 1;
-    protected int maxAetherSinks = 1;
-    protected HashMap<IAetherManipulator, Double> aetherSources;
-    protected ArrayList<IAetherManipulator> aetherSinks;
+    protected int maxAetherSinks;
+    protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
+    protected HashMap<Long, IAetherManipulator> aetherSinks;
+    protected long[] aetherOutputs;
 
     public BaseAetherManipulator() {
-        this(1, 1);
+        this(1);
     }
 
-    public BaseAetherManipulator(int maxAetherSources, int maxAetherSinks) {
+    public BaseAetherManipulator(int maxAetherSinks) {
         super();
-        this.maxAetherSources = maxAetherSources;
         this.maxAetherSinks = maxAetherSinks;
-        this.aetherSources = new HashMap<>(maxAetherSources);
-        this.aetherSinks = new ArrayList<>(maxAetherSinks);
-    }
-
-    @Override
-    public boolean addAetherSource(IAetherManipulator source) {
-        if (this.aetherSources.size() < this.maxAetherSources) {
-            this.aetherSources.put(
-                source,
-                this.getPosVec3()
-                    .distanceTo(source.getPosVec3()));
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean removeAetherSource(IAetherManipulator source) {
-        return this.aetherSources.remove(source) != null;
-    }
-
-    @Override
-    public Iterator<IAetherManipulator> getAetherSourcesIter() {
-        return this.aetherSources.keySet()
-            .iterator();
+        this.aetherSinks = new HashMap<>(this.maxAetherSinks);
+        this.aetherOutputs = new long[this.maxAetherSinks];
+        for (int i = 0; i < this.maxAetherSinks; ++i) this.aetherOutputs[i] = -1L;
     }
 
     @Override
     public boolean addAetherSink(IAetherManipulator sink) {
         if (this.aetherSinks.size() < this.maxAetherSinks) {
-            return this.aetherSinks.add(sink);
+            for (int i = 0; i < this.maxAetherSinks; ++i) {
+                if (this.aetherOutputs[i] == -1L) {
+                    this.aetherOutputs[i] = sink.getPosBlockPos().asLong();
+                    this.aetherSinks.put(sink.getPosBlockPos().asLong(), sink);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     @Override
     public boolean removeAetherSink(IAetherManipulator sink) {
-        return this.aetherSinks.remove(sink);
+        long coords = sink.getPosBlockPos().asLong();
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) {
+                this.aetherOutputs[i] = -1L;
+                this.aetherSinks.remove(coords);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public Iterator<IAetherManipulator> getAetherSinksIter() {
-        return this.aetherSinks.iterator();
+    public Iterator<Map.Entry<Long, IAetherManipulator>> getAetherSinksIter() {
+        return this.aetherSinks.entrySet().iterator();
+    }
+
+    @Override
+    public boolean hasOutput(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return true;
+        }
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public IAetherManipulator getOutput(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return this.aetherSinks.get(coords);
+        }
+        return null;
+    }
+
+    public int getOutputIndex(long coords) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == coords) return i;
+        }
+        return -1;
     }
 
     @Nonnull
@@ -107,6 +123,9 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
     @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
+        if (!this.aetherSources.containsKey(source)) {
+            this.aetherSources.put(source, this.getPosBlockPos().distance(source.getPosBlockPos()));
+        }
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = source.getAetherOut(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
@@ -158,26 +177,12 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         this.aetherRelease.writeToNBT(nbtAetherRelease);
         compound.setTag("aetherRelease", nbtAetherRelease);
 
-        NBTTagList nbtAetherSources = new NBTTagList();
-        for (Map.Entry<IAetherManipulator, Double> entry : this.aetherSources.entrySet()) {
-            NBTTagCompound nbtAetherSource = new NBTTagCompound();
-            nbtAetherSource.setLong(
-                "coords",
-                entry.getKey()
-                    .getPosBlockPos()
-                    .asLong());
-            nbtAetherSource.setDouble("distance", entry.getValue());
-            nbtAetherSources.appendTag(nbtAetherSource);
-        }
-        compound.setTag("aetherSources", nbtAetherSources);
-
         NBTTagList nbtAetherSinks = new NBTTagList();
-        for (IAetherManipulator sink : this.aetherSinks) {
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            if (this.aetherOutputs[i] == -1L) continue;
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
-            nbtAetherSink.setLong(
-                "coords",
-                sink.getPosBlockPos()
-                    .asLong());
+            nbtAetherSink.setLong("coords", this.aetherOutputs[i]);
+            nbtAetherSink.setByte("idx", (byte) i);
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);
@@ -189,28 +194,14 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
         this.aetherIn.readFromNBT(compound.getCompoundTag("aetherIn"));
         this.aetherOut.readFromNBT(compound.getCompoundTag("aetherOut"));
-
-        NBTTagList nbtAetherSources = compound.getTagList("aetherSources", 10);
-        for (int i = 0; i < nbtAetherSources.tagCount(); i++) {
-            NBTTagCompound nbtAetherSource = nbtAetherSources.getCompoundTagAt(i);
-            long coords = nbtAetherSource.getLong("coords");
-            Vector3i vec = new Vector3i();
-            CoordinatePacker.unpack(coords, vec);
-            double dist = nbtAetherSource.getDouble("distance");
-            if (this.worldObj.getTileEntity(vec.x, vec.y, vec.z) instanceof IAetherManipulator source) {
-                this.aetherSources.put(source, dist);
-            }
-        }
+        this.aetherRelease.readFromNBT(compound.getCompoundTag("aetherRelease"));
 
         NBTTagList nbtAetherSinks = compound.getTagList("aetherSinks", 10);
-        for (int i = 0; i < nbtAetherSinks.tagCount(); i++) {
+        for (int i = 0; i < nbtAetherSinks.tagCount(); ++i) {
             NBTTagCompound nbtAetherSink = nbtAetherSinks.getCompoundTagAt(i);
             long coords = nbtAetherSink.getLong("coords");
-            Vector3i vec = new Vector3i();
-            CoordinatePacker.unpack(coords, vec);
-            if (this.worldObj.getTileEntity(vec.x, vec.y, vec.z) instanceof IAetherManipulator sink) {
-                this.aetherSinks.add(sink);
-            }
+            this.aetherSinks.put(coords, null);
+            this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
     }
 }

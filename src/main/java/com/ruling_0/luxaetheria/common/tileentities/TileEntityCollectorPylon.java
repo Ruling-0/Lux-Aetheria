@@ -24,8 +24,13 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
     private boolean isEnabled = true; // TODO function for toggling on/off
 
+    public TileEntityCollectorPylon() {
+        //TODO: getting these from the block
+        this(12, 3);
+    }
+
     public TileEntityCollectorPylon(int range, long collection) {
-        super(0, 1);
+        super(1);
         this.range = range;
         this.collection = collection;
         this.ambientAether = new AethericEnergyUnit(BASE_PRODUCTION);
@@ -96,7 +101,8 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
             / this.aetherSinks.size());
         long loss = (long) (this.aetherOut.getAmount() * (1 - Math.exp(-0.003D * dist)));
         this.aetherOut.setAmount(Math.max(0L, this.aetherOut.getAmount() - loss));
-        this.aetherOut.updateID(tick, this.aetherSinks.indexOf(sink));
+
+        this.aetherOut.updateID(tick, this.getOutputIndex(sink.getPosBlockPos().asLong()));
         this.totalLoss += loss;
         return this.aetherOut;
     }
@@ -125,31 +131,17 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void enable() {
+        if (this.worldObj.isRemote) return;
         this.ambientAether.updateID(0, 0, this);
-        if (!this.worldObj.isRemote) {
-            LAProxy.aetherManager
-                .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
-        }
-        for (IAetherManipulator sink : this.aetherSinks) {
-            sink.addAetherSource(this);
-        }
-        for (IAetherManipulator source : this.aetherSources.keySet()) {
-            source.addAetherSink(this);
-        }
+        LAProxy.aetherManager
+            .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
     public void disable() {
-        if (!this.worldObj.isRemote) {
-            LAProxy.aetherManager
-                .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
-        }
-        for (IAetherManipulator sink : this.aetherSinks) {
-            sink.removeAetherSource(this);
-        }
-        for (IAetherManipulator source : this.aetherSources.keySet()) {
-            source.removeAetherSink(this);
-        }
+        if (this.worldObj.isRemote) return;
+        LAProxy.aetherManager
+            .disableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
