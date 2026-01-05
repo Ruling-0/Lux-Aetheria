@@ -175,9 +175,6 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         NBTTagCompound nbtAetherOut = new NBTTagCompound();
         this.aetherOut.writeToNBT(nbtAetherOut);
         compound.setTag("aetherOut", nbtAetherOut);
-        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
-        this.aetherRelease.writeToNBT(nbtAetherRelease);
-        compound.setTag("aetherRelease", nbtAetherRelease);
 
         NBTTagList nbtAetherSinks = new NBTTagList();
         for (int i = 0; i < this.maxAetherSinks; ++i) {
@@ -197,7 +194,6 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
         this.aetherIn.readFromNBT(compound.getCompoundTag("aetherIn"));
         this.aetherOut.readFromNBT(compound.getCompoundTag("aetherOut"));
-        this.aetherRelease.readFromNBT(compound.getCompoundTag("aetherRelease"));
 
         NBTTagList nbtAetherSinks = compound.getTagList("aetherSinks", 10);
         for (int i = 0; i < nbtAetherSinks.tagCount(); ++i) {
@@ -207,5 +203,18 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
             this.aetherSinks.put(coords, Pair.of(null, dim));
             this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
+    }
+
+    @Override
+    public void writeWAILAData(NBTTagCompound compound) {
+        super.writeToNBT(compound);
+        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
+        this.aetherRelease.writeToNBT(nbtAetherRelease);
+        compound.setTag("aetherRelease", nbtAetherRelease);
+    }
+
+    @Override
+    public boolean isRemote() {
+        return this.worldObj.isRemote;
     }
 }

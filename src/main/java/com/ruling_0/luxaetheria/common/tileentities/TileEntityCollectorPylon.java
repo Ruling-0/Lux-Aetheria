@@ -11,6 +11,7 @@ import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
 public class TileEntityCollectorPylon extends BaseAetherManipulator implements IAetherCollector {
@@ -163,7 +164,22 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     }
 
     @Override
-    public boolean isRemote() {
-        return this.worldObj.isRemote;
+    public void writeToNBT(NBTTagCompound compound) {
+        super.writeToNBT(compound);
+        NBTTagCompound nbtAetherAmbient = new NBTTagCompound();
+        this.ambientAether.writeToNBT(nbtAetherAmbient);
+        compound.setTag("aetherAmbient", nbtAetherAmbient);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound compound) {
+        super.readFromNBT(compound);
+        NBTTagCompound nbtAetherAmbient = compound.getCompoundTag("aetherAmbient");
+        this.ambientAether.readFromNBT(nbtAetherAmbient);
+    }
+
+    @Override
+    public void writeWAILAData(NBTTagCompound compound) {
+        this.writeToNBT(compound);
     }
 }

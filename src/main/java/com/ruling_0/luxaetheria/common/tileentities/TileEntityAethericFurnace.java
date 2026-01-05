@@ -168,9 +168,6 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         NBTTagCompound nbtAetherOut = new NBTTagCompound();
         this.aetherOut.writeToNBT(nbtAetherOut);
         compound.setTag("aetherOut", nbtAetherOut);
-        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
-        this.aetherRelease.writeToNBT(nbtAetherRelease);
-        compound.setTag("aetherRelease", nbtAetherRelease);
 
         NBTTagList nbtAetherSinks = new NBTTagList();
         for (int i = 0; i < this.maxAetherSinks; ++i) {
@@ -190,7 +187,6 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
         this.aetherIn.readFromNBT(compound.getCompoundTag("aetherIn"));
         this.aetherOut.readFromNBT(compound.getCompoundTag("aetherOut"));
-        this.aetherRelease.readFromNBT(compound.getCompoundTag("aetherRelease"));
 
         NBTTagList nbtAetherSinks = compound.getTagList("aetherSinks", 10);
         for (int i = 0; i < nbtAetherSinks.tagCount(); ++i) {
@@ -200,6 +196,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
             this.aetherSinks.put(coords, Pair.of(null, dim));
             this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
+    }
+
+    @Override
+    public void writeWAILAData(NBTTagCompound compound) {
+        super.writeToNBT(compound);
+        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
+        this.aetherRelease.writeToNBT(nbtAetherRelease);
+        compound.setTag("aetherRelease", nbtAetherRelease);
     }
 
     @Override
