@@ -33,7 +33,7 @@ public interface IAetherHandler {
 
     int getDimension();
 
-    boolean validateSink(@Nullable IAetherHandler sinkHandler);
+    boolean isInvalidSink(@Nullable IAetherHandler sinkHandler);
 
     /**
      * For a given source, calculates the received aether, introducing loss.

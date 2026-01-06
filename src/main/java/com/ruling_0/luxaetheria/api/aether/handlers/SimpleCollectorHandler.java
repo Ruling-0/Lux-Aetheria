@@ -102,7 +102,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         AethericEnergyUnit prevAether = this.sinkToAether.get(sinkHandler.getInterDimCoords());
         if (prevAether != null) this.aetherOut.split(prevAether);
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
-        if (!this.validateSink(sinkHandler)) {
+        if (this.isInvalidSink(sinkHandler)) {
             returnedAether.reset();
             // No need to merge since it'd merge 0
             this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
