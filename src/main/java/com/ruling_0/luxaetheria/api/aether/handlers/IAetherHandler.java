@@ -1,15 +1,17 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
-import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Iterator;
-import java.util.Map;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.Vec3;
+
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 public interface IAetherHandler {
 

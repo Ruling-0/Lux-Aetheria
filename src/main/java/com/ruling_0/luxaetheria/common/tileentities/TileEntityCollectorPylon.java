@@ -1,15 +1,15 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
+
+import com.ruling_0.luxaetheria.LuxAetheria;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 
 public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherManipulator {
 
-
     public TileEntityCollectorPylon() {
-        //TODO: getting these from the block
+        // TODO: getting these from the block
         this(1, 12, 3);
     }
 

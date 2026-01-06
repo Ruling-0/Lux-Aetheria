@@ -1,10 +1,11 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleCollectorHandler;
-import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+
+import com.ruling_0.luxaetheria.LuxAetheria;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleCollectorHandler;
 
 public abstract class BaseAetherCollector extends TileEntity implements IAetherCollector {
 
@@ -25,7 +26,9 @@ public abstract class BaseAetherCollector extends TileEntity implements IAetherC
     }
 
     @Override
-    public SimpleCollectorHandler getCollectorHandler() { return this.collectorHandler; }
+    public SimpleCollectorHandler getCollectorHandler() {
+        return this.collectorHandler;
+    }
 
     @Override
     public void enable() {

@@ -1,7 +1,8 @@
 package com.ruling_0.luxaetheria.api.aether;
 
-import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import net.minecraft.nbt.NBTTagCompound;
+
+import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 
 /**
  * An Interface for things which collect ambient Aether.

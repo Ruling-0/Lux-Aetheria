@@ -1,13 +1,13 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
+import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.

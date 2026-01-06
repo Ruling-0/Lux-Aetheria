@@ -1,14 +1,11 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-import com.ruling_0.luxaetheria.LAProxy;
-import com.ruling_0.luxaetheria.LuxAetheria;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import org.jetbrains.annotations.NotNull;
-
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.LuxAetheria;
+
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 
 public class AetherEventHandler {
 

@@ -1,17 +1,17 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 
+import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspects;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser {
 
@@ -28,7 +28,9 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     }
 
     @Override
-    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
+    public IReleaserHandler getReleaserHandler() {
+        return this.aetherHandler;
+    }
 
     @Override
     public void writeToNBT(NBTTagCompound compound) {

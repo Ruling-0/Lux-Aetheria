@@ -1,7 +1,5 @@
 package com.ruling_0.luxaetheria;
 
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
-import cpw.mods.fml.common.event.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -9,10 +7,12 @@ import net.minecraft.item.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 @Mod(modid = LuxAetheria.MODID, version = Tags.VERSION, name = "Lux Aetheria", acceptedMinecraftVersions = "[1.7.10]")

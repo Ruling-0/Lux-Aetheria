@@ -1,12 +1,14 @@
 package com.ruling_0.luxaetheria.api.aether;
 
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import net.minecraft.nbt.NBTTagCompound;
+
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 
 /**
  * An Interface for things which intake and/or output Aether.
  */
 public interface IAetherManipulator {
+
     IAetherHandler getAetherHandler();
 
     void enable();

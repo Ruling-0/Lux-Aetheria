@@ -1,10 +1,12 @@
 package com.ruling_0.luxaetheria.crossmod;
 
-import com.gtnewhorizon.gtnhlib.util.data.IMod;
-import cpw.mods.fml.common.Loader;
+import java.util.Locale;
+
 import net.minecraft.util.ResourceLocation;
 
-import java.util.Locale;
+import com.gtnewhorizon.gtnhlib.util.data.IMod;
+
+import cpw.mods.fml.common.Loader;
 
 // Credit to GT5-Unofficial
 public enum Mods implements IMod {

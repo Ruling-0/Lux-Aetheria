@@ -1,5 +1,7 @@
 package com.ruling_0.luxaetheria.api.aether;
 
+import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AETHER_RECHARGE;
+
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -8,11 +10,9 @@ import javax.annotation.Nonnull;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import net.minecraft.util.EnumChatFormatting;
 
-import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AETHER_RECHARGE;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 
 public class AethericEnergyUnit {
 
@@ -37,11 +37,12 @@ public class AethericEnergyUnit {
         this.id = new AEUID(origin, tick, output, dim);
     }
 
-    public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, long origin, long tick, int dim, int output) {
+    public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, long origin, long tick, int dim,
+        int output) {
         this(amount, origin, tick, 0, dim);
         if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
-        else
-            System.arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length, this.aspectRatios.length));
+        else System
+            .arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length, this.aspectRatios.length));
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
@@ -119,12 +120,18 @@ public class AethericEnergyUnit {
     public String toString() {
         DecimalFormat df = new DecimalFormat("0");
         return this.amount + " ("
-            + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100)
-            + EnumChatFormatting.RESET + "%, "
-            + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100)
-            + EnumChatFormatting.RESET + "%, "
-            + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100)
-            + EnumChatFormatting.RESET + "%)";
+            + EnumChatFormatting.RED
+            + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100)
+            + EnumChatFormatting.RESET
+            + "%, "
+            + EnumChatFormatting.GREEN
+            + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100)
+            + EnumChatFormatting.RESET
+            + "%, "
+            + EnumChatFormatting.BLUE
+            + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100)
+            + EnumChatFormatting.RESET
+            + "%)";
     }
 
     @Override
@@ -237,7 +244,8 @@ public class AethericEnergyUnit {
 
     /**
      * Decays this AEU towards the given equilibrium stats.
-     * @param amount The equilibrium amount
+     * 
+     * @param amount  The equilibrium amount
      * @param aspects The aspect ratios of the equilibrium
      */
     public void moveToEquilibrium(long amount, double[] aspects) {
@@ -257,7 +265,7 @@ public class AethericEnergyUnit {
     }
 
     public long calculateLoss(double dist) {
-        return (long) (this.amount *  (1 - Math.exp(-0.003D * dist)));
+        return (long) (this.amount * (1 - Math.exp(-0.003D * dist)));
     }
 
     public void writeToNBT(@Nonnull NBTTagCompound compound) {

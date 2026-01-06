@@ -1,23 +1,26 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import com.ruling_0.luxaetheria.utils.LAUtils;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Vec3;
+
+import com.ruling_0.luxaetheria.LuxAetheria;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.utils.LAUtils;
+
 public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
+
     public AethericEnergyUnit aetherIn = new AethericEnergyUnit();
     public AethericEnergyUnit aetherOut = new AethericEnergyUnit();
     public AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
@@ -70,7 +73,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
 
     @Override
     public boolean removeAetherSink(@Nonnull IAetherManipulator sink) {
-        InterDimCoords coords = sink.getAetherHandler().getInterDimCoords();
+        InterDimCoords coords = sink.getAetherHandler()
+            .getInterDimCoords();
         for (int i = 0; i < this.maxAetherSinks; ++i) {
             if (coords.equals(this.aetherOutputs[i])) {
                 this.aetherOutputs[i] = null;
@@ -86,7 +90,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
 
     @Override
     public Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> getAetherSinksIter() {
-        return this.aetherSinks.entrySet().iterator();
+        return this.aetherSinks.entrySet()
+            .iterator();
     }
 
     @Override
@@ -209,7 +214,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
     @Override
     public void disconnectFromSources() {
         for (IAetherManipulator source : this.aetherSources.keySet()) {
-            source.getAetherHandler().removeAetherSink(this.owner);
+            source.getAetherHandler()
+                .removeAetherSink(this.owner);
         }
     }
 

@@ -1,14 +1,13 @@
 package com.ruling_0.luxaetheria.crossmod.wdmla;
 
+import javax.annotation.Nonnull;
+
 import com.gtnewhorizons.wdmla.api.IWDMlaClientRegistration;
 import com.gtnewhorizons.wdmla.api.IWDMlaCommonRegistration;
 import com.gtnewhorizons.wdmla.api.IWDMlaPlugin;
 import com.gtnewhorizons.wdmla.api.WDMlaPlugin;
 import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
-import org.jetbrains.annotations.NotNull;
-
-import javax.annotation.Nonnull;
 
 @WDMlaPlugin(uid = "luxaetheria")
 public class LuxAetheriaWDMLAPlugin implements IWDMlaPlugin {

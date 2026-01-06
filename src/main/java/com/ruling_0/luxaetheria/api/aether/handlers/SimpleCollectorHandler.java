@@ -1,17 +1,19 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
+import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AMBIENT_AETHER;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AMBIENT_AETHER;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
 
@@ -63,7 +65,9 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     public void removeCollectorInRange(@Nonnull IAetherCollector collector) {
         this.collectorsInRange--;
         this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
-        this.ambientAether.addAmount(collector.getCollectorHandler().getAetherCollectionAmount());
+        this.ambientAether.addAmount(
+            collector.getCollectorHandler()
+                .getAetherCollectionAmount());
     }
 
     @Override
@@ -75,7 +79,9 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Override
     public void addReleaserInRange(@Nonnull IAetherReleaser releaser) {
-        AethericEnergyUnit release = new AethericEnergyUnit(releaser.getReleaserHandler().getAetherRelease());
+        AethericEnergyUnit release = new AethericEnergyUnit(
+            releaser.getReleaserHandler()
+                .getAetherRelease());
         this.aetherRelease.merge(release);
         this.aetherReleasers.put(releaser, release);
     }
@@ -109,8 +115,8 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             return returnedAether;
         }
         // TODO: handle insufficient ambient aether
-        returnedAether.setAmount(Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount())
-            / this.aetherSinks.size());
+        returnedAether.setAmount(
+            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
         this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
 
@@ -138,11 +144,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         this.ambientAether.addAmount(this.totalLoss);
         for (Map.Entry<IAetherReleaser, AethericEnergyUnit> entry : this.aetherReleasers.entrySet()) {
             AethericEnergyUnit newRelease = entry.getKey()
-                .getReleaserHandler().getAetherRelease();
+                .getReleaserHandler()
+                .getAetherRelease();
             if (newRelease.equals(entry.getValue())) continue;
             this.aetherRelease.split(entry.getValue());
             this.aetherRelease.merge(newRelease);
-            entry.getValue().setToOther(newRelease);
+            entry.getValue()
+                .setToOther(newRelease);
         }
         this.ambientAether.merge(this.aetherRelease);
         this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);

@@ -1,13 +1,15 @@
 package com.ruling_0.luxaetheria.api.utils;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
-import cpw.mods.fml.common.FMLCommonHandler;
+import javax.annotation.Nonnull;
+
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
+
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public class InterDimCoords extends BlockPos implements IWorldReferent {
 
@@ -24,7 +26,13 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
-        this(x, y, z, FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dim));
+        this(
+            x,
+            y,
+            z,
+            FMLCommonHandler.instance()
+                .getMinecraftServerInstance()
+                .worldServerForDimension(dim));
     }
 
     public InterDimCoords(int x, int y, int z, World world) {
@@ -40,11 +48,13 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     /**
      * Distance between two InterDimCoords, where if they are in
      * different dimensions, the distance is 0.
+     * 
      * @param coords The point to measure distance to
      * @return 0 if different dimensions, distance otherwise
      */
     public double distance(@Nonnull InterDimCoords coords) {
-        if (!this.getWorld().equals(coords.getWorld())) return 0.0D;
+        if (!this.getWorld()
+            .equals(coords.getWorld())) return 0.0D;
         return super.distance(coords);
     }
 
@@ -59,8 +69,8 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     @Override
     public boolean equals(Object obj) {
-        if(!super.equals(obj)) return false;
-        return ((InterDimCoords)obj).world == this.world;
+        if (!super.equals(obj)) return false;
+        return ((InterDimCoords) obj).world == this.world;
     }
 
     @Override
