@@ -1,20 +1,18 @@
-package com.ruling_0.luxaetheria.common.aether;
+package com.ruling_0.luxaetheria.api.aether;
 
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.AetherAspects;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import net.minecraft.util.EnumChatFormatting;
-import org.jetbrains.annotations.NotNull;
 
-import static com.ruling_0.luxaetheria.api.AetherConstants.BASE_AETHER_RECHARGE;
+import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AETHER_RECHARGE;
 
 public class AethericEnergyUnit {
 

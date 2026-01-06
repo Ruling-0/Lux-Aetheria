@@ -10,7 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 
 public class ItemPylonBinder extends Item {
 

@@ -7,7 +7,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
 import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
 
-import com.ruling_0.luxaetheria.api.AetherConstants;
+import com.ruling_0.luxaetheria.api.aether.AetherConstants;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import com.ruling_0.luxaetheria.utils.InterDimCoords;

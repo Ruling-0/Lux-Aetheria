@@ -2,7 +2,7 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherManipulator {

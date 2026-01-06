@@ -1,9 +1,9 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.ruling_0.luxaetheria.api.AetherConstants.BASE_AMBIENT_AETHER;
+import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AMBIENT_AETHER;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
 

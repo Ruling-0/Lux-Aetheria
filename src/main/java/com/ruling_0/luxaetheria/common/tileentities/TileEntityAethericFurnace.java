@@ -9,9 +9,9 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 
-import com.ruling_0.luxaetheria.api.AetherAspects;
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.AetherAspects;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser {
 

@@ -1,8 +1,8 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 
 public interface ICollectorHandler {
 

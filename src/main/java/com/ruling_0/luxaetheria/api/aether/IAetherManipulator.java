@@ -1,4 +1,4 @@
-package com.ruling_0.luxaetheria.common.aether;
+package com.ruling_0.luxaetheria.api.aether;
 
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import net.minecraft.nbt.NBTTagCompound;

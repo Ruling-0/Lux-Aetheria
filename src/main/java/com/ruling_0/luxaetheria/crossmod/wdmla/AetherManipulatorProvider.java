@@ -5,15 +5,13 @@ import com.gtnewhorizons.wdmla.api.provider.IBlockComponentProvider;
 import com.gtnewhorizons.wdmla.api.provider.IServerDataProvider;
 import com.gtnewhorizons.wdmla.api.ui.ITooltip;
 import com.gtnewhorizons.wdmla.impl.ui.component.TextComponent;
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
-import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 

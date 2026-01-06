@@ -1,6 +1,6 @@
 package com.ruling_0.luxaetheria.utils;
 
-import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
