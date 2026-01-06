@@ -62,4 +62,6 @@ public interface IAetherManipulator {
     boolean isUpdateable();
 
     void updateAether();
+
+    void resetAether();
 }

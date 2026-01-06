@@ -14,6 +14,8 @@ import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
 
+import static com.ruling_0.luxaetheria.api.AetherConstants.BASE_AMBIENT_AETHER;
+
 public class TileEntityCollectorPylon extends BaseAetherManipulator implements IAetherCollector {
 
     private final int range;
@@ -35,7 +37,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
         super(1);
         this.range = range;
         this.collection = collection;
-        this.ambientAether = new AethericEnergyUnit(BASE_PRODUCTION);
+        this.ambientAether = new AethericEnergyUnit(BASE_AMBIENT_AETHER);
     }
 
     @Override
@@ -97,16 +99,24 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     @Nonnull
     @Override
     public AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist) {
-        this.aetherOut.setToOther(this.ambientAether);
+        this.aetherOut.split(this.sinkToAether.get(sink.getPosBlockPos().asLong()));
+        AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.ambientAether);
+        if (!this.validateSink(sink)) {
+            // No need to merge since it'd merge 0
+            this.sinkToAether.put(sink.getPosBlockPos().asLong(), returnedAether);
+            return returnedAether;
+        }
         // TODO: handle insufficient ambient aether
-        this.aetherOut.setAmount(Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount())
+        returnedAether.setAmount(Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount())
             / this.aetherSinks.size());
-        long loss = (long) (this.aetherOut.getAmount() * (1 - Math.exp(-0.003D * dist)));
-        this.aetherOut.setAmount(Math.max(0L, this.aetherOut.getAmount() - loss));
+        this.aetherOut.merge(returnedAether);
+        this.sinkToAether.put(sink.getPosBlockPos().asLong(), returnedAether);
+        long loss = (long) (returnedAether.getAmount() * (1 - Math.exp(-0.003D * dist)));
+        returnedAether.setAmount(Math.max(0L, returnedAether.getAmount() - loss));
 
-        this.aetherOut.updateID(tick, this.getOutputIndex(sink.getPosBlockPos().asLong()));
+        returnedAether.updateID(tick, this.getOutputIndex(sink.getPosBlockPos().asLong()));
         this.totalLoss += loss;
-        return this.aetherOut;
+        return returnedAether;
     }
 
     @Override
@@ -116,7 +126,6 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
 
     @Override
     public void updateAether() {
-        if (this.aetherSinks.isEmpty()) return;
         this.ambientAether.addAmount(-this.getAetherCollectionAmount());
         this.ambientAether.addAmount(this.totalLoss);
         for (Map.Entry<IAetherReleaser, AethericEnergyUnit> entry : this.aetherReleasers.entrySet()) {
@@ -128,6 +137,7 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
             entry.getValue().setToOther(newRelease);
         }
         this.ambientAether.merge(this.aetherRelease);
+        this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);
         this.totalLoss = 0;
     }
 

@@ -26,6 +26,7 @@ public class AetherManager {
     private static HashSet<IAetherManipulator> AetherRootCollectors;
     private static Deque<IAetherManipulator> AetherSearchQueue;
     private static HashSet<IAetherManipulator> AetherUpdateQueue;
+    private static Deque<IAetherManipulator> orphanedManipulators;
     private long serverTick = 0L;
 
     public AetherManager() {
@@ -34,6 +35,7 @@ public class AetherManager {
         AetherRootCollectors = new HashSet<>();
         AetherSearchQueue = new ArrayDeque<>();
         AetherUpdateQueue = new HashSet<>();
+        orphanedManipulators = new ArrayDeque<>();
     }
 
     public void enableCollector(@NotNull IAetherCollector collector, int dim, int x, int y, int z) {
@@ -71,12 +73,33 @@ public class AetherManager {
         AetherCollectors.forEachInRange(dim, x, y, z, c -> c.removeReleaserInRange(releaser));
     }
 
+    public void addOrphanedManipulator(IAetherManipulator manipulator) {
+        orphanedManipulators.add(manipulator);
+    }
+
     public void onServerTick(TickEvent.ServerTickEvent event) {
+        /*
+         * Force-reset orphans, in case they are not updated in the second loop.
+         * Ideally, this is more performant than enqueuing into the second
+         * loop and having extra checks.
+         */
+        AetherSearchQueue.clear();
+        AetherSearchQueue.addAll(orphanedManipulators);
+        while (!AetherSearchQueue.isEmpty()) {
+            IAetherManipulator curr = AetherSearchQueue.pop();
+            curr.resetAether();
+            Iterator<Map.Entry<Long, Pair<IAetherManipulator, Integer>>> iterSinks = curr.getAetherSinksIter();
+            while (iterSinks.hasNext()) {
+                IAetherManipulator next = iterSinks.next().getValue().left();
+                if (next != null) AetherSearchQueue.push(next);
+            }
+            orphanedManipulators.remove(curr);
+        }
+
         /*
          * Starting with known collectors, calculate Aether propagation using BFS.
          * Loops are handled in manipulators' getAetherFromSource
          */
-        AetherSearchQueue.clear();
         AetherSearchQueue.addAll(AetherRootCollectors);
         this.serverTick++;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -94,14 +117,12 @@ public class AetherManager {
                     if (te instanceof IAetherManipulator sink) {
                         entry.setValue(Pair.of(sink, entry.getValue().right()));
                     } else {
+                        // TODO: should never happen, but must handle orphaning
                         iterSinks.remove();
                         continue;
                     }
                 }
-                IAetherManipulator next = entry.getValue().left();
-                if (curr.validateSink(next)) {
-                    AetherSearchQueue.push(next);
-                }
+                AetherSearchQueue.push(entry.getValue().left());
             }
             iterSinks = curr.getAetherSinksIter();
             while (iterSinks.hasNext()) {

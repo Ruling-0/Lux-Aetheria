@@ -14,6 +14,8 @@ import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import net.minecraft.util.EnumChatFormatting;
 import org.jetbrains.annotations.NotNull;
 
+import static com.ruling_0.luxaetheria.api.AetherConstants.BASE_AETHER_RECHARGE;
+
 public class AethericEnergyUnit {
 
     protected long amount = 0L;
@@ -118,13 +120,13 @@ public class AethericEnergyUnit {
 
     @Override
     public String toString() {
-        DecimalFormat df = new DecimalFormat("0.00");
+        DecimalFormat df = new DecimalFormat("0");
         return this.amount + " ("
-            + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index))
+            + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100)
             + EnumChatFormatting.RESET + "%, "
-            + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index))
+            + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100)
             + EnumChatFormatting.RESET + "%, "
-            + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index))
+            + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100)
             + EnumChatFormatting.RESET + "%)";
     }
 
@@ -179,6 +181,10 @@ public class AethericEnergyUnit {
     }
 
     protected void recalculateRatios(long[] aspects) {
+        if (this.amount == 0L) {
+            Arrays.fill(this.aspectRatios, 1.0D);
+            return;
+        }
         for (int i = 0; i < this.aspectRatios.length; ++i) {
             this.aspectRatios[i] = (double) aspects[i] / this.amount;
         }
@@ -223,12 +229,32 @@ public class AethericEnergyUnit {
         if (changedOut) outgoing.recalculateRatios(tempOAspects);
     }
 
-    public void moveToEquilibrium(@Nonnull AethericEnergyUnit toMove) {
-
+    public void moveToEquilibrium(long amount) {
+        double[] aspects = new double[this.aspectRatios.length];
+        Arrays.fill(aspects, 1.0D);
+        this.moveToEquilibrium(amount, aspects);
     }
 
-    public void moveToEquilibrium(@Nonnull AethericEnergyUnit toMove, long amount, double[] aspects) {
-
+    /**
+     * Decays this AEU towards the given equilibrium stats.
+     * @param amount The equilibrium amount
+     * @param aspects The aspect ratios of the equilibrium
+     */
+    public void moveToEquilibrium(long amount, double[] aspects) {
+        long tempAmount = 0L;
+        long[] tempAspects = new long[AetherAspects.values().length];
+        for (int i = 0; i < this.aspectRatios.length; ++i) {
+            double target = (amount * aspects[i]);
+            double current = this.getAspectAmount(i);
+            //double delta = Math.cbrt(target - this.getAspectAmount(i));
+            //double delta = (target / BASE_AETHER_RECHARGE) *
+            //    (Math.cbrt(current / BASE_AETHER_RECHARGE) - (target / BASE_AETHER_RECHARGE));
+            double delta = Math.cbrt(current) * (target - current) / BASE_AETHER_RECHARGE;
+            tempAspects[i] = (long) (this.getAspectAmount(i) + delta);
+            if (tempAspects[i] > tempAmount) tempAmount = tempAspects[i];
+        }
+        this.setAmount(tempAmount);
+        this.recalculateRatios(tempAspects);
     }
 
     public void writeToNBT(@Nonnull NBTTagCompound compound) {

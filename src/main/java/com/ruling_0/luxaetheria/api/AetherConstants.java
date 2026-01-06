@@ -5,4 +5,8 @@ public final class AetherConstants {
     private AetherConstants() {}
 
     public static final int MAX_COLLECTOR_RANGE = 128;
+    public static final long BASE_AMBIENT_AETHER = 3_000L;
+    // Ticks to go from 2% to 98%, roughly
+    // Goes 1 to 3000 in 494 ticks
+    public static final long BASE_AETHER_RECHARGE = 600L;
 }

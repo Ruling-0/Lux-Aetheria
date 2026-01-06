@@ -30,6 +30,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     protected int maxAetherSinks;
     protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
     protected HashMap<Long, Pair<IAetherManipulator, Integer>> aetherSinks;
+    protected HashMap<Long, AethericEnergyUnit> sinkToAether;
     protected long[] aetherOutputs;
 
     public BaseAetherManipulator() {
@@ -40,6 +41,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         super();
         this.maxAetherSinks = maxAetherSinks;
         this.aetherSinks = new HashMap<>(this.maxAetherSinks);
+        this.sinkToAether = new HashMap<>(this.maxAetherSinks);
         this.aetherOutputs = new long[this.maxAetherSinks];
         for (int i = 0; i < this.maxAetherSinks; ++i) this.aetherOutputs[i] = -1L;
     }
@@ -49,8 +51,10 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         if (this.aetherSinks.size() < this.maxAetherSinks) {
             for (int i = 0; i < this.maxAetherSinks; ++i) {
                 if (this.aetherOutputs[i] == -1L) {
-                    this.aetherOutputs[i] = sink.getPosBlockPos().asLong();
-                    this.aetherSinks.put(sink.getPosBlockPos().asLong(), Pair.of(sink, sink.getDimension()));
+                    long coords = sink.getPosBlockPos().asLong();
+                    this.aetherOutputs[i] = coords;
+                    this.sinkToAether.put(coords, new AethericEnergyUnit());
+                    this.aetherSinks.put(coords, Pair.of(sink, sink.getDimension()));
                     return true;
                 }
             }
@@ -64,6 +68,8 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         for (int i = 0; i < this.maxAetherSinks; ++i) {
             if (this.aetherOutputs[i] == coords) {
                 this.aetherOutputs[i] = -1L;
+                this.aetherOut.split(this.sinkToAether.get(coords));
+                this.sinkToAether.remove(coords);
                 this.aetherSinks.remove(coords);
                 return true;
             }
@@ -164,6 +170,14 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
     @Override
     public void updateAether() {}
+
+    @Override
+    public void resetAether() {
+        this.aetherIn.reset();
+        this.aetherOut.reset();
+        this.aetherRelease.reset();
+        this.encounteredIDs = new HashSet<>();
+    }
 
     @Override
     public void writeToNBT(NBTTagCompound compound) {

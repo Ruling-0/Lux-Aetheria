@@ -109,13 +109,12 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         if (sink == null) return false;
         return LAUtils.checkRayCollision(this.worldObj, this.getPosVec3(), sink.getPosVec3(), true);
     }
+
     @Override
     public boolean getAetherFromSource(IAetherManipulator source, long tick) {
         if (this.doResetAether) {
             this.doResetAether = false;
-            this.aetherIn.reset();
-            this.aetherRelease.reset();
-            this.encounteredIDs = new HashSet<>();
+            this.resetAether();
         }
         if (!this.aetherSources.containsKey(source)) {
             this.aetherSources.put(source, this.getPosBlockPos().distance(source.getPosBlockPos()));
@@ -157,6 +156,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     @Override
     public void updateAether() {}
+
+    @Override
+    public void resetAether() {
+        this.aetherIn.reset();
+        this.aetherOut.reset();
+        this.aetherRelease.reset();
+        this.encounteredIDs = new HashSet<>();
+    }
 
     @Override
     public void writeToNBT(NBTTagCompound compound) {
