@@ -1,9 +1,6 @@
 package com.ruling_0.luxaetheria.common.items;
 
-import java.util.Iterator;
-
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.ruling_0.luxaetheria.api.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,8 +8,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;

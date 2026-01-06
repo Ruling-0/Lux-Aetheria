@@ -1,7 +1,7 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.SimpleCollectorHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleCollectorHandler;
 import com.ruling_0.luxaetheria.common.aether.IAetherCollector;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

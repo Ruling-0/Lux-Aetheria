@@ -1,4 +1,4 @@
-package com.ruling_0.luxaetheria.api;
+package com.ruling_0.luxaetheria.api.aether.handlers;
 
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 

@@ -1,22 +1,11 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import java.util.*;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.IAetherHandler;
-import com.ruling_0.luxaetheria.api.SimpleAetherHandler;
-import com.ruling_0.luxaetheria.utils.LAUtils;
-import it.unimi.dsi.fastutil.Pair;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.common.aether.IAetherReleaser;
 

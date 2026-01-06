@@ -1,12 +1,9 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import java.util.*;
-
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.IAetherHandler;
-import com.ruling_0.luxaetheria.api.IReleaserHandler;
-import com.ruling_0.luxaetheria.api.SimpleAetherHandler;
-import com.ruling_0.luxaetheria.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;

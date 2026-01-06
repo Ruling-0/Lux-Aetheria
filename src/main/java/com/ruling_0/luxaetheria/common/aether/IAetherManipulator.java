@@ -1,16 +1,7 @@
 package com.ruling_0.luxaetheria.common.aether;
 
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
-import com.ruling_0.luxaetheria.api.IAetherHandler;
-import it.unimi.dsi.fastutil.Pair;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
-
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 
 /**
  * An Interface for things which intake and/or output Aether.

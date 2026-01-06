@@ -1,10 +1,8 @@
-package com.ruling_0.luxaetheria.api;
+package com.ruling_0.luxaetheria.api.aether.handlers;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.ruling_0.luxaetheria.common.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.common.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.utils.InterDimCoords;
-import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 

@@ -4,23 +4,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
 import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
 
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.ruling_0.luxaetheria.api.AetherConstants;
-import com.ruling_0.luxaetheria.api.IAetherHandler;
-import com.ruling_0.luxaetheria.api.ICollectorHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import com.ruling_0.luxaetheria.utils.InterDimCoords;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import it.unimi.dsi.fastutil.Pair;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.event.world.WorldEvent;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
