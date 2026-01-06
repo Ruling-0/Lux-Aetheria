@@ -20,7 +20,7 @@ public enum Mods implements IMod {
 
     public final String ID;
     public final String resourceDomain;
-    protected boolean checked, modLoaded;
+    private boolean checked, modLoaded;
 
     Mods(String ID) {
         this.ID = ID;

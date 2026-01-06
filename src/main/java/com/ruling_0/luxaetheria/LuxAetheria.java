@@ -21,7 +21,7 @@ public class LuxAetheria {
     public static final String MODID = "luxaetheria";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
-    public static CreativeTabs tabLuxAetheria = new CreativeTabs(MODID) {
+    public static final CreativeTabs tabLuxAetheria = new CreativeTabs(MODID) {
 
         @Override
         public Item getTabIconItem() {

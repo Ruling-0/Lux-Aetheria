@@ -21,22 +21,22 @@ import com.ruling_0.luxaetheria.utils.LAUtils;
 
 public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
 
-    public AethericEnergyUnit aetherIn = new AethericEnergyUnit();
-    public AethericEnergyUnit aetherOut = new AethericEnergyUnit();
-    public AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
+    public final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
+    public final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
+    public final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     /**
      * This is used so the aether values are available to WAILA.
      * Triggers an aether reset on the next {@link #getAetherFromSource(IAetherManipulator, long)} call.
      */
     public boolean doResetAether = false;
 
-    protected int maxAetherSinks;
-    protected HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
-    protected HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
-    protected HashMap<InterDimCoords, IAetherManipulator> aetherSinks;
-    protected HashMap<InterDimCoords, AethericEnergyUnit> sinkToAether;
-    protected InterDimCoords[] aetherOutputs;
-    protected InterDimCoords coords;
+    protected final int maxAetherSinks;
+    protected final HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
+    protected final HashMap<IAetherManipulator, Double> aetherSources = new HashMap<>();
+    protected final HashMap<InterDimCoords, IAetherManipulator> aetherSinks;
+    protected final HashMap<InterDimCoords, AethericEnergyUnit> sinkToAether;
+    protected final InterDimCoords[] aetherOutputs;
+    protected final InterDimCoords coords;
 
     private final IAetherManipulator owner;
 
@@ -208,7 +208,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
         this.aetherIn.reset();
         this.aetherOut.reset();
         this.aetherRelease.reset();
-        this.encounteredIDs = new HashSet<>();
+        this.encounteredIDs.clear();
     }
 
     @Override

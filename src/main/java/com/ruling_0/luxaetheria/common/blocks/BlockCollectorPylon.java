@@ -18,10 +18,4 @@ public class BlockCollectorPylon extends BlockContainer {
         // TODO: get range/collection using meta as tier
         return new TileEntityCollectorPylon();
     }
-
-    // @Override
-    // public void breakBlock(World worldIn, int x, int y, int z, Block blockBroken, int meta) {
-    // worldIn.removeTileEntity(x, y, z);
-    // super.breakBlock(worldIn, x, y, z, blockBroken, meta);
-    // }
 }

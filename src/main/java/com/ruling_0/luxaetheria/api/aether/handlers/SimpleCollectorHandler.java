@@ -26,8 +26,6 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     private double collectorEfficiency = 1.0D;
     private int collectorsInRange = 1;
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
-    private boolean isEnabled = true; // TODO function for toggling on/off
-    private final IAetherCollector owner;
 
     public SimpleCollectorHandler(TileEntity te, int range, long collection) {
         this(1, te, range, collection);
@@ -35,7 +33,6 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     public SimpleCollectorHandler(int maxAetherSinks, TileEntity te, int range, long collection) {
         super(maxAetherSinks, te);
-        this.owner = (IAetherCollector) te;
         this.range = range;
         this.collection = collection;
         this.ambientAether = new AethericEnergyUnit(BASE_AMBIENT_AETHER);
