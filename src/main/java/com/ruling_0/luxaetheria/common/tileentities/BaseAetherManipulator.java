@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.nbt.NBTTagCompound;
@@ -71,6 +72,7 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
                 this.aetherOut.split(this.sinkToAether.get(coords));
                 this.sinkToAether.remove(coords);
                 this.aetherSinks.remove(coords);
+                LuxAetheria.proxy.aetherManager.addOrphanedManipulator(sink);
                 return true;
             }
         }

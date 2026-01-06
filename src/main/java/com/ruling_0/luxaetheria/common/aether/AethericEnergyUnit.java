@@ -19,7 +19,7 @@ import static com.ruling_0.luxaetheria.api.AetherConstants.BASE_AETHER_RECHARGE;
 public class AethericEnergyUnit {
 
     protected long amount = 0L;
-    protected double[] aspectRatios = { 0.0D, 0.0D, 0.0D };
+    protected double[] aspectRatios = { 1.0D, 1.0D, 1.0D };
     protected AEUID id;
 
     public AethericEnergyUnit() {
@@ -36,7 +36,6 @@ public class AethericEnergyUnit {
 
     public AethericEnergyUnit(long amount, long origin, long tick, int dim, int output) {
         this.amount = amount;
-        Arrays.fill(this.aspectRatios, 1.0D);
         this.id = new AEUID(origin, tick, output, dim);
     }
 
@@ -177,7 +176,7 @@ public class AethericEnergyUnit {
 
     public void reset() {
         this.amount = 0L;
-        Arrays.fill(this.aspectRatios, 0.0D);
+        Arrays.fill(this.aspectRatios, 1.0D);
     }
 
     protected void recalculateRatios(long[] aspects) {
@@ -246,10 +245,9 @@ public class AethericEnergyUnit {
         for (int i = 0; i < this.aspectRatios.length; ++i) {
             double target = (amount * aspects[i]);
             double current = this.getAspectAmount(i);
-            //double delta = Math.cbrt(target - this.getAspectAmount(i));
-            //double delta = (target / BASE_AETHER_RECHARGE) *
-            //    (Math.cbrt(current / BASE_AETHER_RECHARGE) - (target / BASE_AETHER_RECHARGE));
             double delta = Math.cbrt(current) * (target - current) / BASE_AETHER_RECHARGE;
+            if (delta < 0.0D) delta = Math.min(-1.0D, delta);
+            else if (delta > 0.0D) delta = Math.max(1.0D, delta);
             tempAspects[i] = (long) (this.getAspectAmount(i) + delta);
             if (tempAspects[i] > tempAmount) tempAmount = tempAspects[i];
         }

@@ -99,7 +99,8 @@ public class TileEntityCollectorPylon extends BaseAetherManipulator implements I
     @Nonnull
     @Override
     public AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist) {
-        this.aetherOut.split(this.sinkToAether.get(sink.getPosBlockPos().asLong()));
+        AethericEnergyUnit prevAether = this.sinkToAether.get(sink.getPosBlockPos().asLong());
+        if (prevAether != null) this.aetherOut.split(prevAether);
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.ambientAether);
         if (!this.validateSink(sink)) {
             // No need to merge since it'd merge 0
