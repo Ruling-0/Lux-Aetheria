@@ -1,25 +1,26 @@
 package com.ruling_0.luxaetheria.common.aether;
 
+import com.ruling_0.luxaetheria.api.IAetherHandler;
+import com.ruling_0.luxaetheria.api.ICollectorHandler;
+import net.minecraft.nbt.NBTTagCompound;
+
 /**
  * An Interface for things which collect ambient Aether.
  */
 public interface IAetherCollector {
 
-    long getAetherCollectionAmount();
+    ICollectorHandler getCollectorHandler();
 
-    int getCollectorRange();
+    void enable();
 
-    void addCollectorInRange(IAetherCollector collector);
-
-    void removeCollectorInRange(IAetherCollector collector);
-
-    void bulkUpdateCollectors(long collectionDelta, int countDelta);
-
-    void addReleaserInRange(IAetherReleaser releaser);
-
-    void removeReleaserInRange(IAetherReleaser releaser);
-
-    AethericEnergyUnit getAmbientAether();
+    /**
+     * For disabling an {@link IAetherCollector}.
+     * Should be called whenever the collector is destroyed or unloaded.
+     * Removes the collector's effects on nearby collectors.
+     */
+    void disable();
 
     boolean isRemote();
+
+    void writeWAILAData(NBTTagCompound compound);
 }

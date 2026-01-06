@@ -8,17 +8,19 @@ import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 @WDMlaPlugin(uid = "luxaetheria")
 public class LuxAetheriaWDMLAPlugin implements IWDMlaPlugin {
 
     @Override
-    public void register(@NotNull IWDMlaCommonRegistration registration) {
+    public void register(@Nonnull IWDMlaCommonRegistration registration) {
         registration.registerBlockDataProvider(AetherManipulatorProvider.INSTANCE, BlockAethericFurnace.class);
         registration.registerBlockDataProvider(AetherManipulatorProvider.INSTANCE, BlockCollectorPylon.class);
     }
 
     @Override
-    public void registerClient(@NotNull IWDMlaClientRegistration registration) {
+    public void registerClient(@Nonnull IWDMlaClientRegistration registration) {
         registration.registerBlockComponent(AetherManipulatorProvider.INSTANCE, BlockAethericFurnace.class);
         registration.registerBlockComponent(AetherManipulatorProvider.INSTANCE, BlockCollectorPylon.class);
     }

@@ -3,6 +3,8 @@ package com.ruling_0.luxaetheria.common.items;
 import java.util.Iterator;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.ruling_0.luxaetheria.api.IAetherHandler;
+import com.ruling_0.luxaetheria.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -26,33 +28,34 @@ public class ItemPylonBinder extends Item {
         TileEntity te = world.getTileEntity(x, y, z);
         if (te == null) return false;
         if (te instanceof IAetherManipulator aetherManipulator) {
-            if (boundManipulator != null) {
-                if (boundManipulator.equals(aetherManipulator)) return true;
+            if (this.boundManipulator != null) {
+                if (this.boundManipulator.equals(aetherManipulator)) return true;
                 boolean success;
-                BlockPos targetPos = aetherManipulator.getPosBlockPos();
-                if (boundManipulator.hasOutput(targetPos.asLong())) {
-                    success = boundManipulator.removeAetherSink(aetherManipulator);
+                IAetherHandler boundHandler = this.boundManipulator.getAetherHandler();
+                InterDimCoords targetPos = aetherManipulator.getAetherHandler().getInterDimCoords();
+                if (boundHandler.hasOutput(targetPos)) {
+                    success = boundHandler.removeAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_sink"));
                         return true;
                     }
-                    boundManipulator = null;
+                    this.boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
                 } else {
-                    if (!LAUtils.checkRayCollision(world, boundManipulator, aetherManipulator, true)) {
+                    if (!LAUtils.checkRayCollision(world, this.boundManipulator, aetherManipulator, true)) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
                         return true;
                     }
-                    success = boundManipulator.addAetherSink(aetherManipulator);
+                    success = boundHandler.addAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_sink"));
                         return true;
                     }
-                    boundManipulator = null;
+                    this.boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.bound"));
                 }
             } else {
-                boundManipulator = aetherManipulator;
+                this.boundManipulator = aetherManipulator;
             }
             return true;
         }

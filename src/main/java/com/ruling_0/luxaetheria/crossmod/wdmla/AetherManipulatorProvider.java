@@ -15,6 +15,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 public enum AetherManipulatorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
     INSTANCE;
@@ -23,7 +25,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     public ResourceLocation getUid() { return Identifiers.PROV_AETHERMANIPULATOR; }
 
     @Override
-    public void appendTooltip(ITooltip tooltip, @NotNull BlockAccessor accessor) {
+    public void appendTooltip(ITooltip tooltip, @Nonnull BlockAccessor accessor) {
         AethericEnergyUnit aetherIn = new AethericEnergyUnit();
         AethericEnergyUnit aetherOut = new AethericEnergyUnit();
         NBTTagCompound compound = accessor.getServerData();
@@ -52,7 +54,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     }
 
     @Override
-    public void appendServerData(NBTTagCompound data, @NotNull BlockAccessor accessor) {
+    public void appendServerData(NBTTagCompound data, @Nonnull BlockAccessor accessor) {
         TileEntity te = accessor.getTileEntity();
         if (te == null) return;
         if (te instanceof IAetherReleaser releaser) {

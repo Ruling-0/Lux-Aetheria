@@ -7,11 +7,13 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
+
 
 public class AetherEventHandler {
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.@NotNull ServerTickEvent event) {
+    public void onServerTick(@Nonnull TickEvent.ServerTickEvent event) {
         if (!event.side.isServer() || event.phase == TickEvent.Phase.END) return;
         LuxAetheria.proxy.aetherManager.onServerTick(event);
     }

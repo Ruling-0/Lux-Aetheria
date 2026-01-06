@@ -5,7 +5,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.IAetherHandler;
 import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
@@ -14,41 +16,7 @@ import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
  * An Interface for things which intake and/or output Aether.
  */
 public interface IAetherManipulator {
-
-    boolean addAetherSink(IAetherManipulator sink);
-
-    boolean removeAetherSink(IAetherManipulator sink);
-
-    Iterator<Map.Entry<Long, Pair<IAetherManipulator, Integer>>> getAetherSinksIter();
-
-    boolean hasOutput(long coords);
-
-    IAetherManipulator getOutput(long coords);
-
-    int getOutputIndex(long coords);
-
-    @Nonnull
-    Vec3 getPosVec3();
-
-    @Nonnull
-    BlockPos getPosBlockPos();
-
-    int getDimension();
-
-    boolean validateSink(IAetherManipulator sink);
-
-    @Nonnull
-    AethericEnergyUnit getAetherOut(long tick, IAetherManipulator sink, double dist);
-
-    /**
-     * For a given source, calculates the received aether, introducing loss.
-     * If this is called more than once with the same source and tick, the later
-     * amounts are released back to the environment.
-     *
-     * @param source The upstream manipulator
-     * @param tick   The tick this is calculated on
-     */
-    boolean getAetherFromSource(IAetherManipulator source, long tick);
+    IAetherHandler getAetherHandler();
 
     void enable();
 
@@ -59,9 +27,5 @@ public interface IAetherManipulator {
      */
     void disable();
 
-    boolean isUpdateable();
-
-    void updateAether();
-
-    void resetAether();
+    void writeWAILAData(NBTTagCompound compound);
 }

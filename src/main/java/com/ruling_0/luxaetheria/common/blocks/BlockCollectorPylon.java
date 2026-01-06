@@ -16,7 +16,7 @@ public class BlockCollectorPylon extends BlockContainer {
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
         // TODO: get range/collection using meta as tier
-        return new TileEntityCollectorPylon(12, 3);
+        return new TileEntityCollectorPylon();
     }
 
     // @Override
