@@ -2,7 +2,7 @@ package com.ruling_0.luxaetheria.api.aether.handlers;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 

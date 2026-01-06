@@ -13,7 +13,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
-import com.ruling_0.luxaetheria.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.tileentity.TileEntity;
 

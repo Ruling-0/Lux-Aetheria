@@ -1,13 +1,11 @@
-package com.ruling_0.luxaetheria.utils;
+package com.ruling_0.luxaetheria.api.utils;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
 import cpw.mods.fml.common.FMLCommonHandler;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 

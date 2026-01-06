@@ -1,7 +1,7 @@
 package com.ruling_0.luxaetheria.common.items;
 
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
