@@ -166,7 +166,7 @@ public class AetherManager {
                     .getAetherFromSource(curr, this.serverTick);
                 if (shouldPropagate) AetherSearchQueue.push(next);
             }
-            if (currHandler.isUpdateable()) AetherUpdateQueue.add(curr);
+            if (currHandler.isUpdatable()) AetherUpdateQueue.add(curr);
         }
         for (IAetherManipulator curr : AetherUpdateQueue) {
             curr.getAetherHandler()

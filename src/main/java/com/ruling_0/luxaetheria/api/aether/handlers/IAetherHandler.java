@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ruling_0.luxaetheria.common.aether.AetherManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
@@ -13,54 +14,139 @@ import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
+/**
+ * Responsible for handling Aether flow and processing for a {@link IAetherManipulator} or other object that
+ * participates in an Aether processing chain.
+ */
 public interface IAetherHandler {
 
+    /**
+     * Registers a downstream {@link IAetherManipulator} to receive aether from this one.
+     * @param sink The downstream manipulator.
+     * @return Whether the sink was successfully added.
+     */
     boolean addAetherSink(IAetherManipulator sink);
 
+    /**
+     * Removes a downstream {@link IAetherManipulator}.
+     * @param sink The downstream manipulator.
+     * @return Whether the sink was successfully removed.
+     */
     boolean removeAetherSink(IAetherManipulator sink);
 
+    /**
+     * Gets an iterator over registered Aether sinks.
+     * Keys ({@link InterDimCoords}) are nonnull, values ({@link IAetherManipulator}) are nullable.
+     */
     Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> getAetherSinksIter();
 
+    /**
+     * Checks whether the provided {@link InterDimCoords} represent a registered Aether sink.
+     */
     boolean hasOutput(InterDimCoords coords);
 
+    /**
+     * Retrieve an Aether sink for the given coords.
+     */
     IAetherManipulator getOutput(InterDimCoords coords);
 
+    /**
+     * Checks the registered Aether sinks for the given coords and returns which output index they are bound to.
+     * @return The index of the output in the array of outputs, or -1 if not found.
+     */
     int getOutputIndex(InterDimCoords coords);
 
+    /**
+     * Gets a {@link Vec3} representing the center of this.
+     * @return {@link Vec3} object of each coord + 0.5.
+     */
     @Nonnull
     Vec3 getPosVec3();
 
+    /**
+     * Gets the {@link InterDimCoords} of this.
+     */
     @Nonnull
     InterDimCoords getInterDimCoords();
 
-    int getDimension();
-
+    /**
+     * Checks if a given Aether sink is invalid due to dynamic or outside influence.
+     * That is, any cause not from the sink itself (handled by {@link IAetherManipulator#disable}).
+     * One example: for same-dimension line-of-sight sinks, confirming path is clear.
+     * @param sinkHandler Aether handler of the sink.
+     * @return True if the sink is invalid, false otherwise.
+     */
     boolean isInvalidSink(@Nullable IAetherHandler sinkHandler);
 
     /**
-     * For a given source, calculates the received aether, introducing loss.
-     * If this is called more than once with the same source and tick, the later
-     * amounts are released back to the environment.
+     * Called by the {@link AetherManager} during BFS traversal.
+     * Should use {@link #getAetherOut} to retrieve an {@link AethericEnergyUnit} to process.
+     * If this receives an {@link AethericEnergyUnit} with an {@link AethericEnergyUnit.AEUID} already encountered
+     * since the last call to {@link #resetAether()}, it should return false to prevent further processing and
+     * handle the excess Aether (such as by releasing to the environment).
      *
      * @param source The upstream manipulator
      * @param tick   The tick this is calculated on
+     * @return True if this should be added to the BFS queue for downstream processing, false otherwise.
      */
     boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick);
 
+    /**
+     * Provides an {@link AethericEnergyUnit} to a requesting sink. If this is a root node of the
+     * {@link AetherManager}'s BFS traversal, it must set the {@link AethericEnergyUnit.AEUID} using the provided
+     * tick. It is also the responsibility of this to handle loss calculation, and if there is a loss, to release it.
+     * <p>
+     * This is the per-sink output; so, given multiple sinks, this must handle splitting overall output between them.
+     * <p>
+     * For UI purposes (like WAILA), it is recommended to have one unit for showing non-loss output, which is updated
+     * in this method, as the return value is the post-loss value.
+     *
+     * @param tick Processing tick, for building a unique ID.
+     * @param sinkHandler Aether handler of the requesting sink.
+     * @param dist The distance between this and the sink, for loss calculations.
+     * @return A new {@link AethericEnergyUnit} representing the post-loss output.
+     */
     @Nonnull
     AethericEnergyUnit getAetherOut(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
 
-    boolean isUpdateable();
+    /**
+     * Whether this handler's Aether should be updated every tick after the {@link AetherManager} runs its BFS traversal.
+     * In this case, it is guaranteed that all released Aether values are final (set in {@link #getAetherFromSource}). Thus,
+     * this should not manipulate released Aether values. If True, {@link #updateAether} is called later for the actual update.
+     *
+     * @return True if this should be updated, false otherwise.
+     */
+    boolean isUpdatable();
 
+    /**
+     * Update Aether values that rely on previous processing during this tick being already done. This should not modify
+     * values (such as released Aether) that other updatable handlers may rely on.
+     */
     void updateAether();
 
+    /**
+     * Called to reset the dynamic Aether values for this handler. This is called by the {@link AetherManager} when an
+     * upstream source is removed, since it's possible this handler's owner was orphaned and so the BFS traversal won't
+     * call {@link #getAetherFromSource}.
+     */
     void resetAether();
 
+    /**
+     * This must iterate through all upstream sources which this handler is a sink of, and call {@link #removeAetherSink}
+     * to remove itself.
+     */
     void disconnectFromSources();
 
+    /**
+     * Store this handler's information in NBT. It should write any Aether information that should be saved and loaded
+     * alongside the chunk/world, as well as the coordinates of any sinks.
+     * @param compound The {@link NBTTagCompound} to write to.
+     */
     void writeToNBT(@Nonnull NBTTagCompound compound);
 
+    /**
+     * Load this handler's information from NBT.
+     */
     void readFromNBT(@Nonnull NBTTagCompound compound);
 
-    boolean isRemote();
 }

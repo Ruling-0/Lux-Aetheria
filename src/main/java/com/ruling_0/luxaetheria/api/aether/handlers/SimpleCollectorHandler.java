@@ -50,7 +50,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public void addCollectorInRange(IAetherCollector collector) {
+    public void addCollectorInRange(@Nonnull IAetherCollector collector) {
         ICollectorHandler collectorHandler = collector.getCollectorHandler();
         if (collectorHandler.equals(this)) return;
         this.collectorsInRange++;
@@ -76,15 +76,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Override
     public void addReleaserInRange(@Nonnull IAetherReleaser releaser) {
-        AethericEnergyUnit release = new AethericEnergyUnit(
-            releaser.getReleaserHandler()
-                .getAetherRelease());
+        AethericEnergyUnit release = releaser.getReleaserHandler().getAetherRelease();
         this.aetherRelease.merge(release);
         this.aetherReleasers.put(releaser, release);
     }
 
     @Override
-    public void removeReleaserInRange(IAetherReleaser releaser) {
+    public void removeReleaserInRange(@Nonnull IAetherReleaser releaser) {
         this.aetherRelease.split(this.aetherReleasers.get(releaser));
         this.aetherReleasers.remove(releaser);
     }
@@ -126,7 +124,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public boolean isUpdateable() {
+    public boolean isUpdatable() {
         return true;
     }
 

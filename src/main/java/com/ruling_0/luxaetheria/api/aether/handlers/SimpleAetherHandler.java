@@ -132,11 +132,6 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
     }
 
     @Override
-    public int getDimension() {
-        return this.coords.getWorld().provider.dimensionId;
-    }
-
-    @Override
     public boolean isInvalidSink(@Nullable IAetherHandler sinkHandler) {
         if (sinkHandler == null) return true;
         return !LAUtils.checkRayCollision(this.coords.getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
@@ -192,11 +187,11 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
 
     @Override
     public AethericEnergyUnit getAetherRelease() {
-        return this.aetherRelease;
+        return new AethericEnergyUnit(this.aetherRelease);
     }
 
     @Override
-    public boolean isUpdateable() {
+    public boolean isUpdatable() {
         return false;
     }
 
@@ -261,8 +256,4 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
         }
     }
 
-    @Override
-    public boolean isRemote() {
-        return this.coords.getWorld().isRemote;
-    }
 }
