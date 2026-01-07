@@ -20,6 +20,9 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
 
+/**
+ * The class responsible for managing Aether flow. Only one should exist at a time.
+ */
 public class AetherManager {
 
     private static ArrayProximityMap4D<IAetherCollector> AetherCollectors;
@@ -40,7 +43,6 @@ public class AetherManager {
     }
 
     public void enableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
-        // TODO: PR to GTNHLib that returns count from forEachInRange
         AtomicInteger count = new AtomicInteger();
         AtomicLong totalCollection = new AtomicLong();
         ICollectorHandler handler = collector.getCollectorHandler();

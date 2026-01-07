@@ -11,6 +11,9 @@ import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 
+/**
+ * Extension of {@link BlockPos} which also stores a reference to the {@link World} it is in.
+ */
 public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     public final World world;
@@ -48,7 +51,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     /**
      * Distance between two InterDimCoords, where if they are in
      * different dimensions, the distance is 0.
-     * 
+     *
      * @param coords The point to measure distance to
      * @return 0 if different dimensions, distance otherwise
      */
