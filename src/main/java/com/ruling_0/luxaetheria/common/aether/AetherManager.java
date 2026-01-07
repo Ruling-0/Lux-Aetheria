@@ -141,7 +141,6 @@ public class AetherManager {
             IAetherHandler currHandler = curr.getAetherHandler();
             Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                // TODO: listen for block updates and only check collision in range
                 Map.Entry<InterDimCoords, IAetherManipulator> entry = iterSinks.next();
                 if (entry.getValue() == null) {
                     InterDimCoords coords = entry.getKey();
@@ -151,10 +150,8 @@ public class AetherManager {
                         entry.setValue(sink);
                     } else {
                         iterSinks.remove();
-                        continue;
                     }
                 }
-                AetherSearchQueue.push(entry.getValue());
             }
             iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
