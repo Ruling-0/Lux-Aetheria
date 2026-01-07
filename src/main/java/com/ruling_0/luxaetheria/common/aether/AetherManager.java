@@ -55,7 +55,7 @@ public class AetherManager {
         });
         handler.bulkUpdateCollectors(-totalCollection.get(), count.get());
         AetherCollectors.put(collector, dim, x, y, z, handler.getCollectorRange());
-        AetherReleasers.forEachInRange(dim, x, y, z, handler::addReleaserInRange);
+        AetherReleasers.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addReleaserInRange);
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.add(manipulator);
     }
 
