@@ -76,7 +76,8 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Override
     public void addReleaserInRange(@Nonnull IAetherReleaser releaser) {
-        AethericEnergyUnit release = releaser.getReleaserHandler().getAetherRelease();
+        AethericEnergyUnit release = releaser.getReleaserHandler()
+            .getAetherRelease();
         this.aetherRelease.merge(release);
         this.aetherReleasers.put(releaser, release);
     }

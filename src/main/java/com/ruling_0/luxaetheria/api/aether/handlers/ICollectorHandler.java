@@ -1,10 +1,10 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
+import javax.annotation.Nonnull;
+
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-
-import javax.annotation.Nonnull;
 
 /**
  * Responsible for handling Aether for an {@link IAetherCollector}. This involves maintaining an
@@ -26,13 +26,16 @@ public interface ICollectorHandler {
      * When an {@link IAetherCollector} is added to the world, this is called when that collector is within this
      * collector's range (from {@link #getCollectorRange}). This must reflect the collector's reduction in the ambient
      * Aether level, but can introduce other effects.
+     * 
      * @param collector The newly added collector.
      */
     void addCollectorInRange(@Nonnull IAetherCollector collector);
 
     /**
      * When an {@link IAetherCollector} is removed from the world, this is called when that collector is within this
-     * collector's range (from {@link #getCollectorRange}). This should reverse the effects of {@link #addCollectorInRange}.
+     * collector's range (from {@link #getCollectorRange}). This should reverse the effects of
+     * {@link #addCollectorInRange}.
+     * 
      * @param collector The collector being removed.
      */
     void removeCollectorInRange(@Nonnull IAetherCollector collector);
@@ -40,8 +43,9 @@ public interface ICollectorHandler {
     /**
      * Called when this handler's owning {@link IAetherCollector} is added to the world, so that this can handle the
      * effects that would have been handled by {@link #addCollectorInRange}.
+     * 
      * @param collectionDelta The total draw being updated, should be added directly to the ambient Aether level.
-     * @param countDelta The change in the number of collectors in range.
+     * @param countDelta      The change in the number of collectors in range.
      */
     void bulkUpdateCollectors(long collectionDelta, int countDelta);
 
