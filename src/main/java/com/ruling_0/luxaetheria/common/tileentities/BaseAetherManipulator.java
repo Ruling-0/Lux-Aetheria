@@ -84,9 +84,4 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         super.validate();
         this.enable();
     }
-
-    @Override
-    public boolean isRemote() {
-        return this.worldObj.isRemote;
-    }
 }

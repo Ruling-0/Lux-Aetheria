@@ -40,7 +40,6 @@ public class AetherManager {
     }
 
     public void enableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
-        if (collector.isRemote()) return;
         // TODO: PR to GTNHLib that returns count from forEachInRange
         AtomicInteger count = new AtomicInteger();
         AtomicLong totalCollection = new AtomicLong();
@@ -60,7 +59,6 @@ public class AetherManager {
     }
 
     public void disableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
-        if (collector.isRemote()) return;
         AetherCollectors.remove(dim, x, y, z);
         AetherCollectors.forEachInRange(
             dim,
@@ -73,7 +71,6 @@ public class AetherManager {
     }
 
     public void enableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
-        if (releaser.isRemote()) return;
         AetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
         AetherCollectors.forEachInRange(
             dim,
@@ -85,7 +82,6 @@ public class AetherManager {
     }
 
     public void disableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
-        if (releaser.isRemote()) return;
         AetherReleasers.remove(dim, x, y, z);
         AetherCollectors.forEachInRange(
             dim,

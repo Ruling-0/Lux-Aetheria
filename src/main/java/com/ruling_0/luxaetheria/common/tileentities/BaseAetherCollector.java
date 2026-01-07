@@ -74,9 +74,4 @@ public abstract class BaseAetherCollector extends TileEntity implements IAetherC
         super.readFromNBT(compound);
         this.collectorHandler.readFromNBT(compound);
     }
-
-    @Override
-    public boolean isRemote() {
-        return this.worldObj.isRemote;
-    }
 }

@@ -86,11 +86,6 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         this.enable();
     }
 
-    @Override
-    public boolean isRemote() {
-        return this.worldObj.isRemote;
-    }
-
     protected boolean canSmelt() {
         if (this.getStackInSlot(0) == null) {
             return false;
@@ -109,13 +104,13 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
 
     @Override
     public void updateEntity() {
-        if (!this.isRemote()) {
+        if (!this.worldObj.isRemote) {
             if (this.aetherHandler.aetherIn.getAspectAmount(AetherAspects.RED.index) >= 1 && this.canSmelt()) {
                 // This is decremented before checks for non-zero val
                 this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
             }
         }
         super.updateEntity();
-        if (!this.isRemote()) this.aetherHandler.doResetAether = true;
+        if (!this.worldObj.isRemote) this.aetherHandler.doResetAether = true;
     }
 }
