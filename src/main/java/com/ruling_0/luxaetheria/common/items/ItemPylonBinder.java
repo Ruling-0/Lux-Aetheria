@@ -1,6 +1,7 @@
 package com.ruling_0.luxaetheria.common.items;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -21,7 +22,6 @@ public class ItemPylonBinder extends Item {
         float hitx, float hity, float hitz) {
         if (world.isRemote) return true;
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te == null) return false;
         if (te instanceof IAetherManipulator aetherManipulator) {
             if (this.boundManipulator != null) {
                 if (this.boundManipulator.equals(aetherManipulator)) return true;
@@ -52,7 +52,12 @@ public class ItemPylonBinder extends Item {
                 }
             } else {
                 this.boundManipulator = aetherManipulator;
+                player.addChatMessage(new ChatComponentTranslation("LA.binder.selected"));
             }
+            return true;
+        }
+        if (player.isSneaking() && this.boundManipulator != null) {
+            player.addChatMessage(new ChatComponentTranslation("LA.binder.clear"));
             return true;
         }
         return false;
