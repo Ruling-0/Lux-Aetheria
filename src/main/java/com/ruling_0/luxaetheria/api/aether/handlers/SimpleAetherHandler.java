@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -18,17 +19,19 @@ import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
+import org.jetbrains.annotations.NotNull;
 
-public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
+public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IWDMLAProvider {
 
     public final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
     public final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
     public final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     /**
-     * This is used so the aether values are available to WAILA.
+     * This is used so the aether values are available to WDMLA.
      * Triggers an aether reset on the next {@link #getAetherFromSource(IAetherManipulator, long)} call.
      */
     public boolean doResetAether = false;
+    public double maxSinkDistance = 0.0D;
 
     protected final int maxAetherSinks;
     protected final HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
@@ -36,17 +39,13 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
     protected final HashMap<InterDimCoords, IAetherManipulator> aetherSinks;
     protected final HashMap<InterDimCoords, AethericEnergyUnit> sinkToAether;
     protected final InterDimCoords[] aetherOutputs;
-    protected final InterDimCoords coords;
+    protected long lastSourceTick = -1L;
+    protected long lastSinkTick = -1L;
 
     private final IAetherManipulator owner;
 
-    public SimpleAetherHandler(TileEntity te) {
-        this(1, te);
-    }
-
     public SimpleAetherHandler(int maxAetherSinks, TileEntity te) {
         this.maxAetherSinks = maxAetherSinks;
-        this.coords = new InterDimCoords(te);
         this.owner = (IAetherManipulator) te;
         this.aetherSinks = new HashMap<>(this.maxAetherSinks);
         this.sinkToAether = new HashMap<>(this.maxAetherSinks);
@@ -64,6 +63,9 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
                     this.aetherOutputs[i] = coords;
                     this.sinkToAether.put(coords, new AethericEnergyUnit());
                     this.aetherSinks.put(coords, sink);
+                    double dist = this.getInterDimCoords().distance(coords);
+                    if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
+                    this.getInterDimCoords().getWorld().markBlockForUpdate(this.getInterDimCoords().getX(), this.getInterDimCoords().getY(), this.getInterDimCoords().getZ());
                     return true;
                 }
             }
@@ -75,17 +77,23 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
     public boolean removeAetherSink(@Nonnull IAetherManipulator sink) {
         InterDimCoords coords = sink.getAetherHandler()
             .getInterDimCoords();
+        boolean removed = false;
+        this.maxSinkDistance = 0.0D;
         for (int i = 0; i < this.maxAetherSinks; ++i) {
-            if (coords.equals(this.aetherOutputs[i])) {
+            if (!removed && coords.equals(this.aetherOutputs[i])) {
                 this.aetherOutputs[i] = null;
                 this.aetherOut.split(this.sinkToAether.get(coords));
                 this.sinkToAether.remove(coords);
                 this.aetherSinks.remove(coords);
                 LuxAetheria.proxy.aetherManager.addOrphanedManipulator(sink);
-                return true;
+                this.getInterDimCoords().getWorld().markBlockForUpdate(this.getInterDimCoords().getX(), this.getInterDimCoords().getY(), this.getInterDimCoords().getZ());
+                removed = true;
+                continue;
             }
+            double dist = this.getInterDimCoords().distance(coords);
+            if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
         }
-        return false;
+        return removed;
     }
 
     @Override
@@ -122,33 +130,45 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
     @Nonnull
     @Override
     public Vec3 getPosVec3() {
-        return this.coords.getVec3();
+        return this.getInterDimCoords().getVec3();
     }
 
     @Nonnull
     @Override
     public InterDimCoords getInterDimCoords() {
-        return this.coords;
+        return this.owner.getInterDimCoords();
     }
 
     @Override
     public boolean isInvalidSink(@Nullable IAetherHandler sinkHandler) {
         if (sinkHandler == null) return true;
-        return !LAUtils.checkRayCollision(this.coords.getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        return !LAUtils.checkRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+    }
+
+    @Override
+    public AethericEnergyUnit getAetherOut() {
+        return new AethericEnergyUnit(this.aetherOut);
+    }
+
+    @Override
+    public double getMaxSinkDistance() {
+        return this.maxSinkDistance;
     }
 
     @Override
     public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
-        if (this.doResetAether) {
-            this.resetAether();
-            this.doResetAether = false;
+        if (tick != this.lastSourceTick) {
+            this.lastSourceTick = tick;
+            this.aetherIn.reset();
+            this.aetherRelease.reset();
+            this.encounteredIDs.clear();
         }
         IAetherHandler sourceHandler = source.getAetherHandler();
         if (!this.aetherSources.containsKey(source)) {
-            this.aetherSources.put(source, this.coords.distance(sourceHandler.getInterDimCoords()));
+            this.aetherSources.put(source, this.getInterDimCoords().distance(sourceHandler.getInterDimCoords()));
         }
         double dist = this.aetherSources.get(source);
-        AethericEnergyUnit incoming = sourceHandler.getAetherOut(tick, this, dist);
+        AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
             if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
@@ -161,9 +181,11 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
 
     @Nonnull
     @Override
-    public AethericEnergyUnit getAetherOut(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
-        AethericEnergyUnit prevAether = this.sinkToAether.get(sinkHandler.getInterDimCoords());
-        if (prevAether != null) this.aetherOut.split(prevAether);
+    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
+        if (tick != this.lastSinkTick) {
+            this.lastSinkTick = tick;
+            this.aetherOut.reset();
+        }
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
         if (this.isInvalidSink(sinkHandler)) {
             returnedAether.reset();
@@ -251,9 +273,24 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler {
             int z = nbtAetherSink.getInteger("z");
             int dim = nbtAetherSink.getInteger("dim");
             InterDimCoords coords = new InterDimCoords(x, y, z, dim);
+            double dist = this.getInterDimCoords().distance(coords);
+            if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
             this.aetherSinks.put(coords, null);
             this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }
+    }
+
+    @Override
+    public void writeWDMLAData(@NotNull NBTTagCompound compound) {
+        NBTTagCompound nbtAetherIn = new NBTTagCompound();
+        this.aetherIn.writeToNBT(nbtAetherIn);
+        compound.setTag("aetherIn", nbtAetherIn);
+        NBTTagCompound nbtAetherOut = new NBTTagCompound();
+        this.aetherOut.writeToNBT(nbtAetherOut);
+        compound.setTag("aetherOut", nbtAetherOut);
+        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
+        this.aetherRelease.writeToNBT(nbtAetherRelease);
+        compound.setTag("aetherRelease", nbtAetherRelease);
     }
 
 }

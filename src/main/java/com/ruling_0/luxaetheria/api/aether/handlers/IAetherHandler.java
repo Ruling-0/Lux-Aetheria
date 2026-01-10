@@ -22,7 +22,7 @@ public interface IAetherHandler {
 
     /**
      * Registers a downstream {@link IAetherManipulator} to receive aether from this one.
-     * 
+     *
      * @param sink The downstream manipulator.
      * @return Whether the sink was successfully added.
      */
@@ -30,7 +30,7 @@ public interface IAetherHandler {
 
     /**
      * Removes a downstream {@link IAetherManipulator}.
-     * 
+     *
      * @param sink The downstream manipulator.
      * @return Whether the sink was successfully removed.
      */
@@ -54,14 +54,14 @@ public interface IAetherHandler {
 
     /**
      * Checks the registered Aether sinks for the given coords and returns which output index they are bound to.
-     * 
+     *
      * @return The index of the output in the array of outputs, or -1 if not found.
      */
     int getOutputIndex(InterDimCoords coords);
 
     /**
      * Gets a {@link Vec3} representing the center of this.
-     * 
+     *
      * @return {@link Vec3} object of each coord + 0.5.
      */
     @Nonnull
@@ -77,15 +77,25 @@ public interface IAetherHandler {
      * Checks if a given Aether sink is invalid due to dynamic or outside influence.
      * That is, any cause not from the sink itself (handled by {@link IAetherManipulator#disable}).
      * One example: for same-dimension line-of-sight sinks, confirming path is clear.
-     * 
+     *
      * @param sinkHandler Aether handler of the sink.
      * @return True if the sink is invalid, false otherwise.
      */
     boolean isInvalidSink(@Nullable IAetherHandler sinkHandler);
 
     /**
+     * Get a clone of the total, pre-loss Aether output.
+     */
+    AethericEnergyUnit getAetherOut();
+
+    /**
+     * Get the maximum sink distance, to set render distance and AABB.
+     */
+    double getMaxSinkDistance();
+
+    /**
      * Called by the {@link AetherManager} during BFS traversal.
-     * Should use {@link #getAetherOut} to retrieve an {@link AethericEnergyUnit} to process.
+     * Should use {@link #getAetherForSink} to retrieve an {@link AethericEnergyUnit} to process.
      * If this receives an {@link AethericEnergyUnit} with an {@link AethericEnergyUnit.AEUID} already encountered
      * since the last call to {@link #resetAether()}, it should return false to prevent further processing and
      * handle the excess Aether (such as by releasing to the environment).
@@ -103,7 +113,7 @@ public interface IAetherHandler {
      * <p>
      * This is the per-sink output; so, given multiple sinks, this must handle splitting overall output between them.
      * <p>
-     * For UI purposes (like WAILA), it is recommended to have one unit for showing non-loss output, which is updated
+     * For UI purposes (like WDMLA), it is recommended to have one unit for showing non-loss output, which is updated
      * in this method, as the return value is the post-loss value.
      *
      * @param tick        Processing tick, for building a unique ID.
@@ -112,7 +122,7 @@ public interface IAetherHandler {
      * @return A new {@link AethericEnergyUnit} representing the post-loss output.
      */
     @Nonnull
-    AethericEnergyUnit getAetherOut(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
+    AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
 
     /**
      * Whether this handler's Aether should be updated every tick after the {@link AetherManager} runs its BFS
@@ -149,7 +159,7 @@ public interface IAetherHandler {
     /**
      * Store this handler's information in NBT. It should write any Aether information that should be saved and loaded
      * alongside the chunk/world, as well as the coordinates of any sinks.
-     * 
+     *
      * @param compound The {@link NBTTagCompound} to write to.
      */
     void writeToNBT(@Nonnull NBTTagCompound compound);

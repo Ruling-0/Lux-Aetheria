@@ -10,10 +10,10 @@ LA.binder.fail.remove_source=Binding failed: cannot remove source
 LA.binder.fail.add_sink=Binding failed: invalid sink
 LA.binder.fail.add_source=Binding failed: invalid source
 
-LA.waila.aether_in=Aether In
-LA.waila.aether_out=Aether Out
-LA.waila.aether_release=Aether Released
-LA.waila.aether_ambient=Ambient Aether
+LA.WDMLA.aether_in=Aether In
+LA.WDMLA.aether_out=Aether Out
+LA.WDMLA.aether_release=Aether Released
+LA.WDMLA.aether_ambient=Ambient Aether
 
 tile.aetheric_furnace.name=Aetheric Furnace
 tile.collector_pylon.name=Collector Pylon

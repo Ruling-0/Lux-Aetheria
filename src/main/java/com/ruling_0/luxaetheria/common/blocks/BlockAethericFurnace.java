@@ -15,7 +15,7 @@ public class BlockAethericFurnace extends BlockFurnace {
     }
 
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
+    public TileEntity createNewTileEntity(World world, int meta) {
         return new TileEntityAethericFurnace();
     }
 }

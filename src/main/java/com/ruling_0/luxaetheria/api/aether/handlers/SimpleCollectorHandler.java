@@ -14,6 +14,7 @@ import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import net.minecraft.world.World;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
 
@@ -100,9 +101,11 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Nonnull
     @Override
-    public AethericEnergyUnit getAetherOut(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
-        AethericEnergyUnit prevAether = this.sinkToAether.get(sinkHandler.getInterDimCoords());
-        if (prevAether != null) this.aetherOut.split(prevAether);
+    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
+        if (tick != this.lastSinkTick) {
+            this.lastSinkTick = tick;
+            this.aetherOut.reset();
+        }
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
         if (this.isInvalidSink(sinkHandler)) {
             returnedAether.reset();
@@ -166,5 +169,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         super.readFromNBT(compound);
         NBTTagCompound nbtAetherAmbient = compound.getCompoundTag("aetherAmbient");
         this.ambientAether.readFromNBT(nbtAetherAmbient);
+    }
+
+    @Override
+    public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
+        super.writeWDMLAData(compound);
+        NBTTagCompound nbtAetherAmbient = new NBTTagCompound();
+        this.ambientAether.writeToNBT(nbtAetherAmbient);
+        compound.setTag("aetherAmbient", nbtAetherAmbient);
     }
 }

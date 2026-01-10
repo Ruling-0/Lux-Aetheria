@@ -28,6 +28,4 @@ public interface IAetherCollector {
      * Must call {@link AetherManager#disableCollector} server-side.
      */
     void disable();
-
-    void writeWAILAData(NBTTagCompound compound);
 }

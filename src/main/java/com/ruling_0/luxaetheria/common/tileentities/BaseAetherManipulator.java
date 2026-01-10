@@ -1,5 +1,8 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
@@ -8,14 +11,19 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
+
+import javax.annotation.Nonnull;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
-public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser {
+public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected SimpleAetherHandler aetherHandler;
-    protected final int maxAetherSinks;
+    protected boolean isEnabled = false;
+    protected InterDimCoords coords;
 
     public BaseAetherManipulator() {
         this(1);
@@ -23,7 +31,8 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
 
     public BaseAetherManipulator(int maxAetherSinks) {
         super();
-        this.maxAetherSinks = maxAetherSinks;
+        this.coords = null;
+        this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);
     }
 
     @Override
@@ -31,36 +40,26 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
         return this.aetherHandler;
     }
 
+    @Nonnull
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
-        super.writeToNBT(compound);
-        this.aetherHandler.writeToNBT(compound);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
-        this.aetherHandler.readFromNBT(compound);
-    }
-
-    @Override
-    public void writeWAILAData(NBTTagCompound compound) {
-        this.writeToNBT(compound);
-        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
-        this.aetherHandler.aetherRelease.writeToNBT(nbtAetherRelease);
-        compound.setTag("aetherRelease", nbtAetherRelease);
+    public InterDimCoords getInterDimCoords() {
+        if (this.coords == null) this.coords = new InterDimCoords(this);
+        return this.coords;
     }
 
     @Override
     public void enable() {
+        if (this.isEnabled) return;
+        this.isEnabled = true;
         if (this.worldObj.isRemote) return;
-        this.aetherHandler = new SimpleAetherHandler(this.maxAetherSinks, this);
         LuxAetheria.proxy.aetherManager
             .enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
     public void disable() {
+        if (!this.isEnabled) return;
+        this.isEnabled = false;
         if (this.worldObj.isRemote) return;
         this.aetherHandler.disconnectFromSources();
         LuxAetheria.proxy.aetherManager.bulkOrphanSinks(this);
@@ -83,5 +82,24 @@ public abstract class BaseAetherManipulator extends TileEntity implements IAethe
     public void validate() {
         super.validate();
         this.enable();
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound compound) {
+        compound.setInteger("dimension", this.worldObj.provider.dimensionId);
+        super.writeToNBT(compound);
+        this.aetherHandler.writeToNBT(compound);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound compound) {
+        this.coords = new InterDimCoords(compound);
+        super.readFromNBT(compound);
+        this.aetherHandler.readFromNBT(compound);
+    }
+
+    @Override
+    public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
+        this.aetherHandler.writeWDMLAData(compound);
     }
 }

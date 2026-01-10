@@ -1,5 +1,7 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,14 +14,26 @@ import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
+import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
-public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser {
+import javax.annotation.Nonnull;
+
+public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected SimpleAetherHandler aetherHandler;
     protected final int maxAetherSinks = 1;
+    protected InterDimCoords coords;
+    protected boolean isEnabled = false;
 
     public TileEntityAethericFurnace() {
+        this(1);
+    }
+
+    public TileEntityAethericFurnace(int maxAetherSinks) {
         super();
+        this.coords = null;
+        this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);
     }
 
     @Override
@@ -32,36 +46,26 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
         return this.aetherHandler;
     }
 
+    @Nonnull
     @Override
-    public void writeToNBT(NBTTagCompound compound) {
-        super.writeToNBT(compound);
-        this.aetherHandler.writeToNBT(compound);
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
-        this.aetherHandler.readFromNBT(compound);
-    }
-
-    @Override
-    public void writeWAILAData(NBTTagCompound compound) {
-        this.writeToNBT(compound);
-        NBTTagCompound nbtAetherRelease = new NBTTagCompound();
-        this.aetherHandler.aetherRelease.writeToNBT(nbtAetherRelease);
-        compound.setTag("aetherRelease", nbtAetherRelease);
+    public InterDimCoords getInterDimCoords() {
+        if (this.coords == null) this.coords = new InterDimCoords(this);
+        return this.coords;
     }
 
     @Override
     public void enable() {
+        if (this.isEnabled) return;
+        this.isEnabled = true;
         if (this.worldObj.isRemote) return;
-        this.aetherHandler = new SimpleAetherHandler(this.maxAetherSinks, this);
         LuxAetheria.proxy.aetherManager
             .enableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
     public void disable() {
+        if (!this.isEnabled) return;
+        this.isEnabled = false;
         if (this.worldObj.isRemote) return;
         this.aetherHandler.disconnectFromSources();
         LuxAetheria.proxy.aetherManager.bulkOrphanSinks(this);
@@ -84,6 +88,25 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
     public void validate() {
         super.validate();
         this.enable();
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound compound) {
+        compound.setInteger("dimension", this.worldObj.provider.dimensionId);
+        super.writeToNBT(compound);
+        this.aetherHandler.writeToNBT(compound);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound compound) {
+        this.coords = new InterDimCoords(compound);
+        super.readFromNBT(compound);
+        this.aetherHandler.readFromNBT(compound);
+    }
+
+    @Override
+    public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
+        this.aetherHandler.writeWDMLAData(compound);
     }
 
     protected boolean canSmelt() {
@@ -111,6 +134,5 @@ public class TileEntityAethericFurnace extends TileEntityFurnace implements IAet
             }
         }
         super.updateEntity();
-        if (!this.worldObj.isRemote) this.aetherHandler.doResetAether = true;
     }
 }

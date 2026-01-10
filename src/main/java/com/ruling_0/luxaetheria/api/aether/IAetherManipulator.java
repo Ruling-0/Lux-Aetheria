@@ -1,8 +1,11 @@
 package com.ruling_0.luxaetheria.api.aether;
 
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+
+import javax.annotation.Nonnull;
 
 /**
  * An Interface for things which intake and/or output Aether. Must possess an {@link IAetherHandler}.
@@ -27,5 +30,9 @@ public interface IAetherManipulator {
      */
     void disable();
 
-    void writeWAILAData(NBTTagCompound compound);
+    /**
+     * Gets the {@link InterDimCoords} of this.
+     */
+    @Nonnull
+    InterDimCoords getInterDimCoords();
 }

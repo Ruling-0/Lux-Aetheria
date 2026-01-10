@@ -13,6 +13,4 @@ public interface IAetherReleaser {
      * Returns the {@link IReleaserHandler} for this releaser.
      */
     IReleaserHandler getReleaserHandler();
-
-    void writeWAILAData(NBTTagCompound compound);
 }

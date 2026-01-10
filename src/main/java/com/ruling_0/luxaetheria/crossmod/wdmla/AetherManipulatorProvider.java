@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.crossmod.wdmla;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -27,27 +28,28 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
 
     @Override
     public void appendTooltip(ITooltip tooltip, @Nonnull BlockAccessor accessor) {
+        TileEntity te = accessor.getTileEntity();
+        if (!(te instanceof IWDMLAProvider)) return;
         AethericEnergyUnit aetherIn = new AethericEnergyUnit();
         AethericEnergyUnit aetherOut = new AethericEnergyUnit();
         NBTTagCompound compound = accessor.getServerData();
         aetherIn.readFromNBT((NBTTagCompound) compound.getTag("aetherIn"));
         aetherOut.readFromNBT((NBTTagCompound) compound.getTag("aetherOut"));
-        TileEntity te = accessor.getTileEntity();
         if (te instanceof IAetherCollector) {
-            tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_out") + ": " + aetherOut));
+            tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_out") + ": " + aetherOut));
             AethericEnergyUnit aetherAmbient = new AethericEnergyUnit();
             aetherAmbient.readFromNBT((NBTTagCompound) compound.getTag("aetherAmbient"));
             tooltip.child(
-                new TextComponent(StatCollector.translateToLocal("LA.waila.aether_ambient") + ": " + aetherAmbient));
+                new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_ambient") + ": " + aetherAmbient));
             return;
         }
-        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_in") + ": " + aetherIn));
-        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.waila.aether_out") + ": " + aetherOut));
+        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_in") + ": " + aetherIn));
+        tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_out") + ": " + aetherOut));
         if (te instanceof IAetherReleaser) {
             AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
             aetherRelease.readFromNBT((NBTTagCompound) compound.getTag("aetherRelease"));
             tooltip.child(
-                new TextComponent(StatCollector.translateToLocal("LA.waila.aether_release") + ": " + aetherRelease));
+                new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_release") + ": " + aetherRelease));
         }
     }
 
@@ -55,8 +57,8 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     public void appendServerData(NBTTagCompound data, @Nonnull BlockAccessor accessor) {
         TileEntity te = accessor.getTileEntity();
         if (te == null) return;
-        if (te instanceof IAetherReleaser releaser) {
-            releaser.writeWAILAData(data);
+        if (te instanceof IWDMLAProvider provider) {
+            provider.writeWDMLAData(data);
             return;
         }
         te.writeToNBT(data);

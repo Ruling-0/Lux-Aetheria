@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.api.utils;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -10,6 +11,7 @@ import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.DimensionManager;
 
 /**
  * Extension of {@link BlockPos} which also stores a reference to the {@link World} it is in.
@@ -23,9 +25,8 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
         this.world = null;
     }
 
-    public InterDimCoords(World world) {
-        super();
-        this.world = world;
+    public InterDimCoords(NBTTagCompound compound) {
+        this(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"), compound.getInteger("dim"));
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
@@ -33,9 +34,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
             x,
             y,
             z,
-            FMLCommonHandler.instance()
-                .getMinecraftServerInstance()
-                .worldServerForDimension(dim));
+            DimensionManager.getWorld(dim));
     }
 
     public InterDimCoords(int x, int y, int z, World world) {
@@ -56,8 +55,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
      * @return 0 if different dimensions, distance otherwise
      */
     public double distance(@Nonnull InterDimCoords coords) {
-        if (!this.getWorld()
-            .equals(coords.getWorld())) return 0.0D;
+        if (this.getDimID() != coords.getDimID()) return 0.0D;
         return super.distance(coords);
     }
 
