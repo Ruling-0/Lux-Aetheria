@@ -5,8 +5,6 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.Nonnull;
 
@@ -47,24 +45,18 @@ public class AetherManager {
     }
 
     public void enableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
-        AtomicInteger count = new AtomicInteger();
-        AtomicLong totalCollection = new AtomicLong();
         ICollectorHandler handler = collector.getCollectorHandler();
-        /*
-         * TODO: Enable/Disable are not symmetrical (enable adds effects to this for any collector that has this in
-         * range,
-         * disable removes effects for any collector that has the removed in range). Need to be symmetrical, and effect
-         * should be symmetrical. Further, ambient Aether should calculate off area.
-         */
-        AetherCollectors.forEachInRange(dim, x, y, z, c -> {
-            count.getAndIncrement();
-            c.getCollectorHandler()
-                .addCollectorInRange(collector);
-            totalCollection.getAndAdd(
-                c.getCollectorHandler()
-                    .getAetherCollectionAmount());
-        });
-        handler.bulkUpdateCollectors(-totalCollection.get(), count.get());
+        // Effects for any collector that has this new one in range
+        AetherCollectors.forEachInRange(
+            dim,
+            x,
+            y,
+            z,
+            c -> c.getCollectorHandler()
+                .addCollectorInRange(collector));
+        // Effects for this collector from any in its range
+        AetherCollectors.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addCollectorInRange);
+
         AetherCollectors.put(collector, dim, x, y, z, handler.getCollectorRange());
         AetherReleasers.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addReleaserInRange);
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.add(manipulator);
