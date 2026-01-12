@@ -29,7 +29,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     private double collectorEfficiency = 1.0D;
     private int collectorsInRange = 1;
-    private ArrayList<IAetherCollector> collectorsInRangeList = new ArrayList<>();
+    private final ArrayList<IAetherCollector> collectorsInRangeList = new ArrayList<>();
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
 
     public SimpleCollectorHandler(TileEntity te, int range, long collection) {
