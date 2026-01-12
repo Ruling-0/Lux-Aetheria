@@ -226,7 +226,11 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         if (mop != null) {
             Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
             if (!mop.hitVec.equals(oldCoords)) {
-                if (!LAUtils.vec3Equals(oldCoords, sinkHandler.getInterDimCoords().getVec3())) this.validSinks--;
+                if (!LAUtils.vec3Equals(
+                    oldCoords,
+                    sinkHandler.getInterDimCoords()
+                        .getVec3()))
+                    this.validSinks--;
                 this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
                 this.markForUpdate();
             }
@@ -234,7 +238,10 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             returnedAether.setAmount(0L);
             return returnedAether;
         }
-        if (!LAUtils.vec3Equals(this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),sinkHandler.getInterDimCoords().getVec3())) {
+        if (!LAUtils.vec3Equals(
+            this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),
+            sinkHandler.getInterDimCoords()
+                .getVec3())) {
             this.sinkCollisionCoords.put(
                 sinkHandler.getInterDimCoords(),
                 sinkHandler.getInterDimCoords()
@@ -351,7 +358,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             this.aetherSinks.put(coords, null);
             Vec3 colCoords = Vec3.createVectorHelper(cx, cy, cz);
             this.sinkCollisionCoords.put(coords, colCoords);
-            if (coords.getVec3().equals(colCoords)) validSinks++;
+            if (coords.getVec3()
+                .equals(colCoords)) validSinks++;
             else validSinks--;
             this.aetherOutputs[nbtAetherSink.getByte("idx")] = coords;
         }

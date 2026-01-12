@@ -11,13 +11,13 @@ import javax.annotation.Nonnull;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.utils.LAUtils;
-import net.minecraft.util.Vec3;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
 
@@ -118,7 +118,11 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         if (mop != null) {
             Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
             if (!mop.hitVec.equals(oldCoords)) {
-                if (!LAUtils.vec3Equals(oldCoords, sinkHandler.getInterDimCoords().getVec3())) this.validSinks--;
+                if (!LAUtils.vec3Equals(
+                    oldCoords,
+                    sinkHandler.getInterDimCoords()
+                        .getVec3()))
+                    this.validSinks--;
                 this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
                 this.markForUpdate();
             }
@@ -126,7 +130,10 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             returnedAether.setAmount(0L);
             return returnedAether;
         }
-        if (!LAUtils.vec3Equals(this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),sinkHandler.getInterDimCoords().getVec3())) {
+        if (!LAUtils.vec3Equals(
+            this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),
+            sinkHandler.getInterDimCoords()
+                .getVec3())) {
             this.sinkCollisionCoords.put(
                 sinkHandler.getInterDimCoords(),
                 sinkHandler.getInterDimCoords()
@@ -154,7 +161,9 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             this.aetherOut.reset();
         }
         for (IAetherCollector collector : this.collectorsInRangeList) {
-            this.ambientAether.addAmount(-collector.getCollectorHandler().getAetherCollectionAmount());
+            this.ambientAether.addAmount(
+                -collector.getCollectorHandler()
+                    .getAetherCollectionAmount());
         }
         this.ambientAether.addAmount(-this.getAetherCollectionAmount());
         this.ambientAether.addAmount(this.totalLoss);

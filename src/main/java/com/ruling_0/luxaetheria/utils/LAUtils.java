@@ -12,6 +12,7 @@ public class LAUtils {
 
     /**
      * Equality check between {@link Vec3} because it's not implemented in Mojang's code.
+     * 
      * @return True if v1's x, y, and z match those of v2, false otherwise.
      */
     public static boolean vec3Equals(Vec3 v1, Vec3 v2) {
