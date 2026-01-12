@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
  */
 public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
-    protected SimpleAetherHandler aetherHandler;
+    protected final SimpleAetherHandler aetherHandler;
     protected boolean isEnabled = false;
     protected InterDimCoords coords;
 

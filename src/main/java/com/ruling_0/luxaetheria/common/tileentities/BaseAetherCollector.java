@@ -15,7 +15,7 @@ import net.minecraftforge.common.DimensionManager;
 
 public abstract class BaseAetherCollector extends TileEntity implements IAetherCollector, IWDMLAProvider {
 
-    protected SimpleCollectorHandler collectorHandler;
+    protected final SimpleCollectorHandler collectorHandler;
     protected final int range;
     protected final long collection;
     protected boolean isEnabled = false;

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
-    protected SimpleAetherHandler aetherHandler;
+    protected final SimpleAetherHandler aetherHandler;
     protected final int maxAetherSinks = 1;
     protected InterDimCoords coords;
     protected boolean isEnabled = false;

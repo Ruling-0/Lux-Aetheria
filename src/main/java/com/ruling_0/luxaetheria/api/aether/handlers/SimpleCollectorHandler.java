@@ -93,7 +93,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Override
     public AethericEnergyUnit getAmbientAether() {
-        return this.ambientAether;
+        return new AethericEnergyUnit(this.ambientAether);
     }
 
     @Override

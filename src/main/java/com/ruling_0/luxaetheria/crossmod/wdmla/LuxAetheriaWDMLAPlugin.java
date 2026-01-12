@@ -9,6 +9,7 @@ import com.gtnewhorizons.wdmla.api.WDMlaPlugin;
 import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 
+@SuppressWarnings("unused")
 @WDMlaPlugin(uid = "luxaetheria")
 public class LuxAetheriaWDMLAPlugin implements IWDMlaPlugin {
 
