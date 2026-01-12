@@ -8,20 +8,20 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
-import org.jetbrains.annotations.NotNull;
 
 public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IWDMLAProvider {
 
@@ -68,7 +68,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
                     this.sinkToAether.put(coords, new AethericEnergyUnit());
                     this.aetherSinks.put(coords, sink);
                     this.sinkCollisionCoords.put(coords, coords.getVec3());
-                    double dist = this.getInterDimCoords().distance(coords);
+                    double dist = this.getInterDimCoords()
+                        .distance(coords);
                     if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
                     this.markForUpdate();
                     return true;
@@ -96,7 +97,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
                 removed = true;
                 continue;
             }
-            double dist = this.getInterDimCoords().distance(coords);
+            double dist = this.getInterDimCoords()
+                .distance(coords);
             if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
         }
         return removed;
@@ -141,7 +143,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     @Nonnull
     @Override
     public Vec3 getPosVec3() {
-        return this.getInterDimCoords().getVec3();
+        return this.getInterDimCoords()
+            .getVec3();
     }
 
     @Nonnull
@@ -153,7 +156,12 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     @Override
     public boolean isInvalidSink(@Nullable IAetherHandler sinkHandler) {
         if (sinkHandler == null) return true;
-        return !LAUtils.checkRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        return !LAUtils.checkRayCollision(
+            this.getInterDimCoords()
+                .getWorld(),
+            this.getPosVec3(),
+            sinkHandler.getPosVec3(),
+            true);
     }
 
     @Override
@@ -176,7 +184,10 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         }
         IAetherHandler sourceHandler = source.getAetherHandler();
         if (!this.aetherSources.containsKey(source)) {
-            this.aetherSources.put(source, this.getInterDimCoords().distance(sourceHandler.getInterDimCoords()));
+            this.aetherSources.put(
+                source,
+                this.getInterDimCoords()
+                    .distance(sourceHandler.getInterDimCoords()));
         }
         double dist = this.aetherSources.get(source);
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
@@ -203,7 +214,12 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         this.aetherOut.merge(returnedAether);
         this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
 
-        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        MovingObjectPosition mop = LAUtils.getRayCollision(
+            this.getInterDimCoords()
+                .getWorld(),
+            this.getPosVec3(),
+            sinkHandler.getPosVec3(),
+            true);
         if (mop != null) {
             if (mop.hitVec != this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords())) {
                 this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
@@ -213,8 +229,14 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             returnedAether.setAmount(0L);
             return returnedAether;
         }
-        if (!this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()).equals(sinkHandler.getInterDimCoords().getVec3())) {
-            this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), sinkHandler.getInterDimCoords().getVec3());
+        if (!this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords())
+            .equals(
+                sinkHandler.getInterDimCoords()
+                    .getVec3())) {
+            this.sinkCollisionCoords.put(
+                sinkHandler.getInterDimCoords(),
+                sinkHandler.getInterDimCoords()
+                    .getVec3());
             this.markForUpdate();
         }
 
@@ -264,7 +286,15 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     }
 
     protected void markForUpdate() {
-        this.getInterDimCoords().getWorld().markBlockForUpdate(this.getInterDimCoords().getX(), this.getInterDimCoords().getY(), this.getInterDimCoords().getZ());
+        this.getInterDimCoords()
+            .getWorld()
+            .markBlockForUpdate(
+                this.getInterDimCoords()
+                    .getX(),
+                this.getInterDimCoords()
+                    .getY(),
+                this.getInterDimCoords()
+                    .getZ());
     }
 
     @Override
@@ -312,7 +342,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             double cy = nbtAetherSink.getDouble("cy");
             double cz = nbtAetherSink.getDouble("cz");
             InterDimCoords coords = new InterDimCoords(x, y, z, dim);
-            double dist = this.getInterDimCoords().distance(coords);
+            double dist = this.getInterDimCoords()
+                .distance(coords);
             if (dist > this.maxSinkDistance) this.maxSinkDistance = dist;
             this.aetherSinks.put(coords, null);
             this.sinkCollisionCoords.put(coords, Vec3.createVectorHelper(cx, cy, cz));

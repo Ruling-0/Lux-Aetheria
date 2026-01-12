@@ -6,12 +6,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import net.minecraftforge.common.DimensionManager;
 
 /**
  * Extension of {@link BlockPos} which also stores a reference to the {@link World} it is in.
@@ -30,11 +28,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
-        this(
-            x,
-            y,
-            z,
-            DimensionManager.getWorld(dim));
+        this(x, y, z, DimensionManager.getWorld(dim));
     }
 
     public InterDimCoords(int x, int y, int z, World world) {

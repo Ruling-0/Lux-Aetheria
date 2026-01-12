@@ -11,7 +11,9 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 public class LAUtils {
 
     /**
-     * Check that the path between two Aether Manipulators is clear of blocks using {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
+     * Check that the path between two Aether Manipulators is clear of blocks using
+     * {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
+     * 
      * @return True if the path is clear, false otherwise.
      */
     public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
@@ -25,9 +27,10 @@ public class LAUtils {
             includeLiquid);
     }
 
-
     /**
-     * Check that the path between two positions is clear of blocks using {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
+     * Check that the path between two positions is clear of blocks using
+     * {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
+     * 
      * @return True if the path is clear, false otherwise.
      */
     public static boolean checkRayCollision(World world, Vec3 u, Vec3 v, boolean includeLiquid) {
@@ -79,6 +82,7 @@ public class LAUtils {
     /**
      * Checks if a block collides with the line between two points. The block is at the given x, y, z coordinates.
      * The line is between u and v. Excludes the destination point (v).
+     * 
      * @return True if the block collides with the line, false otherwise.
      */
     public static boolean checkBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v, boolean includeLiquid) {
@@ -89,15 +93,19 @@ public class LAUtils {
     /**
      * Checks if a block collides with the line between two points. The block is at the given x, y, z coordinates.
      * The line is between u and v. Excludes the destination point (v).
+     * 
      * @return {@link MovingObjectPosition} if the block collides with the line, null otherwise.
      */
-    public static MovingObjectPosition getBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v, boolean includeLiquid) {
+    public static MovingObjectPosition getBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v,
+        boolean includeLiquid) {
         Block block = world.getBlock(x, y, z);
         int meta = world.getBlockMetadata(x, y, z);
-        if (block.canCollideCheck(meta, includeLiquid) && block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
+        if (block.canCollideCheck(meta, includeLiquid)
+            && block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
             MovingObjectPosition mop = block.collisionRayTrace(world, x, y, z, u, v);
             if (mop == null || mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return null;
-            if (mop.blockX != MathHelper.floor_double(v.xCoord) || mop.blockY != MathHelper.floor_double(v.yCoord) || mop.blockZ != MathHelper.floor_double(v.zCoord)) return mop;
+            if (mop.blockX != MathHelper.floor_double(v.xCoord) || mop.blockY != MathHelper.floor_double(v.yCoord)
+                || mop.blockZ != MathHelper.floor_double(v.zCoord)) return mop;
             return null;
         }
         return null;

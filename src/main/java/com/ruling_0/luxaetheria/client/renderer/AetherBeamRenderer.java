@@ -1,28 +1,30 @@
 package com.ruling_0.luxaetheria.client.renderer;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
+
+import org.lwjgl.opengl.GL11;
+
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspects;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Vec3;
-import org.lwjgl.opengl.GL11;
-
-import java.util.Iterator;
-import java.util.Map;
 
 public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
-    private static final ResourceLocation BEAM_TEXTURE = new ResourceLocation(LuxAetheria.MODID, "textures/entity/aether_beam.png");
+    private static final ResourceLocation BEAM_TEXTURE = new ResourceLocation(
+        LuxAetheria.MODID,
+        "textures/entity/aether_beam.png");
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
@@ -57,21 +59,23 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         GL11.glColor4ub(red, green, blue, (byte) 200);
 
         Tessellator tessellator = Tessellator.instance;
-        double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
+        double time = (double) te.getWorldObj()
+            .getTotalWorldTime() + timeSinceLastTick;
         double uOffset = -time * 0.1;
 
-        Vec3 cameraPos = Vec3.createVectorHelper(
-            ActiveRenderInfo.objectX,
-            ActiveRenderInfo.objectY,
-            ActiveRenderInfo.objectZ
-        );
+        Vec3 cameraPos = Vec3
+            .createVectorHelper(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY, ActiveRenderInfo.objectZ);
         Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
 
         while (iterSinks.hasNext()) {
-            InterDimCoords sinkCoords = iterSinks.next().getKey();
+            InterDimCoords sinkCoords = iterSinks.next()
+                .getKey();
             Vec3 sinkPos = handler.getSinkCollisionCoords(sinkCoords);
 
-            Vec3 v = Vec3.createVectorHelper(sinkPos.xCoord - sourcePos.xCoord, sinkPos.yCoord - sourcePos.yCoord, sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
+            Vec3 v = Vec3.createVectorHelper(
+                sinkPos.xCoord - sourcePos.xCoord,
+                sinkPos.yCoord - sourcePos.yCoord,
+                sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
             double dist = v.lengthVector();
             double uvdist = dist * 4;
             if (dist < 0.0001) continue;

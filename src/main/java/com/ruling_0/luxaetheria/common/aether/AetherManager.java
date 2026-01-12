@@ -51,9 +51,10 @@ public class AetherManager {
         AtomicLong totalCollection = new AtomicLong();
         ICollectorHandler handler = collector.getCollectorHandler();
         /*
-         * TODO: Enable/Disable are not symmetrical (enable adds effects to this for any collector that has this in range,
-         *  disable removes effects for any collector that has the removed in range). Need to be symmetrical, and effect
-         *  should be symmetrical. Further, ambient Aether should calculate off area.
+         * TODO: Enable/Disable are not symmetrical (enable adds effects to this for any collector that has this in
+         * range,
+         * disable removes effects for any collector that has the removed in range). Need to be symmetrical, and effect
+         * should be symmetrical. Further, ambient Aether should calculate off area.
          */
         AetherCollectors.forEachInRange(dim, x, y, z, c -> {
             count.getAndIncrement();

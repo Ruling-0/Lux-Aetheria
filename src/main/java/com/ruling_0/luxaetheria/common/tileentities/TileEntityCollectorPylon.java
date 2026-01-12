@@ -1,21 +1,21 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
-import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.nbt.NBTTagCompound;
+import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 
-import javax.annotation.Nonnull;
+import com.ruling_0.luxaetheria.LuxAetheria;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherManipulator, IWDMLAProvider {
 
@@ -76,19 +76,27 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         this.readFromNBT(pkt.func_148857_g());
-        worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord, this.zCoord);
+        worldObj.markBlockRangeForRenderUpdate(
+            this.xCoord,
+            this.yCoord,
+            this.zCoord,
+            this.xCoord,
+            this.yCoord,
+            this.zCoord);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
         double d0 = this.collectorHandler.getMaxSinkDistance();
-        return AxisAlignedBB.getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1).expand(d0, d0, d0);
+        return AxisAlignedBB
+            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
+            .expand(d0, d0, d0);
     }
 
     @SideOnly(Side.CLIENT)
-    public double getMaxRenderDistanceSquared()
-    {
-        return Math.max(this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance(), 4096.0D);
+    public double getMaxRenderDistanceSquared() {
+        return Math
+            .max(this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance(), 4096.0D);
     }
 }

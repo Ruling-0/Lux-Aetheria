@@ -1,8 +1,7 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
-import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import cpw.mods.fml.common.FMLCommonHandler;
+import javax.annotation.Nonnull;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
@@ -11,15 +10,14 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-
-import javax.annotation.Nonnull;
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
+import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
-public abstract class BaseAetherManipulator extends TileEntity implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+public abstract class BaseAetherManipulator extends TileEntity
+    implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected boolean isEnabled = false;

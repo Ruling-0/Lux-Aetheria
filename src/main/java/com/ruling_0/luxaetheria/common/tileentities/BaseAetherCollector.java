@@ -1,17 +1,12 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleCollectorHandler;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 
 public abstract class BaseAetherCollector extends TileEntity implements IAetherCollector, IWDMLAProvider {
 

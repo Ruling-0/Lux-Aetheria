@@ -1,8 +1,8 @@
 package com.ruling_0.luxaetheria.api.utils;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 import javax.annotation.Nonnull;
+
+import net.minecraft.nbt.NBTTagCompound;
 
 public interface IWDMLAProvider {
 

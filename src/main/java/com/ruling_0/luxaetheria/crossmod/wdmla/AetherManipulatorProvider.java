@@ -2,7 +2,6 @@ package com.ruling_0.luxaetheria.crossmod.wdmla;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
@@ -16,6 +15,7 @@ import com.gtnewhorizons.wdmla.impl.ui.component.TextComponent;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 
 public enum AetherManipulatorProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 

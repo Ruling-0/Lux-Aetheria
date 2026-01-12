@@ -1,7 +1,5 @@
 package com.ruling_0.luxaetheria.api.aether;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
