@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.api.aether.handlers;
 
 import static com.ruling_0.luxaetheria.api.aether.AetherConstants.BASE_AMBIENT_AETHER;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.utils.LAUtils;
+import net.minecraft.util.Vec3;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
 
@@ -27,6 +29,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     private double collectorEfficiency = 1.0D;
     private int collectorsInRange = 1;
+    private ArrayList<IAetherCollector> collectorsInRangeList = new ArrayList<>();
     private final HashMap<IAetherReleaser, AethericEnergyUnit> aetherReleasers = new HashMap<>();
 
     public SimpleCollectorHandler(TileEntity te, int range, long collection) {
@@ -42,7 +45,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Override
     public long getAetherCollectionAmount() {
-        if (this.aetherSinks.isEmpty()) return 0;
+        if (this.validSinks == 0) return 0;
         return (long) (this.collection * this.collectorEfficiency);
     }
 
@@ -57,23 +60,14 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         if (collectorHandler.equals(this)) return;
         this.collectorsInRange++;
         this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
-        this.ambientAether.addAmount(-collectorHandler.getAetherCollectionAmount());
+        this.collectorsInRangeList.add(collector);
     }
 
     @Override
     public void removeCollectorInRange(@Nonnull IAetherCollector collector) {
         this.collectorsInRange--;
         this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
-        this.ambientAether.addAmount(
-            collector.getCollectorHandler()
-                .getAetherCollectionAmount());
-    }
-
-    @Override
-    public void bulkUpdateCollectors(long collectionDelta, int countDelta) {
-        this.ambientAether.addAmount(collectionDelta);
-        this.collectorsInRange = this.collectorsInRange + countDelta;
-        this.collectorEfficiency = Math.cbrt(1.0D / this.collectorsInRange);
+        this.collectorsInRangeList.remove(collector);
     }
 
     @Override
@@ -122,7 +116,9 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             sinkHandler.getPosVec3(),
             true);
         if (mop != null) {
-            if (mop.hitVec != this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords())) {
+            Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
+            if (!mop.hitVec.equals(oldCoords)) {
+                if (!LAUtils.vec3Equals(oldCoords, sinkHandler.getInterDimCoords().getVec3())) this.validSinks--;
                 this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
                 this.markForUpdate();
             }
@@ -130,14 +126,12 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             returnedAether.setAmount(0L);
             return returnedAether;
         }
-        if (!this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords())
-            .equals(
-                sinkHandler.getInterDimCoords()
-                    .getVec3())) {
+        if (!LAUtils.vec3Equals(this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),sinkHandler.getInterDimCoords().getVec3())) {
             this.sinkCollisionCoords.put(
                 sinkHandler.getInterDimCoords(),
                 sinkHandler.getInterDimCoords()
                     .getVec3());
+            this.validSinks++;
             this.markForUpdate();
         }
 
@@ -158,8 +152,9 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     public void updateAether() {
         if (this.aetherSinks.isEmpty()) {
             this.aetherOut.reset();
-            this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);
-            return;
+        }
+        for (IAetherCollector collector : this.collectorsInRangeList) {
+            this.ambientAether.addAmount(-collector.getCollectorHandler().getAetherCollectionAmount());
         }
         this.ambientAether.addAmount(-this.getAetherCollectionAmount());
         this.ambientAether.addAmount(this.totalLoss);

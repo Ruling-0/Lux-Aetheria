@@ -26,7 +26,7 @@ public interface ICollectorHandler {
      * When an {@link IAetherCollector} is added to the world, this is called when that collector is within this
      * collector's range (from {@link #getCollectorRange}). This must reflect the collector's reduction in the ambient
      * Aether level, but can introduce other effects.
-     * 
+     *
      * @param collector The newly added collector.
      */
     void addCollectorInRange(@Nonnull IAetherCollector collector);
@@ -35,19 +35,10 @@ public interface ICollectorHandler {
      * When an {@link IAetherCollector} is removed from the world, this is called when that collector is within this
      * collector's range (from {@link #getCollectorRange}). This should reverse the effects of
      * {@link #addCollectorInRange}.
-     * 
+     *
      * @param collector The collector being removed.
      */
     void removeCollectorInRange(@Nonnull IAetherCollector collector);
-
-    /**
-     * Called when this handler's owning {@link IAetherCollector} is added to the world, so that this can handle the
-     * effects that would have been handled by {@link #addCollectorInRange}.
-     * 
-     * @param collectionDelta The total draw being updated, should be added directly to the ambient Aether level.
-     * @param countDelta      The change in the number of collectors in range.
-     */
-    void bulkUpdateCollectors(long collectionDelta, int countDelta);
 
     /**
      * Called when an {@link IAetherReleaser} is added to the world within range of this handler.

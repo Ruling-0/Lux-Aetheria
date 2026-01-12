@@ -56,6 +56,7 @@ public class ItemPylonBinder extends Item {
             return true;
         }
         if (player.isSneaking() && this.boundManipulator != null) {
+            this.boundManipulator = null;
             player.addChatMessage(new ChatComponentTranslation("LA.binder.clear"));
             return true;
         }

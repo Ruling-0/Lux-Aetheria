@@ -11,9 +11,17 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 public class LAUtils {
 
     /**
+     * Equality check between {@link Vec3} because it's not implemented in Mojang's code.
+     * @return True if v1's x, y, and z match those of v2, false otherwise.
+     */
+    public static boolean vec3Equals(Vec3 v1, Vec3 v2) {
+        return v1.xCoord == v2.xCoord && v1.yCoord == v2.yCoord && v1.zCoord == v2.zCoord;
+    }
+
+    /**
      * Check that the path between two Aether Manipulators is clear of blocks using
      * {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
-     * 
+     *
      * @return True if the path is clear, false otherwise.
      */
     public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
@@ -30,7 +38,7 @@ public class LAUtils {
     /**
      * Check that the path between two positions is clear of blocks using
      * {@link World#rayTraceBlocks(Vec3, Vec3, boolean)}.
-     * 
+     *
      * @return True if the path is clear, false otherwise.
      */
     public static boolean checkRayCollision(World world, Vec3 u, Vec3 v, boolean includeLiquid) {
@@ -82,7 +90,7 @@ public class LAUtils {
     /**
      * Checks if a block collides with the line between two points. The block is at the given x, y, z coordinates.
      * The line is between u and v. Excludes the destination point (v).
-     * 
+     *
      * @return True if the block collides with the line, false otherwise.
      */
     public static boolean checkBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v, boolean includeLiquid) {
@@ -93,7 +101,7 @@ public class LAUtils {
     /**
      * Checks if a block collides with the line between two points. The block is at the given x, y, z coordinates.
      * The line is between u and v. Excludes the destination point (v).
-     * 
+     *
      * @return {@link MovingObjectPosition} if the block collides with the line, null otherwise.
      */
     public static MovingObjectPosition getBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v,
@@ -104,9 +112,11 @@ public class LAUtils {
             && block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
             MovingObjectPosition mop = block.collisionRayTrace(world, x, y, z, u, v);
             if (mop == null || mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return null;
-            if (mop.blockX != MathHelper.floor_double(v.xCoord) || mop.blockY != MathHelper.floor_double(v.yCoord)
-                || mop.blockZ != MathHelper.floor_double(v.zCoord)) return mop;
-            return null;
+            if (mop.blockX == MathHelper.floor_double(u.xCoord) && mop.blockY == MathHelper.floor_double(u.yCoord)
+                && mop.blockZ == MathHelper.floor_double(u.zCoord)) return null;
+            if (mop.blockX == MathHelper.floor_double(v.xCoord) && mop.blockY == MathHelper.floor_double(v.yCoord)
+                && mop.blockZ == MathHelper.floor_double(v.zCoord)) return null;
+            return mop;
         }
         return null;
     }
