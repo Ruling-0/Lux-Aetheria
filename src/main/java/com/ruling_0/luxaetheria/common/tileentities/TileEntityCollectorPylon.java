@@ -89,6 +89,6 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
     @SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared()
     {
-        return this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance();
+        return Math.max(this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance(), 4096.0D);
     }
 }

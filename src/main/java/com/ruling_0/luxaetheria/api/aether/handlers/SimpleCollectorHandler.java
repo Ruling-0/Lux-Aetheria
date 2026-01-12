@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.utils.LAUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 
@@ -14,6 +15,7 @@ import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
@@ -107,20 +109,30 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             this.aetherOut.reset();
         }
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
-        if (this.isInvalidSink(sinkHandler)) {
-            returnedAether.reset();
-            // No need to merge since it'd merge 0
-            this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
-            return returnedAether;
-        }
+
         // TODO: handle insufficient ambient aether
         returnedAether.setAmount(
             Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
         this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
 
+        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        if (mop != null) {
+            if (mop.hitVec != this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords())) {
+                this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
+                this.markForUpdate();
+            }
+            this.totalLoss += returnedAether.getAmount();
+            returnedAether.setAmount(0L);
+            return returnedAether;
+        }
+        if (!this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()).equals(sinkHandler.getInterDimCoords().getVec3())) {
+            this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), sinkHandler.getInterDimCoords().getVec3());
+            this.markForUpdate();
+        }
+
         long loss = returnedAether.calculateLoss(dist);
-        returnedAether.setAmount(Math.max(0L, returnedAether.getAmount() - loss));
+        returnedAether.setAmount(returnedAether.getAmount() - loss);
 
         returnedAether.updateID(tick, this.getOutputIndex(sinkHandler.getInterDimCoords()));
         this.totalLoss += loss;

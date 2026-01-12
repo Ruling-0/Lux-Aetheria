@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
@@ -25,6 +26,7 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
+        // TODO: add a flare effect at beam end
         final IAetherHandler handler = ((IAetherManipulator) te).getAetherHandler();
         if (handler == null) return;
 
@@ -66,8 +68,8 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
 
         while (iterSinks.hasNext()) {
-            InterDimCoords sink = iterSinks.next().getKey();
-            Vec3 sinkPos = Vec3.createVectorHelper(sink.x + 0.5, sink.y + 0.5, sink.z + 0.5);
+            InterDimCoords sinkCoords = iterSinks.next().getKey();
+            Vec3 sinkPos = handler.getSinkCollisionCoords(sinkCoords);
 
             Vec3 v = Vec3.createVectorHelper(sinkPos.xCoord - sourcePos.xCoord, sinkPos.yCoord - sourcePos.yCoord, sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
             double dist = v.lengthVector();
@@ -90,9 +92,9 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
             double wy = w.yCoord * radius;
             double wz = w.zCoord * radius;
 
-            double dx = sink.x - te.xCoord;
-            double dy = sink.y - te.yCoord;
-            double dz = sink.z - te.zCoord;
+            double dx = sinkPos.xCoord - sourcePos.xCoord;
+            double dy = sinkPos.yCoord - sourcePos.yCoord;
+            double dz = sinkPos.zCoord - sourcePos.zCoord;
 
             tessellator.startDrawingQuads();
             tessellator.addVertexWithUV(-wx, -wy, -wz, 0, uOffset);

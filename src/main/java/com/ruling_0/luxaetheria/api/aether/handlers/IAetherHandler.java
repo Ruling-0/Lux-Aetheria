@@ -43,6 +43,11 @@ public interface IAetherHandler {
     Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> getAetherSinksIter();
 
     /**
+     * Gets the point on the source to sink ray where it first collides with a block or the sink itself.
+     */
+    Vec3 getSinkCollisionCoords(InterDimCoords coords);
+
+    /**
      * Checks whether the provided {@link InterDimCoords} represent a registered Aether sink.
      */
     boolean hasOutput(InterDimCoords coords);

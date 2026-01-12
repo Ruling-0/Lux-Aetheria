@@ -244,7 +244,7 @@ public class AethericEnergyUnit {
 
     /**
      * Decays this AEU towards the given equilibrium stats.
-     * 
+     *
      * @param amount  The equilibrium amount
      * @param aspects The aspect ratios of the equilibrium
      */
@@ -265,7 +265,7 @@ public class AethericEnergyUnit {
     }
 
     public long calculateLoss(double dist) {
-        return (long) (this.amount * (1 - Math.exp(-0.003D * dist)));
+        return (long) (this.amount * (1 - Math.exp(-0.009D * dist)));
     }
 
     public void writeToNBT(@Nonnull NBTTagCompound compound) {
