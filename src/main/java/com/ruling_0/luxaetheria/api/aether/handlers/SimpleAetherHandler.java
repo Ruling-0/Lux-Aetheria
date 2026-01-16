@@ -90,8 +90,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         for (int i = 0; i < this.maxAetherSinks; ++i) {
             if (!removed && coords.equals(this.aetherOutputs[i])) {
                 this.aetherOutputs[i] = null;
-                this.aetherOut.split(this.sinkToAether.get(coords));
-                this.sinkToAether.remove(coords);
+                AethericEnergyUnit prevOut = this.sinkToAether.remove(coords);
+                if (prevOut != null) this.aetherOut.split(prevOut);
                 this.aetherSinks.remove(coords);
                 this.sinkCollisionCoords.remove(coords);
                 LuxAetheria.proxy.aetherManager.addOrphanedManipulator(sink);
