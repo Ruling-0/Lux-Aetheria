@@ -107,7 +107,8 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         returnedAether.setAmount(
             Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
-        this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
+        AethericEnergyUnit oldAether = this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
+        if (!returnedAether.equals(oldAether)) this.markForUpdate();
 
         MovingObjectPosition mop = LAUtils.getRayCollision(
             this.getInterDimCoords()

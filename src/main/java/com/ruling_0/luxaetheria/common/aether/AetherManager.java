@@ -129,6 +129,8 @@ public class AetherManager {
                     .getValue();
                 if (next != null) AetherSearchQueue.push(next);
             }
+            InterDimCoords coords = curr.getInterDimCoords();
+            coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
             orphanedManipulators.remove(curr);
         }
 

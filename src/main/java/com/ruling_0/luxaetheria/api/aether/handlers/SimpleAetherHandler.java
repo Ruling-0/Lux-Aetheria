@@ -215,7 +215,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
         returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
-        this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
+        AethericEnergyUnit oldAether = this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
+        if (!returnedAether.equals(oldAether)) this.markForUpdate();
 
         MovingObjectPosition mop = LAUtils.getRayCollision(
             this.getInterDimCoords()
@@ -279,6 +280,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         this.aetherOut.reset();
         this.aetherRelease.reset();
         this.encounteredIDs.clear();
+        this.sinkToAether.clear();
     }
 
     @Override
