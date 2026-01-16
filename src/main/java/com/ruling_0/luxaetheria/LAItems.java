@@ -22,6 +22,7 @@ public enum LAItems {
             if (itemEntry.isEnabled) {
                 if (itemEntry.addToTab) itemEntry.item.setCreativeTab(LuxAetheria.tabLuxAetheria);
                 GameRegistry.registerItem(itemEntry.item, itemEntry.name);
+                itemEntry.item.setUnlocalizedName(itemEntry.name);
                 itemEntry.item.setTextureName(LuxAetheria.MODID + ":" + itemEntry.name);
             }
         }
