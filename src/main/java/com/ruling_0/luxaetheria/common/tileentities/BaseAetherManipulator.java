@@ -2,7 +2,13 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
@@ -12,6 +18,7 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import net.minecraft.util.AxisAlignedBB;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
@@ -35,6 +42,11 @@ public abstract class BaseAetherManipulator extends TileEntity
 
     @Override
     public IAetherHandler getAetherHandler() {
+        return this.aetherHandler;
+    }
+
+    @Override
+    public IReleaserHandler getReleaserHandler() {
         return this.aetherHandler;
     }
 
@@ -99,5 +111,39 @@ public abstract class BaseAetherManipulator extends TileEntity
     @Override
     public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
         this.aetherHandler.writeWDMLAData(compound);
+    }
+
+    @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound compound = new NBTTagCompound();
+        this.writeToNBT(compound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, compound);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        this.readFromNBT(pkt.func_148857_g());
+        worldObj.markBlockRangeForRenderUpdate(
+            this.xCoord,
+            this.yCoord,
+            this.zCoord,
+            this.xCoord,
+            this.yCoord,
+            this.zCoord);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox() {
+        double d0 = this.aetherHandler.getMaxSinkDistance();
+        return AxisAlignedBB
+            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
+            .expand(d0, d0, d0);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared() {
+        return Math
+            .max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(), 4096.0D);
     }
 }

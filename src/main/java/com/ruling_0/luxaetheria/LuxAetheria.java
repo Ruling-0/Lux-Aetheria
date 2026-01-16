@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -50,6 +51,7 @@ public class LuxAetheria {
 
         GameRegistry.registerTileEntity(TileEntityAethericFurnace.class, "LATileEntityAethericFurnace");
         GameRegistry.registerTileEntity(TileEntityCollectorPylon.class, "LATileEntityCollectorPylon");
+        GameRegistry.registerTileEntity(TileEntityAetherRelay.class, "LATileEntityAetherRelay");
     }
 
     @Mod.EventHandler

@@ -2,9 +2,14 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
@@ -16,6 +21,7 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import net.minecraft.util.AxisAlignedBB;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
     implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
@@ -133,5 +139,39 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
             }
         }
         super.updateEntity();
+    }
+
+    @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound compound = new NBTTagCompound();
+        this.writeToNBT(compound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, compound);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        this.readFromNBT(pkt.func_148857_g());
+        worldObj.markBlockRangeForRenderUpdate(
+            this.xCoord,
+            this.yCoord,
+            this.zCoord,
+            this.xCoord,
+            this.yCoord,
+            this.zCoord);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox() {
+        double d0 = this.aetherHandler.getMaxSinkDistance();
+        return AxisAlignedBB
+            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
+            .expand(d0, d0, d0);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared() {
+        return Math
+            .max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(), 4096.0D);
     }
 }
