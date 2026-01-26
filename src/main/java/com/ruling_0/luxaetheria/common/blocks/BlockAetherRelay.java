@@ -5,14 +5,11 @@ import java.util.ArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector3i;
 
 import com.gtnewhorizon.gtnhlib.api.IModelSelector;
@@ -51,15 +48,6 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
     @Override
     public boolean isOpaqueCube() {
         return false;
-    }
-
-    private static final float DEG2RAD = (float) (Math.PI / 180);
-
-    public Matrix4fc getAffineMatrix() {
-        return new Matrix4f().translation(-.5f, -.5f, -.5f)
-            .rotateLocalX(90 * DEG2RAD)
-            .rotateLocalY(0 * DEG2RAD)
-            .translateLocal(.5f, .5f, .5f);
     }
 
     @Override
