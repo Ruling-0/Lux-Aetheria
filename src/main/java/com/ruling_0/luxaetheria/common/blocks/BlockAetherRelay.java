@@ -39,13 +39,6 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
     }
 
     @Override
-    public void registerBlockIcons(IIconRegister register) {
-        register.registerIcon("luxaetheria:models/crystal");
-        register.registerIcon("luxaetheria:models/focusarm");
-        super.registerBlockIcons(register);
-    }
-
-    @Override
     public int getRenderType() {
         return ModelISBRH.JSON_ISBRH_ID;
     }
