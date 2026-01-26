@@ -1,6 +1,5 @@
 package com.ruling_0.luxaetheria;
 
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -8,6 +7,7 @@ import net.minecraft.item.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 

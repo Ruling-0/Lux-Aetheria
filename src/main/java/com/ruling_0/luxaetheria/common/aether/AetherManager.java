@@ -130,7 +130,8 @@ public class AetherManager {
                 if (next != null) AetherSearchQueue.push(next);
             }
             InterDimCoords coords = curr.getInterDimCoords();
-            coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
+            coords.getWorld()
+                .markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
             orphanedManipulators.remove(curr);
         }
 

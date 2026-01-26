@@ -1,11 +1,11 @@
 package com.ruling_0.luxaetheria;
 
-import com.ruling_0.luxaetheria.common.blocks.BlockAetherRelay;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
+import com.ruling_0.luxaetheria.common.blocks.BlockAetherRelay;
 import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 
