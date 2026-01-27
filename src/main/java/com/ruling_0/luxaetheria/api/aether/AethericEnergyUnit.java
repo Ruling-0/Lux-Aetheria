@@ -42,7 +42,7 @@ public class AethericEnergyUnit {
         this(amount, origin, tick, 0, dim);
         if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
         else System.arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length,
-                              this.aspectRatios.length));
+            this.aspectRatios.length));
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
@@ -115,7 +115,11 @@ public class AethericEnergyUnit {
     @Override
     public String toString() {
         DecimalFormat df = new DecimalFormat("0");
-        return this.amount + " (" + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100) + EnumChatFormatting.RESET + "%, " + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100) + EnumChatFormatting.RESET + "%, " + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100) + EnumChatFormatting.RESET + "%)";
+        return this.amount + " (" + EnumChatFormatting.RED +
+            df.format(this.getAspectRatio(AetherAspects.RED.index) * 100) + EnumChatFormatting.RESET + "%, " +
+            EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100) +
+            EnumChatFormatting.RESET + "%, " + EnumChatFormatting.BLUE +
+            df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100) + EnumChatFormatting.RESET + "%)";
     }
 
     @Override

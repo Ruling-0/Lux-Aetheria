@@ -151,7 +151,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     @Override
     public boolean isInvalidSink(@Nullable IAetherHandler sinkHandler) {
         if (sinkHandler == null) return true;
-        return !LAUtils.checkRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        return !LAUtils.checkRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(),
+            sinkHandler.getPosVec3(), true);
     }
 
     @Override
@@ -199,7 +200,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         AethericEnergyUnit oldAether = this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
         if (!returnedAether.equals(oldAether)) this.markForUpdate();
 
-        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(),
+            sinkHandler.getPosVec3(), true);
         if (mop != null) {
             Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
             if (!mop.hitVec.equals(oldCoords)) {

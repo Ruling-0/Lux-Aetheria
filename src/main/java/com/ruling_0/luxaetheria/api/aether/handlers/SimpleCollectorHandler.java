@@ -101,12 +101,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
         // TODO: handle insufficient ambient aether
         returnedAether.setAmount(
-                Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
+            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
         AethericEnergyUnit oldAether = this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
         if (!returnedAether.equals(oldAether)) this.markForUpdate();
 
-        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
+        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(),
+            sinkHandler.getPosVec3(), true);
         if (mop != null) {
             Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
             if (!mop.hitVec.equals(oldCoords)) {

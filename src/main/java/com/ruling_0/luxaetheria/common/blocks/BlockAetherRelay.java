@@ -63,7 +63,8 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
             }
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]));
-        final JSONModel jsonModel = ModelRegistry.getJSONModel(new ResourceLoc.ModelLoc("luxaetheria", "blocks/aether_relay"));
+        final JSONModel jsonModel = ModelRegistry
+            .getJSONModel(new ResourceLoc.ModelLoc("luxaetheria", "blocks/aether_relay"));
         final ModelAetherRelay model = new ModelAetherRelay(jsonModel);
         return model.bake(data);
     }

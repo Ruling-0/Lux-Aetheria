@@ -133,7 +133,9 @@ public abstract class BaseAetherManipulator extends TileEntity
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
         double d0 = this.aetherHandler.getMaxSinkDistance();
-        return AxisAlignedBB.getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1).expand(d0, d0, d0);
+        return AxisAlignedBB
+            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
+            .expand(d0, d0, d0);
     }
 
     @SideOnly(Side.CLIENT)

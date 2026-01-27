@@ -67,7 +67,7 @@ public class AetherManager {
     public void enableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
         AetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
         AetherCollectors.forEachInRange(dim, x, y, z,
-            c -> c.getCollectorHandler() .addReleaserInRange(releaser));
+            c -> c.getCollectorHandler().addReleaserInRange(releaser));
     }
 
     public void disableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
@@ -81,7 +81,8 @@ public class AetherManager {
     }
 
     public void bulkOrphanSinks(IAetherManipulator manipulator) {
-        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = manipulator.getAetherHandler().getAetherSinksIter();
+        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = manipulator.getAetherHandler()
+            .getAetherSinksIter();
         while (iterSinks.hasNext()) {
             orphanedManipulators.add(iterSinks.next().getValue());
         }

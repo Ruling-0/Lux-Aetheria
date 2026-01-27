@@ -27,7 +27,8 @@ public class LAUtils {
      */
     public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
                                             boolean includeLiquid) {
-        return checkRayCollision(world, start.getAetherHandler().getPosVec3(), end.getAetherHandler().getPosVec3(), includeLiquid);
+        return checkRayCollision(world, start.getAetherHandler().getPosVec3(), end.getAetherHandler().getPosVec3(),
+            includeLiquid);
     }
 
     /**
