@@ -10,16 +10,16 @@ spotless {
         target '.gitignore'
 
         trimTrailingWhitespace()
-        indentWithSpaces(4)
+        leadingTabsToSpaces(4)
         endWithNewline()
     }
     java {
         target 'src/*/java/**/*.java', 'src/*/scala/**/*.java'
 
         toggleOffOn()
-        importOrderFile(Blowdryer.file('spotless.importorder'))
+        importOrderFile('spotless/spotless.importorder')
         removeUnusedImports()
-        eclipse('4.19').configFile(Blowdryer.file('spotless.eclipseformat.xml'))
+        eclipse('4.19').configFile('spotless/spotless.eclipseformat.xml')
     }
     kotlin {
         target 'src/*/kotlin/**/*.kt', 'src/*/java/**/*.kt'
