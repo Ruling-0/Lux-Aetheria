@@ -61,6 +61,10 @@ public class ModelAetherRelay extends JSONModel {
         private static final Vector3f orig = new Vector3f(0.0f, 0.0f, -1.0f);
 
         public RelayBakeData(Vector3i pos, Vector3i[] targets) {
+            if (targets.length == 0) {
+                this.matrices = new Matrix4f[] { new Matrix4f(), new Matrix4f() };
+                return;
+            }
             this.matrices = new Matrix4f[targets.length + 1];
             this.matrices[0] = new Matrix4f();
             for (int i = 1; i < this.matrices.length; ++i) {
@@ -90,7 +94,6 @@ public class ModelAetherRelay extends JSONModel {
                     0.0f, 1.0f, 0.0f, 0.0f,
                     0.0f, 0.0f, 1.0f, 0.0f,
                     -0.5f, -0.5f, -0.5f, 1.0f);
-                // A = T1 * R * T2
                 this.matrices[i] = new Matrix4f(T1).mul(Ry).mul(Rx).mul(T2);
             }
         }
@@ -120,8 +123,7 @@ public class ModelAetherRelay extends JSONModel {
             // Assign vertexes
             final var quad = new ModelQuad();
             for (int i = 0; i < 4; ++i) {
-                final Vector3f vert = mapSideToVertex(from, to, i, f.name()).mulPosition(rot)
-                    .mulPosition(affine);
+                final Vector3f vert = mapSideToVertex(from, to, i, f.name()).mulPosition(rot).mulPosition(affine);
                 quad.setX(i, vert.x);
                 quad.setY(i, vert.y);
                 quad.setZ(i, vert.z);
