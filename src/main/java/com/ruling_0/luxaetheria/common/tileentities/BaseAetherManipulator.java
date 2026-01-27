@@ -25,7 +25,7 @@ import cpw.mods.fml.relauncher.SideOnly;
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
 public abstract class BaseAetherManipulator extends TileEntity
-    implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                            implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected boolean isEnabled = false;
@@ -42,14 +42,10 @@ public abstract class BaseAetherManipulator extends TileEntity
     }
 
     @Override
-    public IAetherHandler getAetherHandler() {
-        return this.aetherHandler;
-    }
+    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
 
     @Override
-    public IReleaserHandler getReleaserHandler() {
-        return this.aetherHandler;
-    }
+    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
 
     @Nonnull
     @Override
@@ -137,9 +133,7 @@ public abstract class BaseAetherManipulator extends TileEntity
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
         double d0 = this.aetherHandler.getMaxSinkDistance();
-        return AxisAlignedBB
-            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
-            .expand(d0, d0, d0);
+        return AxisAlignedBB.getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1).expand(d0, d0, d0);
     }
 
     @SideOnly(Side.CLIENT)

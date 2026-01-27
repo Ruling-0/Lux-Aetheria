@@ -44,9 +44,7 @@ public enum LAItems {
         this.addToTab = addToTab;
     }
 
-    public boolean isEnabled() {
-        return this.isEnabled;
-    }
+    public boolean isEnabled() { return this.isEnabled; }
 
     public Item get() {
         return this.item;

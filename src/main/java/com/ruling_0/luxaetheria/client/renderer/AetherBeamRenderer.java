@@ -11,14 +11,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 
-import org.lwjgl.opengl.GL11;
-
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspects;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+
+import org.lwjgl.opengl.GL11;
 
 public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 

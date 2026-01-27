@@ -50,9 +50,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public int getCollectorRange() {
-        return this.range;
-    }
+    public int getCollectorRange() { return this.range; }
 
     @Override
     public void addCollectorInRange(@Nonnull IAetherCollector collector) {
@@ -85,9 +83,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public AethericEnergyUnit getAmbientAether() {
-        return new AethericEnergyUnit(this.ambientAether);
-    }
+    public AethericEnergyUnit getAmbientAether() { return new AethericEnergyUnit(this.ambientAether); }
 
     @Override
     public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
@@ -105,24 +101,16 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
         // TODO: handle insufficient ambient aether
         returnedAether.setAmount(
-            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
+                Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
         this.aetherOut.merge(returnedAether);
         AethericEnergyUnit oldAether = this.sinkToAether.put(sinkHandler.getInterDimCoords(), returnedAether);
         if (!returnedAether.equals(oldAether)) this.markForUpdate();
 
-        MovingObjectPosition mop = LAUtils.getRayCollision(
-            this.getInterDimCoords()
-                .getWorld(),
-            this.getPosVec3(),
-            sinkHandler.getPosVec3(),
-            true);
+        MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(), sinkHandler.getPosVec3(), true);
         if (mop != null) {
             Vec3 oldCoords = this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords());
             if (!mop.hitVec.equals(oldCoords)) {
-                if (!LAUtils.vec3Equals(
-                    oldCoords,
-                    sinkHandler.getInterDimCoords()
-                        .getVec3()))
+                if (!LAUtils.vec3Equals(oldCoords, sinkHandler.getInterDimCoords().getVec3()))
                     this.validSinks--;
                 this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), mop.hitVec);
                 this.markForUpdate();
@@ -133,12 +121,8 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         }
         if (!LAUtils.vec3Equals(
             this.sinkCollisionCoords.get(sinkHandler.getInterDimCoords()),
-            sinkHandler.getInterDimCoords()
-                .getVec3())) {
-            this.sinkCollisionCoords.put(
-                sinkHandler.getInterDimCoords(),
-                sinkHandler.getInterDimCoords()
-                    .getVec3());
+            sinkHandler.getInterDimCoords().getVec3())) {
+            this.sinkCollisionCoords.put(sinkHandler.getInterDimCoords(), sinkHandler.getInterDimCoords().getVec3());
             this.validSinks++;
             this.markForUpdate();
         }
@@ -152,9 +136,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public boolean isUpdatable() {
-        return true;
-    }
+    public boolean isUpdatable() { return true; }
 
     @Override
     public void updateAether() {
@@ -162,21 +144,16 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
             this.aetherOut.reset();
         }
         for (IAetherCollector collector : this.collectorsInRangeList) {
-            this.ambientAether.addAmount(
-                -collector.getCollectorHandler()
-                    .getAetherCollectionAmount());
+            this.ambientAether.addAmount(-collector.getCollectorHandler().getAetherCollectionAmount());
         }
         this.ambientAether.addAmount(-this.getAetherCollectionAmount());
         this.ambientAether.addAmount(this.totalLoss);
         for (Map.Entry<IAetherReleaser, AethericEnergyUnit> entry : this.aetherReleasers.entrySet()) {
-            AethericEnergyUnit newRelease = entry.getKey()
-                .getReleaserHandler()
-                .getAetherRelease();
+            AethericEnergyUnit newRelease = entry.getKey().getReleaserHandler().getAetherRelease();
             if (newRelease.equals(entry.getValue())) continue;
             this.aetherRelease.split(entry.getValue());
             this.aetherRelease.merge(newRelease);
-            entry.getValue()
-                .setToOther(newRelease);
+            entry.getValue().setToOther(newRelease);
         }
         this.ambientAether.merge(this.aetherRelease);
         this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);

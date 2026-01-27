@@ -47,13 +47,8 @@ public class AetherManager {
     public void enableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
         ICollectorHandler handler = collector.getCollectorHandler();
         // Effects for any collector that has this new one in range
-        AetherCollectors.forEachInRange(
-            dim,
-            x,
-            y,
-            z,
-            c -> c.getCollectorHandler()
-                .addCollectorInRange(collector));
+        AetherCollectors.forEachInRange(dim, x, y, z,
+            c -> c.getCollectorHandler().addCollectorInRange(collector));
         // Effects for this collector from any in its range
         AetherCollectors.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addCollectorInRange);
 
@@ -64,36 +59,21 @@ public class AetherManager {
 
     public void disableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
         AetherCollectors.remove(dim, x, y, z);
-        AetherCollectors.forEachInRange(
-            dim,
-            x,
-            y,
-            z,
-            c -> c.getCollectorHandler()
-                .removeCollectorInRange(collector));
+        AetherCollectors.forEachInRange(dim, x, y, z,
+            c -> c.getCollectorHandler().removeCollectorInRange(collector));
         if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.remove(manipulator);
     }
 
     public void enableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
         AetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
-        AetherCollectors.forEachInRange(
-            dim,
-            x,
-            y,
-            z,
-            c -> c.getCollectorHandler()
-                .addReleaserInRange(releaser));
+        AetherCollectors.forEachInRange(dim, x, y, z,
+            c -> c.getCollectorHandler() .addReleaserInRange(releaser));
     }
 
     public void disableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
         AetherReleasers.remove(dim, x, y, z);
-        AetherCollectors.forEachInRange(
-            dim,
-            x,
-            y,
-            z,
-            c -> c.getCollectorHandler()
-                .removeReleaserInRange(releaser));
+        AetherCollectors.forEachInRange(dim, x, y, z,
+            c -> c.getCollectorHandler().removeReleaserInRange(releaser));
     }
 
     public void addOrphanedManipulator(IAetherManipulator manipulator) {
@@ -101,12 +81,9 @@ public class AetherManager {
     }
 
     public void bulkOrphanSinks(IAetherManipulator manipulator) {
-        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = manipulator.getAetherHandler()
-            .getAetherSinksIter();
+        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = manipulator.getAetherHandler().getAetherSinksIter();
         while (iterSinks.hasNext()) {
-            orphanedManipulators.add(
-                iterSinks.next()
-                    .getValue());
+            orphanedManipulators.add(iterSinks.next().getValue());
         }
     }
 
@@ -125,13 +102,11 @@ public class AetherManager {
             handler.resetAether();
             Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = handler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next()
-                    .getValue();
+                IAetherManipulator next = iterSinks.next().getValue();
                 if (next != null) AetherSearchQueue.push(next);
             }
             InterDimCoords coords = curr.getInterDimCoords();
-            coords.getWorld()
-                .markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
+            coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
             orphanedManipulators.remove(curr);
         }
 
@@ -149,28 +124,25 @@ public class AetherManager {
                 Map.Entry<InterDimCoords, IAetherManipulator> entry = iterSinks.next();
                 if (entry.getValue() == null) {
                     InterDimCoords coords = entry.getKey();
-                    TileEntity te = coords.getWorld()
-                        .getTileEntity(coords.getX(), coords.getY(), coords.getZ());
+                    TileEntity te = coords.getWorld().getTileEntity(coords.getX(), coords.getY(), coords.getZ());
                     if (te instanceof IAetherManipulator sink) {
                         entry.setValue(sink);
-                    } else {
+                    }
+                    else {
                         iterSinks.remove();
                     }
                 }
             }
             iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next()
-                    .getValue();
-                boolean shouldPropagate = next.getAetherHandler()
-                    .getAetherFromSource(curr, this.serverTick);
+                IAetherManipulator next = iterSinks.next().getValue();
+                boolean shouldPropagate = next.getAetherHandler().getAetherFromSource(curr, this.serverTick);
                 if (shouldPropagate) AetherSearchQueue.push(next);
             }
             if (currHandler.isUpdatable()) AetherUpdateQueue.add(curr);
         }
         for (IAetherManipulator curr : AetherUpdateQueue) {
-            curr.getAetherHandler()
-                .updateAether();
+            curr.getAetherHandler().updateAether();
         }
         AetherUpdateQueue.clear();
     }

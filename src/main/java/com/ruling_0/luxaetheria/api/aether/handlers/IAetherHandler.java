@@ -133,9 +133,8 @@ public interface IAetherHandler {
      * Whether this handler's Aether should be updated every tick after the {@link AetherManager} runs its BFS
      * traversal.
      * In this case, it is guaranteed that all released Aether values are final (set in {@link #getAetherFromSource}).
-     * Thus,
-     * this should not manipulate released Aether values. If True, {@link #updateAether} is called later for the actual
-     * update.
+     * Thus, this should not manipulate released Aether values.
+     * If True, {@link #updateAether} is called later for the actual update.
      *
      * @return True if this should be updated, false otherwise.
      */
@@ -173,5 +172,4 @@ public interface IAetherHandler {
      * Load this handler's information from NBT.
      */
     void readFromNBT(@Nonnull NBTTagCompound compound);
-
 }

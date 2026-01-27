@@ -25,7 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
-    implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                       implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected final int maxAetherSinks = 1;
@@ -43,14 +43,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     }
 
     @Override
-    public IAetherHandler getAetherHandler() {
-        return this.aetherHandler;
-    }
+    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
 
     @Override
-    public IReleaserHandler getReleaserHandler() {
-        return this.aetherHandler;
-    }
+    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
 
     @Nonnull
     @Override
@@ -118,16 +114,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     protected boolean canSmelt() {
         if (this.getStackInSlot(0) == null) {
             return false;
-        } else {
-            ItemStack itemstack = FurnaceRecipes.smelting()
-                .getSmeltingResult(this.getStackInSlot(0));
+        }
+        else {
+            ItemStack itemstack = FurnaceRecipes.smelting().getSmeltingResult(this.getStackInSlot(0));
             if (itemstack == null) return false;
             if (this.getStackInSlot(2) == null) return true;
-            if (!this.getStackInSlot(2)
-                .isItemEqual(itemstack)) return false;
+            if (!this.getStackInSlot(2).isItemEqual(itemstack)) return false;
             int result = getStackInSlot(2).stackSize + itemstack.stackSize;
-            return result <= getInventoryStackLimit() && result <= this.getStackInSlot(2)
-                .getMaxStackSize(); // Forge BugFix: Make it respect stack sizes properly.
+            return result <= getInventoryStackLimit() && result <= this.getStackInSlot(2).getMaxStackSize();
         }
     }
 
@@ -152,22 +146,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         this.readFromNBT(pkt.func_148857_g());
-        worldObj.markBlockRangeForRenderUpdate(
-            this.xCoord,
-            this.yCoord,
-            this.zCoord,
-            this.xCoord,
-            this.yCoord,
-            this.zCoord);
+        worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord, this.zCoord);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
         double d0 = this.aetherHandler.getMaxSinkDistance();
-        return AxisAlignedBB
-            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
-            .expand(d0, d0, d0);
+        return AxisAlignedBB.getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1).expand(d0, d0, d0);
     }
 
     @SideOnly(Side.CLIENT)

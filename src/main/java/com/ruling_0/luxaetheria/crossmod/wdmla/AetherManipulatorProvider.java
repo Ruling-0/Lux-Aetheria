@@ -22,9 +22,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     INSTANCE;
 
     @Override
-    public ResourceLocation getUid() {
-        return Identifiers.PROV_AETHERMANIPULATOR;
-    }
+    public ResourceLocation getUid() { return Identifiers.PROV_AETHERMANIPULATOR; }
 
     @Override
     public void appendTooltip(ITooltip tooltip, @Nonnull BlockAccessor accessor) {
@@ -39,8 +37,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
             tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_out") + ": " + aetherOut));
             AethericEnergyUnit aetherAmbient = new AethericEnergyUnit();
             aetherAmbient.readFromNBT((NBTTagCompound) compound.getTag("aetherAmbient"));
-            tooltip.child(
-                new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_ambient") + ": " + aetherAmbient));
+            tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_ambient") + ": " + aetherAmbient));
             return;
         }
         tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_in") + ": " + aetherIn));
@@ -48,8 +45,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
         if (te instanceof IAetherReleaser) {
             AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
             aetherRelease.readFromNBT((NBTTagCompound) compound.getTag("aetherRelease"));
-            tooltip.child(
-                new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_release") + ": " + aetherRelease));
+            tooltip.child(new TextComponent(StatCollector.translateToLocal("LA.WDMLA.aether_release") + ": " + aetherRelease));
         }
     }
 

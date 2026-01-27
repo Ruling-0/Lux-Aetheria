@@ -10,15 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
-import org.joml.Vector4f;
-
 import com.google.common.base.Objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,6 +26,14 @@ import com.gtnewhorizon.gtnhlib.client.renderer.cel.model.quad.properties.ModelQ
 import com.gtnewhorizon.gtnhlib.client.renderer.cel.util.MathUtil;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.joml.Vector4f;
 
 public class ModelAetherRelay extends JSONModel {
 
@@ -43,8 +42,9 @@ public class ModelAetherRelay extends JSONModel {
         .create();
 
     public ModelAetherRelay(ResourceLoc.@Nullable ModelLoc parentId, boolean useAO,
-        Map<ModelDeserializer.Position, ModelDeserializer.Position.ModelDisplay> display,
-        @NotNull Object2ObjectMap<String, String> textures, List<ModelDeserializer.ModelElement> elements) {
+                            Map<ModelDeserializer.Position, ModelDeserializer.Position.ModelDisplay> display,
+                            @NotNull Object2ObjectMap<String, String> textures,
+                            List<ModelDeserializer.ModelElement> elements) {
         super(parentId, useAO, display, textures, elements);
     }
 
@@ -105,10 +105,9 @@ public class ModelAetherRelay extends JSONModel {
     }
 
     private void generateQuads(ModelDeserializer.ModelElement e, Vector3f from, Vector3f to,
-        HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine) {
-        final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix()
-            : e.rotation()
-                .getAffineMatrix();
+                               HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine) {
+        final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation()
+            .getAffineMatrix();
         for (ModelDeserializer.ModelElement.Face f : e.faces()) {
 
             float x = Float.MAX_VALUE;
@@ -195,7 +194,6 @@ public class ModelAetherRelay extends JSONModel {
             sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>())
                 .add(quad);
         }
-
     }
 
     public BakedModel bake(RelayBakeData data) {
@@ -259,33 +257,40 @@ public class ModelAetherRelay extends JSONModel {
                             if (r1.z < r2.z) {
                                 rFrom = r1;
                                 rTo = r2;
-                            } else {
+                            }
+                            else {
                                 rFrom = new Vector3f(r1.x, r1.y, r2.z);
                                 rTo = new Vector3f(r2.x, r2.y, r1.z);
                             }
-                        } else {
+                        }
+                        else {
                             if (r1.z < r2.z) {
                                 rFrom = new Vector3f(r1.x, r2.y, r1.z);
                                 rTo = new Vector3f(r2.x, r1.y, r2.z);
-                            } else {
+                            }
+                            else {
                                 rFrom = new Vector3f(r1.x, r2.y, r2.z);
                                 rTo = new Vector3f(r2.x, r1.y, r1.z);
                             }
                         }
-                    } else {
+                    }
+                    else {
                         if (r1.y < r2.y) {
                             if (r1.z < r2.z) {
                                 rFrom = new Vector3f(r2.x, r1.y, r1.z);
                                 rTo = new Vector3f(r1.x, r2.y, r2.z);
-                            } else {
+                            }
+                            else {
                                 rFrom = new Vector3f(r2.x, r1.y, r2.z);
                                 rTo = new Vector3f(r1.x, r2.y, r1.z);
                             }
-                        } else {
+                        }
+                        else {
                             if (r1.z < r2.z) {
                                 rFrom = new Vector3f(r2.x, r2.y, r1.z);
                                 rTo = new Vector3f(r1.x, r1.y, r2.z);
-                            } else {
+                            }
+                            else {
                                 rFrom = r2;
                                 rTo = r1;
                             }

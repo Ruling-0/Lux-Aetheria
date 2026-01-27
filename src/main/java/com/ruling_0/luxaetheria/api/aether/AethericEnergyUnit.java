@@ -38,11 +38,11 @@ public class AethericEnergyUnit {
     }
 
     public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, long origin, long tick, int dim,
-        int output) {
+                              int output) {
         this(amount, origin, tick, 0, dim);
         if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
-        else System
-            .arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length, this.aspectRatios.length));
+        else System.arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length,
+                              this.aspectRatios.length));
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
@@ -76,12 +76,8 @@ public class AethericEnergyUnit {
 
         @Override
         public String toString() {
-            return Long.toHexString(this.origin) + "-"
-                + Long.toHexString(this.tick)
-                + "-"
-                + Integer.toHexString(this.output)
-                + "-"
-                + Integer.toHexString(this.dim);
+            return Long.toHexString(this.origin) + "-" + Long.toHexString(this.tick) + "-" +
+                Integer.toHexString(this.output) + "-" + Integer.toHexString(this.dim);
         }
 
         @Override
@@ -119,19 +115,7 @@ public class AethericEnergyUnit {
     @Override
     public String toString() {
         DecimalFormat df = new DecimalFormat("0");
-        return this.amount + " ("
-            + EnumChatFormatting.RED
-            + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100)
-            + EnumChatFormatting.RESET
-            + "%, "
-            + EnumChatFormatting.GREEN
-            + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100)
-            + EnumChatFormatting.RESET
-            + "%, "
-            + EnumChatFormatting.BLUE
-            + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100)
-            + EnumChatFormatting.RESET
-            + "%)";
+        return this.amount + " (" + EnumChatFormatting.RED + df.format(this.getAspectRatio(AetherAspects.RED.index) * 100) + EnumChatFormatting.RESET + "%, " + EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100) + EnumChatFormatting.RESET + "%, " + EnumChatFormatting.BLUE + df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100) + EnumChatFormatting.RESET + "%)";
     }
 
     @Override
@@ -155,17 +139,11 @@ public class AethericEnergyUnit {
         this.id.setVals(te, tick, output);
     }
 
-    public AEUID getID() {
-        return this.id;
-    }
+    public AEUID getID() { return this.id; }
 
-    public long getAmount() {
-        return this.amount;
-    }
+    public long getAmount() { return this.amount; }
 
-    public void setAmount(long amount) {
-        this.amount = amount;
-    }
+    public void setAmount(long amount) { this.amount = amount; }
 
     public void addAmount(long amount) {
         this.amount += amount;

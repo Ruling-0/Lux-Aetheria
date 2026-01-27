@@ -10,5 +10,4 @@ public interface IWDMLAProvider {
      * Write aesthetic data for WDMLA consumption.
      */
     void writeWDMLAData(@Nonnull NBTTagCompound compound);
-
 }

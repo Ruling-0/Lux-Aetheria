@@ -33,5 +33,4 @@ public class LAClientProxy extends LAProxy {
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
     }
-
 }

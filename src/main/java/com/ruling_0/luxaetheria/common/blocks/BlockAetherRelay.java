@@ -9,9 +9,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3i;
-
 import com.gtnewhorizon.gtnhlib.api.IModelSelector;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
@@ -23,6 +20,9 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
+
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3i;
 
 public class BlockAetherRelay extends BlockContainer implements IModelSelector {
 
@@ -36,9 +36,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
     }
 
     @Override
-    public int getRenderType() {
-        return ModelISBRH.JSON_ISBRH_ID;
-    }
+    public int getRenderType() { return ModelISBRH.JSON_ISBRH_ID; }
 
     @Override
     public boolean renderAsNormalBlock() {
@@ -46,9 +44,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
     }
 
     @Override
-    public boolean isOpaqueCube() {
-        return false;
-    }
+    public boolean isOpaqueCube() { return false; }
 
     @Override
     public BakedModel getModel(@Nullable IBlockAccess world, Block block, int meta, int x, int y, int z) {
@@ -67,8 +63,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
             }
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]));
-        final JSONModel jsonModel = ModelRegistry
-            .getJSONModel(new ResourceLoc.ModelLoc("luxaetheria", "blocks/aether_relay"));
+        final JSONModel jsonModel = ModelRegistry.getJSONModel(new ResourceLoc.ModelLoc("luxaetheria", "blocks/aether_relay"));
         final ModelAetherRelay model = new ModelAetherRelay(jsonModel);
         return model.bake(data);
     }

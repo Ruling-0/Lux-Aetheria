@@ -6,6 +6,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
 import net.minecraftforge.common.DimensionManager;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
@@ -24,7 +25,8 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     }
 
     public InterDimCoords(NBTTagCompound compound) {
-        this(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"), compound.getInteger("dim"));
+        this(compound.getInteger("x"), compound.getInteger("y"),
+            compound.getInteger("z"), compound.getInteger("dim"));
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
@@ -54,13 +56,9 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     }
 
     @Override
-    public World getWorld() {
-        return this.world;
-    }
+    public World getWorld() { return this.world; }
 
-    public int getDimID() {
-        return this.world.provider.dimensionId;
-    }
+    public int getDimID() { return this.world.provider.dimensionId; }
 
     @Override
     public boolean equals(Object obj) {
@@ -78,7 +76,5 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
         return "(" + this.x + ", " + this.y + ", " + this.z + ", " + this.world.provider.dimensionId + ")";
     }
 
-    public Vec3 getVec3() {
-        return Vec3.createVectorHelper(this.x + 0.5, this.y + 0.5, this.z + 0.5);
-    }
+    public Vec3 getVec3() { return Vec3.createVectorHelper(this.x + 0.5, this.y + 0.5, this.z + 0.5); }
 }

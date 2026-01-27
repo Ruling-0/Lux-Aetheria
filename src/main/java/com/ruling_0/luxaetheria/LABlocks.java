@@ -37,7 +37,8 @@ public enum LABlocks {
                      * meaning we WANT to register it as null, making the block have no inventory item.
                      */
                     GameRegistry.registerBlock(blockEntry.get(), blockEntry.getItemBlock(), blockEntry.name);
-                } else {
+                }
+                else {
                     // Register with default item if getItemBlock() == null but getHasItemBlock() is true.
                     GameRegistry.registerBlock(blockEntry.get(), blockEntry.name);
                 }
@@ -82,25 +83,17 @@ public enum LABlocks {
     /**
      * If this is false, the block is initialized without an inventory item, or ItemBlock.
      */
-    public boolean getHasItemBlock() {
-        return this.hasItemBlock;
-    }
+    public boolean getHasItemBlock() { return this.hasItemBlock; }
 
     public Block get() {
         return this.block;
     }
 
-    public Class<? extends ItemBlock> getItemBlock() {
-        return this.itemBlock;
-    }
+    public Class<? extends ItemBlock> getItemBlock() { return this.itemBlock; }
 
-    public Item getItem() {
-        return Item.getItemFromBlock(get());
-    }
+    public Item getItem() { return Item.getItemFromBlock(get()); }
 
-    public boolean isEnabled() {
-        return this.isEnabled;
-    }
+    public boolean isEnabled() { return this.isEnabled; }
 
     public ItemStack newItemStack() {
         return newItemStack(1);
@@ -113,5 +106,4 @@ public enum LABlocks {
     public ItemStack newItemStack(int count, int meta) {
         return new ItemStack(this.get(), count, meta);
     }
-
 }
