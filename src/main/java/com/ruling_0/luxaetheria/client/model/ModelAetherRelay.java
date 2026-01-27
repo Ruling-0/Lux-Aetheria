@@ -69,93 +69,29 @@ public class ModelAetherRelay extends JSONModel {
                 final float sXZ = new Vector3f(orig).cross(dirXZ).y;
                 final float cXZ = orig.dot(dirXZ);
                 final Matrix4f Ry = new Matrix4f(
-                    cXZ,
-                    0.0f,
-                    -sXZ,
-                    0.0f,
-                    0.0f,
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    sXZ,
-                    0.0f,
-                    cXZ,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f);
+                    cXZ, 0.0f, -sXZ, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    sXZ, 0.0f, cXZ, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
                 final float sY = new Vector3f(dirXZ).cross(dir).x;
                 final float cY = dirXZ.dot(dir);
                 final Matrix4f Rx = new Matrix4f(
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    cY,
-                    -sY,
-                    0.0f,
-                    0.0f,
-                    sY,
-                    cY,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f);
-                // Rodrigues Formula to determine rotation matrix
-                // final Vector3f k = new Vector3f(orig).cross(dir);
-                // final Vector3f uk = new Vector3f(k).normalize();
-                // final Matrix3f matK = new Matrix3f(
-                // 0.0f, uk.z, -uk.y,
-                // -uk.z, 0.0f, uk.x,
-                // uk.y, -uk.x, 0.0f);
-                // final Matrix3f matK2 = new Matrix3f(matK).mul(matK);
-                // final Matrix4f R = new Matrix4f().set(new Matrix3f().add(matK.scale(k.length())).add(matK2.scale(1.0f
-                // - dir.dot(orig))));
-                // final Matrix3f R = new Matrix3f(0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f, 0f);
-                // final Matrix3f R = new Matrix3f();
-                // final Matrix4f R = new Matrix4f().set(new Matrix3f(0f, 0f, 1f, 0f, 1f, 0f, -1f, 0f, 0f));
+                    1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, cY, -sY, 0.0f,
+                    0.0f, sY, cY, 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0f);
                 final Matrix4f T1 = new Matrix4f(
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f,
-                    0.0f,
-                    0.5f,
-                    0.5f,
-                    0.5f,
-                    1.0f);
+                    1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    0.5f, 0.5f, 0.5f, 1.0f);
                 final Matrix4f T2 = new Matrix4f(
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                    1.0f,
-                    0.0f,
-                    -0.5f,
-                    -0.5f,
-                    -0.5f,
-                    1.0f);
+                    1.0f, 0.0f, 0.0f, 0.0f,
+                    0.0f, 1.0f, 0.0f, 0.0f,
+                    0.0f, 0.0f, 1.0f, 0.0f,
+                    -0.5f, -0.5f, -0.5f, 1.0f);
                 // A = T1 * R * T2
-                this.matrices[i] = new Matrix4f(T1).mul(Ry)
-                    .mul(Rx)
-                    .mul(T2);
-                // this.matrices[i].transpose();
+                this.matrices[i] = new Matrix4f(T1).mul(Ry).mul(Rx).mul(T2);
             }
         }
 
@@ -365,9 +301,7 @@ public class ModelAetherRelay extends JSONModel {
             }
 
             for (ModelDeserializer.ModelElement e : part) {
-                final var eID = Integer.parseInt(
-                    e.name()
-                        .split(":")[2]);
+                final var eID = Integer.parseInt(e.name().split(":")[2]);
                 if (eID > cullIdx) continue;
                 this.generateQuads(e, e.from(), e.to(), sidedQuadStore, partRot);
             }
