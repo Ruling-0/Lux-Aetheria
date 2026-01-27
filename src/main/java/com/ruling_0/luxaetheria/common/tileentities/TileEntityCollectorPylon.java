@@ -30,9 +30,7 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
         this.coords = null;
     }
 
-    public IAetherHandler getAetherHandler() {
-        return this.collectorHandler;
-    }
+    public IAetherHandler getAetherHandler() { return this.collectorHandler; }
 
     @Nonnull
     @Override

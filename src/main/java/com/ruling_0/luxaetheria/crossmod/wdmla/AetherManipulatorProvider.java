@@ -22,9 +22,7 @@ public enum AetherManipulatorProvider implements IBlockComponentProvider, IServe
     INSTANCE;
 
     @Override
-    public ResourceLocation getUid() {
-        return Identifiers.PROV_AETHERMANIPULATOR;
-    }
+    public ResourceLocation getUid() { return Identifiers.PROV_AETHERMANIPULATOR; }
 
     @Override
     public void appendTooltip(ITooltip tooltip, @Nonnull BlockAccessor accessor) {

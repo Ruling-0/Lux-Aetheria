@@ -26,7 +26,7 @@ public class LAUtils {
      * @return True if the path is clear, false otherwise.
      */
     public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
-        boolean includeLiquid) {
+                                            boolean includeLiquid) {
         return checkRayCollision(
             world,
             start.getAetherHandler()
@@ -59,9 +59,9 @@ public class LAUtils {
         int dz = negZ ? 1 : -1;
 
         // Iterate until pos is beyond the target (v)
-        while ((negX ? pos.xCoord >= v.xCoord : pos.xCoord <= v.xCoord)
-            && (negY ? pos.yCoord >= v.yCoord : pos.yCoord <= v.yCoord)
-            && (negZ ? pos.zCoord >= v.zCoord : pos.zCoord <= v.zCoord)) {
+        while ((negX ? pos.xCoord >= v.xCoord : pos.xCoord <= v.xCoord) &&
+            (negY ? pos.yCoord >= v.yCoord : pos.yCoord <= v.yCoord) &&
+            (negZ ? pos.zCoord >= v.zCoord : pos.zCoord <= v.zCoord)) {
             int x = MathHelper.floor_double(pos.xCoord);
             int y = MathHelper.floor_double(pos.yCoord);
             int z = MathHelper.floor_double(pos.zCoord);
@@ -106,17 +106,17 @@ public class LAUtils {
      * @return {@link MovingObjectPosition} if the block collides with the line, null otherwise.
      */
     public static MovingObjectPosition getBlockCollision(World world, int x, int y, int z, Vec3 u, Vec3 v,
-        boolean includeLiquid) {
+                                                         boolean includeLiquid) {
         Block block = world.getBlock(x, y, z);
         int meta = world.getBlockMetadata(x, y, z);
-        if (block.canCollideCheck(meta, includeLiquid)
-            && block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
+        if (block.canCollideCheck(meta, includeLiquid) &&
+            block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
             MovingObjectPosition mop = block.collisionRayTrace(world, x, y, z, u, v);
             if (mop == null || mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return null;
-            if (mop.blockX == MathHelper.floor_double(u.xCoord) && mop.blockY == MathHelper.floor_double(u.yCoord)
-                && mop.blockZ == MathHelper.floor_double(u.zCoord)) return null;
-            if (mop.blockX == MathHelper.floor_double(v.xCoord) && mop.blockY == MathHelper.floor_double(v.yCoord)
-                && mop.blockZ == MathHelper.floor_double(v.zCoord)) return null;
+            if (mop.blockX == MathHelper.floor_double(u.xCoord) && mop.blockY == MathHelper.floor_double(u.yCoord) &&
+                mop.blockZ == MathHelper.floor_double(u.zCoord)) return null;
+            if (mop.blockX == MathHelper.floor_double(v.xCoord) && mop.blockY == MathHelper.floor_double(v.yCoord) &&
+                mop.blockZ == MathHelper.floor_double(v.zCoord)) return null;
             return mop;
         }
         return null;

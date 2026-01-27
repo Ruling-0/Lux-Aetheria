@@ -23,9 +23,7 @@ public abstract class BaseAetherCollector extends TileEntity implements IAetherC
     }
 
     @Override
-    public SimpleCollectorHandler getCollectorHandler() {
-        return this.collectorHandler;
-    }
+    public SimpleCollectorHandler getCollectorHandler() { return this.collectorHandler; }
 
     @Override
     public void enable() {

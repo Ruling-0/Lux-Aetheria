@@ -14,14 +14,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
+
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IWDMLAProvider {
 
@@ -145,16 +145,12 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
     @Nonnull
     @Override
-    public Vec3 getPosVec3() {
-        return this.getInterDimCoords()
-            .getVec3();
-    }
+    public Vec3 getPosVec3() { return this.getInterDimCoords()
+        .getVec3(); }
 
     @Nonnull
     @Override
-    public InterDimCoords getInterDimCoords() {
-        return this.owner.getInterDimCoords();
-    }
+    public InterDimCoords getInterDimCoords() { return this.owner.getInterDimCoords(); }
 
     @Override
     public boolean isInvalidSink(@Nullable IAetherHandler sinkHandler) {
@@ -168,14 +164,10 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     }
 
     @Override
-    public AethericEnergyUnit getAetherOut() {
-        return new AethericEnergyUnit(this.aetherOut);
-    }
+    public AethericEnergyUnit getAetherOut() { return new AethericEnergyUnit(this.aetherOut); }
 
     @Override
-    public double getMaxSinkDistance() {
-        return this.maxSinkDistance;
-    }
+    public double getMaxSinkDistance() { return this.maxSinkDistance; }
 
     @Override
     public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
@@ -198,7 +190,8 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             this.aetherIn.merge(incoming);
             if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
             return true;
-        } else {
+        }
+        else {
             this.aetherRelease.merge(incoming);
         }
         return false;
@@ -261,14 +254,10 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     }
 
     @Override
-    public AethericEnergyUnit getAetherRelease() {
-        return new AethericEnergyUnit(this.aetherRelease);
-    }
+    public AethericEnergyUnit getAetherRelease() { return new AethericEnergyUnit(this.aetherRelease); }
 
     @Override
-    public boolean isUpdatable() {
-        return false;
-    }
+    public boolean isUpdatable() { return false; }
 
     @Override
     public void updateAether() {}
@@ -377,5 +366,4 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
         this.aetherRelease.writeToNBT(nbtAetherRelease);
         compound.setTag("aetherRelease", nbtAetherRelease);
     }
-
 }

@@ -4,9 +4,6 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
@@ -18,6 +15,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(modid = LuxAetheria.MODID, version = Tags.VERSION, name = "Lux Aetheria", acceptedMinecraftVersions = "[1.7.10]")
 public class LuxAetheria {
@@ -28,9 +27,7 @@ public class LuxAetheria {
     public static final CreativeTabs tabLuxAetheria = new CreativeTabs(MODID) {
 
         @Override
-        public Item getTabIconItem() {
-            return Items.quartz;
-        }
+        public Item getTabIconItem() { return Items.quartz; }
     };
 
     @SidedProxy(clientSide = "com.ruling_0.luxaetheria.LAClientProxy", serverSide = "com.ruling_0.luxaetheria.LAProxy")

@@ -18,7 +18,7 @@ import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
-    implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                       implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected final int maxAetherSinks = 1;
@@ -36,14 +36,10 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     }
 
     @Override
-    public IAetherHandler getAetherHandler() {
-        return this.aetherHandler;
-    }
+    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
 
     @Override
-    public IReleaserHandler getReleaserHandler() {
-        return this.aetherHandler;
-    }
+    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
 
     @Nonnull
     @Override
@@ -111,7 +107,8 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     protected boolean canSmelt() {
         if (this.getStackInSlot(0) == null) {
             return false;
-        } else {
+        }
+        else {
             ItemStack itemstack = FurnaceRecipes.smelting()
                 .getSmeltingResult(this.getStackInSlot(0));
             if (itemstack == null) return false;

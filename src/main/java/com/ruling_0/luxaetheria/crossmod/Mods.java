@@ -38,14 +38,10 @@ public enum Mods implements IMod {
     }
 
     @Override
-    public String getID() {
-        return ID;
-    }
+    public String getID() { return ID; }
 
     @Override
-    public String getResourceLocation() {
-        return resourceDomain;
-    }
+    public String getResourceLocation() { return resourceDomain; }
 
     public String getResourcePath(String path) {
         return this.getResourceLocation(path)

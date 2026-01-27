@@ -18,7 +18,7 @@ public class ItemPylonBinder extends Item {
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide,
-        float hitx, float hity, float hitz) {
+                             float hitx, float hity, float hitz) {
         if (world.isRemote) return true;
         TileEntity te = world.getTileEntity(x, y, z);
         if (te instanceof IAetherManipulator aetherManipulator) {
@@ -36,7 +36,8 @@ public class ItemPylonBinder extends Item {
                     }
                     this.boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
-                } else {
+                }
+                else {
                     if (!LAUtils.checkRayCollision(world, this.boundManipulator, aetherManipulator, true)) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
                         return true;
@@ -49,7 +50,8 @@ public class ItemPylonBinder extends Item {
                     this.boundManipulator = null;
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.bound"));
                 }
-            } else {
+            }
+            else {
                 this.boundManipulator = aetherManipulator;
                 player.addChatMessage(new ChatComponentTranslation("LA.binder.selected"));
             }

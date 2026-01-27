@@ -173,5 +173,4 @@ public interface IAetherHandler {
      * Load this handler's information from NBT.
      */
     void readFromNBT(@Nonnull NBTTagCompound compound);
-
 }

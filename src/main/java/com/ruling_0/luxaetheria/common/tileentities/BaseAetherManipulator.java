@@ -17,7 +17,7 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
 public abstract class BaseAetherManipulator extends TileEntity
-    implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                            implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected boolean isEnabled = false;
@@ -34,9 +34,7 @@ public abstract class BaseAetherManipulator extends TileEntity
     }
 
     @Override
-    public IAetherHandler getAetherHandler() {
-        return this.aetherHandler;
-    }
+    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
 
     @Nonnull
     @Override

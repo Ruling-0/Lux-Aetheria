@@ -50,9 +50,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public int getCollectorRange() {
-        return this.range;
-    }
+    public int getCollectorRange() { return this.range; }
 
     @Override
     public void addCollectorInRange(@Nonnull IAetherCollector collector) {
@@ -85,9 +83,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public AethericEnergyUnit getAmbientAether() {
-        return new AethericEnergyUnit(this.ambientAether);
-    }
+    public AethericEnergyUnit getAmbientAether() { return new AethericEnergyUnit(this.ambientAether); }
 
     @Override
     public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
@@ -151,9 +147,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public boolean isUpdatable() {
-        return true;
-    }
+    public boolean isUpdatable() { return true; }
 
     @Override
     public void updateAether() {

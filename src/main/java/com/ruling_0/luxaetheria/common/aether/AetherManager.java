@@ -150,7 +150,8 @@ public class AetherManager {
                         .getTileEntity(coords.getX(), coords.getY(), coords.getZ());
                     if (te instanceof IAetherManipulator sink) {
                         entry.setValue(sink);
-                    } else {
+                    }
+                    else {
                         iterSinks.remove();
                     }
                 }
