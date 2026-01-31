@@ -9,7 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-import com.gtnewhorizon.gtnhlib.api.IModelSelector;
+import com.gtnewhorizon.gtnhlib.api.IModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
@@ -24,7 +24,7 @@ import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
-public class BlockAetherRelay extends BlockContainer implements IModelSelector {
+public class BlockAetherRelay extends BlockContainer implements IModelProvider {
 
     public BlockAetherRelay() {
         super(Material.glass);
@@ -45,6 +45,14 @@ public class BlockAetherRelay extends BlockContainer implements IModelSelector {
 
     @Override
     public boolean isOpaqueCube() { return false; }
+
+    @Override
+    public int getRenderBlockPass() { return 1; }
+
+    @Override
+    public boolean canRenderInPass(int pass) {
+        return true;
+    }
 
     @Override
     public BakedModel getModel(@Nullable IBlockAccess world, Block block, int meta, int x, int y, int z) {

@@ -108,9 +108,9 @@ public class ModelAetherRelay extends JSONModel {
     }
 
     private void generateQuads(ModelDeserializer.ModelElement e, Vector3f from, Vector3f to,
-                               HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine) {
-        final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation()
-            .getAffineMatrix();
+                               HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
+                               boolean isTransparent) {
+        final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation().getAffineMatrix();
         for (ModelDeserializer.ModelElement.Face f : e.faces()) {
 
             float x = Float.MAX_VALUE;
@@ -164,6 +164,8 @@ public class ModelAetherRelay extends JSONModel {
             // Set the tint index
             quad.setColorIndex(f.tintIndex());
 
+            if (isTransparent) quad.setTransparent();
+
             // Bake and add it
 
             ModelQuadFacing cullFace = ModelQuadFacing.fromForgeDir(f.cullFace());
@@ -193,8 +195,7 @@ public class ModelAetherRelay extends JSONModel {
                     cullFace = ModelQuadFacing.NEG_Z;
                 }
             }
-            sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>())
-                .add(quad);
+            sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>()).add(quad);
         }
     }
 
@@ -207,9 +208,7 @@ public class ModelAetherRelay extends JSONModel {
         }
 
         for (ModelDeserializer.ModelElement e : this.elements) {
-            final int partID = Integer.parseInt(
-                e.name()
-                    .split(":")[1]);
+            final int partID = Integer.parseInt(e.name().split(":")[1]);
             // partID 0 always rendered
             if (partID > data.count() - 1) continue;
             // noinspection unchecked
@@ -224,11 +223,13 @@ public class ModelAetherRelay extends JSONModel {
         final ArrayList<ModelDeserializer.ModelElement> base = parts[0];
         final var baseRot = data.getAffineMatrix(0);
         for (ModelDeserializer.ModelElement e : base) {
+            final var eNameParts = e.name().split(":");
+            final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
             final Vector3f from = e.from();
             final Vector3f to = e.to();
             colBoxes[colIdx++] = from;
             colBoxes[colIdx++] = to;
-            this.generateQuads(e, from, to, sidedQuadStore, baseRot);
+            this.generateQuads(e, from, to, sidedQuadStore, baseRot, isTransparent);
         }
 
         for (int i = 1; i < data.count(); ++i) {
@@ -239,9 +240,7 @@ public class ModelAetherRelay extends JSONModel {
 
             // Find the first element that collides with a collision Box
             for (ModelDeserializer.ModelElement e : part) {
-                final var eID = Integer.parseInt(
-                    e.name()
-                        .split(":")[2]);
+                final var eID = Integer.parseInt(e.name().split(":")[2]);
                 if (eID > cullIdx) continue;
                 final Vector3f from = e.from();
                 final Vector3f to = e.to();
@@ -308,9 +307,11 @@ public class ModelAetherRelay extends JSONModel {
             }
 
             for (ModelDeserializer.ModelElement e : part) {
-                final var eID = Integer.parseInt(e.name().split(":")[2]);
+                final var eNameParts = e.name().split(":");
+                final var eID = Integer.parseInt(eNameParts[2]);
+                final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
                 if (eID > cullIdx) continue;
-                this.generateQuads(e, e.from(), e.to(), sidedQuadStore, partRot);
+                this.generateQuads(e, e.from(), e.to(), sidedQuadStore, partRot, isTransparent);
             }
         }
         return new PileOfQuads(sidedQuadStore, this.display, this.getParticle());
