@@ -142,4 +142,10 @@ public abstract class BaseAetherManipulator extends TileEntity
     public double getMaxRenderDistanceSquared() {
         return Math.max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(), 4096.0D);
     }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 1;
+    }
 }

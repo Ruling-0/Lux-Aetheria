@@ -62,7 +62,8 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
         double uOffset = -time * 0.1;
 
-        Vec3 cameraPos = Vec3.createVectorHelper(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY, ActiveRenderInfo.objectZ);
+        Vec3 cameraPos = Vec3.createVectorHelper(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY,
+            ActiveRenderInfo.objectZ);
         Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
 
         while (iterSinks.hasNext()) {
@@ -70,7 +71,7 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
             Vec3 sinkPos = handler.getSinkCollisionCoords(sinkCoords);
 
             Vec3 v = Vec3.createVectorHelper(sinkPos.xCoord - sourcePos.xCoord, sinkPos.yCoord - sourcePos.yCoord,
-                    sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
+                sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
             double dist = v.lengthVector();
             double uvdist = dist * 4;
             if (dist < 0.0001) continue;
