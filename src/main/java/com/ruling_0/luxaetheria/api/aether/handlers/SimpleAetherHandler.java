@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
@@ -263,12 +264,9 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     }
 
     protected void markForUpdate() {
-        this.getInterDimCoords()
-            .getWorld()
-            .markBlockForUpdate(
-                this.getInterDimCoords().getX(),
-                this.getInterDimCoords().getY(),
-                this.getInterDimCoords().getZ());
+        final InterDimCoords coords = this.getInterDimCoords();
+        final World world = coords.getWorld();
+        world.markBlockForUpdate(coords.x, coords.y, coords.z);
     }
 
     @Override
