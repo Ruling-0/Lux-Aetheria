@@ -4,7 +4,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"2": "luxaetheria:models/aether_relay",
-		"particle": "luxaetheria:blocks/models/aether_relay_particle"
+		"particle": "luxaetheria:models/aether_relay_particle"
 	},
 	"elements": [
 		{
@@ -91,7 +91,7 @@
 			"name": "arm:1:5",
 			"from": [7.5, 3.75, 1],
 			"to": [8.5, 6.75, 2],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 7.75, 8]},
+			"rotation": {"angle": 0, "axis": "z", "origin": [8, 7.75, 8]},
 			"faces": {
 				"north": {"uv": [1.5, 8.5, 2, 10], "texture": "#2"},
 				"east": {"uv": [0, 8.5, 0.5, 10], "texture": "#2"},

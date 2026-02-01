@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.google.common.base.Objects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -28,10 +30,12 @@ import com.gtnewhorizon.gtnhlib.client.renderer.cel.util.MathUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector4f;
 
@@ -54,47 +58,159 @@ public class ModelAetherRelay extends JSONModel {
 
     public static final class RelayBakeData {
 
-        private final Matrix4f[] matrices;
-        /**
-         * Original vector of the arms, pointing North (negative z)
-         */
-        private static final Vector3f orig = new Vector3f(0.0f, 0.0f, -1.0f);
+        private final Matrix4fc[] matrices;
 
-        public RelayBakeData(Vector3i pos, Vector3i[] targets) {
+        /**
+         * Original vector of the arms
+         */
+        private static Vector3fc getOrig(ForgeDirection dir) {
+            return switch (dir) {
+                case DOWN, EAST, WEST, UNKNOWN -> new Vector3f(0.0f, 0.0f, -1.0f); // North
+                case NORTH -> new Vector3f(0.0f, 1.0f, 0.0f); // Up
+                case UP -> new Vector3f(0.0f, 0.0f, 1.0f); // South
+                case SOUTH -> new Vector3f(0.0f, -1.0f, 0.0f); // Down
+            };
+        }
+
+        private static AxisAngle4f getDirRot(ForgeDirection dir) {
+            return switch (dir) {
+                case DOWN, UNKNOWN -> new AxisAngle4f(0.0f, 0.0f, 1.0f, 0.0f);
+                case UP -> new AxisAngle4f((float) Math.toRadians(180.0f), 1.0f, 0.0f, 0.0f);
+                case NORTH -> new AxisAngle4f((float) Math.toRadians(90.0f), 1.0f, 0.0f, 0.0f);
+                case SOUTH -> new AxisAngle4f((float) Math.toRadians(-90.0f), 1.0f, 0.0f, 0.0f);
+                case EAST -> new AxisAngle4f((float) Math.toRadians(90.0f), 0.0f, 0.0f, 1.0f);
+                case WEST -> new AxisAngle4f((float) Math.toRadians(-90.0f), 0.0f, 0.0f, 1.0f);
+            };
+        }
+
+        public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta) {
+            final ForgeDirection forgeDir = ForgeDirection.getOrientation(meta);
+            final Vector3fc orig = getOrig(forgeDir);
+
+            final Matrix4f baseMat = new Matrix4f()
+                .translate(0.5f, 0.5f, 0.5f)
+                .rotate(getDirRot(forgeDir))
+                .translate(-0.5f, -0.5f, -0.5f);
             if (targets.length == 0) {
-                this.matrices = new Matrix4f[] { new Matrix4f(), new Matrix4f() };
+                this.matrices = new Matrix4fc[] { baseMat, baseMat };
                 return;
             }
+
             this.matrices = new Matrix4f[targets.length + 1];
-            this.matrices[0] = new Matrix4f();
-            for (int i = 1; i < this.matrices.length; ++i) {
-                final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                final Vector3f dirXZ = new Vector3f(dir.x, 0.0f, dir.z).normalize();
-                final float sXZ = new Vector3f(orig).cross(dirXZ).y;
-                final float cXZ = orig.dot(dirXZ);
-                final Matrix4f Ry = new Matrix4f(
-                    cXZ, 0.0f, -sXZ, 0.0f,
-                    0.0f, 1.0f, 0.0f, 0.0f,
-                    sXZ, 0.0f, cXZ, 0.0f,
-                    0.0f, 0.0f, 0.0f, 1.0f);
-                final float sY = new Vector3f(dirXZ).cross(dir).x;
-                final float cY = dirXZ.dot(dir);
-                final Matrix4f Rx = new Matrix4f(
-                    1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, cY, -sY, 0.0f,
-                    0.0f, sY, cY, 0.0f,
-                    0.0f, 0.0f, 0.0f, 1.0f);
-                final Matrix4f T1 = new Matrix4f(
-                    1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f, 0.0f,
-                    0.0f, 0.0f, 1.0f, 0.0f,
-                    0.5f, 0.5f, 0.5f, 1.0f);
-                final Matrix4f T2 = new Matrix4f(
-                    1.0f, 0.0f, 0.0f, 0.0f,
-                    0.0f, 1.0f, 0.0f, 0.0f,
-                    0.0f, 0.0f, 1.0f, 0.0f,
-                    -0.5f, -0.5f, -0.5f, 1.0f);
-                this.matrices[i] = new Matrix4f(T1).mul(Ry).mul(Rx).mul(T2);
+            this.matrices[0] = baseMat;
+
+            switch (forgeDir) {
+                case DOWN, UNKNOWN:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        final Vector3f dirAZ = new Vector3f(dir.x, 0.0f, dir.z).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).y;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.y);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .rotate(getDirRot(forgeDir))
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
+                case UP:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        dir.y = -dir.y;
+                        final Vector3f dirAZ = new Vector3f(dir.x, 0.0f, dir.z).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).y;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.y);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .rotate(getDirRot(forgeDir))
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
+                case NORTH:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        final Vector3f dirAZ = new Vector3f(dir.x, dir.y, 0.0f).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).z;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.z);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotate(getDirRot(forgeDir))
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
+                case SOUTH:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        dir.z = -dir.z;
+                        final Vector3f dirAZ = new Vector3f(dir.x, dir.y, 0.0f).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).z;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.z);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotate(getDirRot(forgeDir))
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
+                case WEST:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        final Vector3f dirAZ = new Vector3f(0.0f, dir.y, dir.z).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).x;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.x);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotate(getDirRot(forgeDir))
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
+                case EAST:
+                    for (int i = 1; i < this.matrices.length; ++i) {
+                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
+                        dir.x = -dir.x;
+                        final Vector3f dirAZ = new Vector3f(0.0f, dir.y, dir.z).normalize();
+
+                        final float sinAZ = new Vector3f(orig).cross(dirAZ).x;
+                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.x);
+
+                        this.matrices[i] = new Matrix4f()
+                            .translate(0.5f, 0.5f, 0.5f)
+                            .rotate(getDirRot(forgeDir))
+                            .rotateY(angAZ)
+                            .rotateX(angEL)
+                            .translate(-0.5f, -0.5f, -0.5f);
+                    }
+                    break;
             }
         }
 
@@ -107,7 +223,7 @@ public class ModelAetherRelay extends JSONModel {
         }
     }
 
-    private void generateQuads(ModelDeserializer.ModelElement e, Vector3f from, Vector3f to,
+    private void generateQuads(ModelDeserializer.ModelElement e,
                                HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
                                boolean isTransparent) {
         final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation().getAffineMatrix();
@@ -123,7 +239,8 @@ public class ModelAetherRelay extends JSONModel {
             // Assign vertexes
             final var quad = new ModelQuad();
             for (int i = 0; i < 4; ++i) {
-                final Vector3f vert = mapSideToVertex(from, to, i, f.name()).mulPosition(rot).mulPosition(affine);
+                final Vector3f vert = mapSideToVertex(e.from(), e.to(), i,
+                    f.name()).mulPosition(rot).mulPosition(affine);
                 quad.setX(i, vert.x);
                 quad.setY(i, vert.y);
                 quad.setZ(i, vert.z);
@@ -225,11 +342,59 @@ public class ModelAetherRelay extends JSONModel {
         for (ModelDeserializer.ModelElement e : base) {
             final var eNameParts = e.name().split(":");
             final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
-            final Vector3f from = e.from();
-            final Vector3f to = e.to();
-            colBoxes[colIdx++] = from;
-            colBoxes[colIdx++] = to;
-            this.generateQuads(e, from, to, sidedQuadStore, baseRot, isTransparent);
+            final Vector3f r1 = new Vector3f(e.from()).mulPosition(baseRot);
+            final Vector3f r2 = new Vector3f(e.to()).mulPosition(baseRot);
+            final Vector3f cFrom;
+            final Vector3f cTo;
+
+            // 3-comparison method so that cFrom is the min components and cTo the max
+            if (r1.x < r2.x) {
+                if (r1.y < r2.y) {
+                    if (r1.z < r2.z) {
+                        cFrom = r1;
+                        cTo = r2;
+                    }
+                    else {
+                        cFrom = new Vector3f(r1.x, r1.y, r2.z);
+                        cTo = new Vector3f(r2.x, r2.y, r1.z);
+                    }
+                }
+                else {
+                    if (r1.z < r2.z) {
+                        cFrom = new Vector3f(r1.x, r2.y, r1.z);
+                        cTo = new Vector3f(r2.x, r1.y, r2.z);
+                    }
+                    else {
+                        cFrom = new Vector3f(r1.x, r2.y, r2.z);
+                        cTo = new Vector3f(r2.x, r1.y, r1.z);
+                    }
+                }
+            }
+            else {
+                if (r1.y < r2.y) {
+                    if (r1.z < r2.z) {
+                        cFrom = new Vector3f(r2.x, r1.y, r1.z);
+                        cTo = new Vector3f(r1.x, r2.y, r2.z);
+                    }
+                    else {
+                        cFrom = new Vector3f(r2.x, r1.y, r2.z);
+                        cTo = new Vector3f(r1.x, r2.y, r1.z);
+                    }
+                }
+                else {
+                    if (r1.z < r2.z) {
+                        cFrom = new Vector3f(r2.x, r2.y, r1.z);
+                        cTo = new Vector3f(r1.x, r1.y, r2.z);
+                    }
+                    else {
+                        cFrom = r2;
+                        cTo = r1;
+                    }
+                }
+            }
+            colBoxes[colIdx++] = cFrom;
+            colBoxes[colIdx++] = cTo;
+            this.generateQuads(e, sidedQuadStore, baseRot, isTransparent);
         }
 
         for (int i = 1; i < data.count(); ++i) {
@@ -252,7 +417,8 @@ public class ModelAetherRelay extends JSONModel {
                     final Vector3f r2 = new Vector3f(to).mulPosition(partRot);
                     final Vector3f rFrom;
                     final Vector3f rTo;
-                    // 3-comparison method so that rFrom is the min components and r2 the max
+
+                    // 3-comparison method so that rFrom is the min components and rTo the max
                     if (r1.x < r2.x) {
                         if (r1.y < r2.y) {
                             if (r1.z < r2.z) {
@@ -302,7 +468,7 @@ public class ModelAetherRelay extends JSONModel {
                     if (rTo.y < cFrom.y || cTo.y < rFrom.y) continue;
                     if (rTo.z < cFrom.z || cTo.z < rFrom.z) continue;
 
-                    cullIdx = Math.min(cullIdx, eID);
+                    cullIdx = min(cullIdx, eID);
                 }
             }
 
@@ -311,7 +477,7 @@ public class ModelAetherRelay extends JSONModel {
                 final var eID = Integer.parseInt(eNameParts[2]);
                 final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
                 if (eID > cullIdx) continue;
-                this.generateQuads(e, e.from(), e.to(), sidedQuadStore, partRot, isTransparent);
+                this.generateQuads(e, sidedQuadStore, partRot, isTransparent);
             }
         }
         return new PileOfQuads(sidedQuadStore, this.display, this.getParticle());

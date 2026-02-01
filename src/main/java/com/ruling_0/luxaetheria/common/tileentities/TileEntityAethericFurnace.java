@@ -152,15 +152,17 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
 
     @Override
     @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
-        double d0 = this.aetherHandler.getMaxSinkDistance();
-        return AxisAlignedBB
-            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
-            .expand(d0, d0, d0);
-    }
+    public AxisAlignedBB getRenderBoundingBox() { return TileEntityCollectorPylon.INFINITE_EXTENT_AABB; }
 
     @SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared() {
-        return Math.max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(), 4096.0D);
+        return Math.max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(),
+            4096.0D);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 1;
     }
 }

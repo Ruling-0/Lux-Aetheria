@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 
-public class LAUtils {
+public final class LAUtils {
 
     /**
      * Equality check between {@link Vec3} because it's not implemented in Mojang's code.
