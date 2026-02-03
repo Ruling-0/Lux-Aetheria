@@ -1,7 +1,6 @@
 package com.ruling_0.luxaetheria.client.renderer;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -12,11 +11,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.AetherAspects;
+import com.ruling_0.luxaetheria.api.aether.AetherAspect;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import org.lwjgl.opengl.GL11;
 
@@ -32,15 +31,15 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         final IAetherHandler handler = ((IAetherManipulator) te).getAetherHandler();
         if (handler == null) return;
 
-        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = handler.getAetherSinksIter();
+        Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
         if (!iterSinks.hasNext()) return;
 
         AethericEnergyUnit aether = handler.getAetherOut();
         if (aether.getAmount() <= 0) return;
 
-        byte red = (byte) Math.ceil(aether.getAspectRatio(AetherAspects.RED.index) * 255);
-        byte green = (byte) Math.ceil(aether.getAspectRatio(AetherAspects.GREEN.index) * 255);
-        byte blue = (byte) Math.ceil(aether.getAspectRatio(AetherAspects.BLUE.index) * 255);
+        byte red = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.RED) * 255);
+        byte green = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.GREEN) * 255);
+        byte blue = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.BLUE) * 255);
 
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -67,8 +66,8 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
 
         while (iterSinks.hasNext()) {
-            InterDimCoords sinkCoords = iterSinks.next().getKey();
-            Vec3 sinkPos = handler.getSinkCollisionCoords(sinkCoords);
+            ImmutableSinkConnection sinkConn = iterSinks.next();
+            Vec3 sinkPos = sinkConn.getColCoords();
 
             Vec3 v = Vec3.createVectorHelper(sinkPos.xCoord - sourcePos.xCoord, sinkPos.yCoord - sourcePos.yCoord,
                 sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink

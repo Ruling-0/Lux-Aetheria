@@ -9,6 +9,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 /**
  * Responsible for handling Aether for an {@link IAetherCollector}. This involves maintaining an
  * {@link AethericEnergyUnit} which reflects the ambient environment's Aether level.
+ * See {@link IAetherHandler}for details on the Aether system.
  */
 public interface ICollectorHandler {
 
@@ -18,7 +19,8 @@ public interface ICollectorHandler {
     long getAetherCollectionAmount();
 
     /**
-     * Returns the range over which this collector is influenced by releasers and other collectors.
+     * Returns the range (blocks, sphere radius) over which this collector is influenced
+     * by releasers and other collectors.
      */
     int getCollectorRange();
 

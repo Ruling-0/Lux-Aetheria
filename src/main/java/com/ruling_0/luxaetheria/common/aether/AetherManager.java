@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -16,6 +15,8 @@ import com.ruling_0.luxaetheria.api.aether.AetherConstants;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
+import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
@@ -27,52 +28,52 @@ import cpw.mods.fml.common.gameevent.TickEvent;
  */
 public class AetherManager {
 
-    private static ArrayProximityMap4D<IAetherCollector> AetherCollectors;
-    private static ArrayProximityMap4D<IAetherReleaser> AetherReleasers;
-    private static HashSet<IAetherManipulator> AetherRootCollectors;
-    private static Deque<IAetherManipulator> AetherSearchQueue;
-    private static HashSet<IAetherManipulator> AetherUpdateQueue;
+    private static ArrayProximityMap4D<IAetherCollector> aetherCollectors;
+    private static ArrayProximityMap4D<IAetherReleaser> aetherReleasers;
+    private static HashSet<IAetherManipulator> aetherRootCollectors;
+    private static Deque<IAetherManipulator> aetherSearchQueue;
+    private static HashSet<IAetherManipulator> aetherUpdateQueue;
     private static Deque<IAetherManipulator> orphanedManipulators;
     private long serverTick = 0L;
 
     public AetherManager() {
-        AetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
-        AetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
-        AetherRootCollectors = new HashSet<>();
-        AetherSearchQueue = new ArrayDeque<>();
-        AetherUpdateQueue = new HashSet<>();
+        aetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        aetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        aetherRootCollectors = new HashSet<>();
+        aetherSearchQueue = new ArrayDeque<>();
+        aetherUpdateQueue = new HashSet<>();
         orphanedManipulators = new ArrayDeque<>();
     }
 
     public void enableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
         ICollectorHandler handler = collector.getCollectorHandler();
         // Effects for any collector that has this new one in range
-        AetherCollectors.forEachInRange(dim, x, y, z,
+        aetherCollectors.forEachInRange(dim, x, y, z,
             c -> c.getCollectorHandler().addCollectorInRange(collector));
         // Effects for this collector from any in its range
-        AetherCollectors.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addCollectorInRange);
+        aetherCollectors.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addCollectorInRange);
 
-        AetherCollectors.put(collector, dim, x, y, z, handler.getCollectorRange());
-        AetherReleasers.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addReleaserInRange);
-        if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.add(manipulator);
+        aetherCollectors.put(collector, dim, x, y, z, handler.getCollectorRange());
+        aetherReleasers.forEachInRange(dim, x, y, z, handler.getCollectorRange(), handler::addReleaserInRange);
+        if (collector instanceof IAetherManipulator manipulator) aetherRootCollectors.add(manipulator);
     }
 
     public void disableCollector(@Nonnull IAetherCollector collector, int dim, int x, int y, int z) {
-        AetherCollectors.remove(dim, x, y, z);
-        AetherCollectors.forEachInRange(dim, x, y, z,
+        aetherCollectors.remove(dim, x, y, z);
+        aetherCollectors.forEachInRange(dim, x, y, z,
             c -> c.getCollectorHandler().removeCollectorInRange(collector));
-        if (collector instanceof IAetherManipulator manipulator) AetherRootCollectors.remove(manipulator);
+        if (collector instanceof IAetherManipulator manipulator) aetherRootCollectors.remove(manipulator);
     }
 
     public void enableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
-        AetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
-        AetherCollectors.forEachInRange(dim, x, y, z,
+        aetherReleasers.put(releaser, dim, x, y, z, AetherConstants.MAX_COLLECTOR_RANGE);
+        aetherCollectors.forEachInRange(dim, x, y, z,
             c -> c.getCollectorHandler().addReleaserInRange(releaser));
     }
 
     public void disableReleaser(@Nonnull IAetherReleaser releaser, int dim, int x, int y, int z) {
-        AetherReleasers.remove(dim, x, y, z);
-        AetherCollectors.forEachInRange(dim, x, y, z,
+        aetherReleasers.remove(dim, x, y, z);
+        aetherCollectors.forEachInRange(dim, x, y, z,
             c -> c.getCollectorHandler().removeReleaserInRange(releaser));
     }
 
@@ -81,30 +82,29 @@ public class AetherManager {
     }
 
     public void bulkOrphanSinks(IAetherManipulator manipulator) {
-        Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = manipulator.getAetherHandler()
-            .getAetherSinksIter();
+        Iterator<ImmutableSinkConnection> iterSinks = manipulator.getAetherHandler().getAetherSinksIter();
         while (iterSinks.hasNext()) {
-            orphanedManipulators.add(iterSinks.next().getValue());
+            orphanedManipulators.add(iterSinks.next().getSink());
         }
     }
 
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        AetherSearchQueue.clear();
+        aetherSearchQueue.clear();
 
         /*
          * Force-reset orphans, in case they are not updated in the final loop.
          * Ideally, this is more performant than enqueuing into the final
          * loop and having extra checks.
          */
-        AetherSearchQueue.addAll(orphanedManipulators);
-        while (!AetherSearchQueue.isEmpty()) {
-            IAetherManipulator curr = AetherSearchQueue.pop();
+        aetherSearchQueue.addAll(orphanedManipulators);
+        while (!aetherSearchQueue.isEmpty()) {
+            IAetherManipulator curr = aetherSearchQueue.pop();
             IAetherHandler handler = curr.getAetherHandler();
             handler.resetAether();
-            Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = handler.getAetherSinksIter();
+            Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next().getValue();
-                if (next != null) AetherSearchQueue.push(next);
+                IAetherManipulator next = iterSinks.next().getSink();
+                if (next != null) aetherSearchQueue.push(next);
             }
             InterDimCoords coords = curr.getInterDimCoords();
             coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
@@ -115,44 +115,44 @@ public class AetherManager {
          * Starting with known collectors, calculate Aether propagation using BFS.
          * Loops are handled in manipulators' getAetherFromSource
          */
-        AetherSearchQueue.addAll(AetherRootCollectors);
+        aetherSearchQueue.addAll(aetherRootCollectors);
         this.serverTick++;
-        while (!AetherSearchQueue.isEmpty()) {
-            IAetherManipulator curr = AetherSearchQueue.pop();
+        while (!aetherSearchQueue.isEmpty()) {
+            IAetherManipulator curr = aetherSearchQueue.pop();
             IAetherHandler currHandler = curr.getAetherHandler();
-            Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> iterSinks = currHandler.getAetherSinksIter();
-            while (iterSinks.hasNext()) {
-                Map.Entry<InterDimCoords, IAetherManipulator> entry = iterSinks.next();
-                if (entry.getValue() == null) {
-                    InterDimCoords coords = entry.getKey();
+            Iterator<SinkConnection> mutIterSinks = currHandler.getMutableSinksIter();
+            while (mutIterSinks.hasNext()) {
+                SinkConnection sinkConn = mutIterSinks.next();
+                if (sinkConn.sink == null) {
+                    InterDimCoords coords = sinkConn.sinkCoords;
                     TileEntity te = coords.getWorld().getTileEntity(coords.getX(), coords.getY(), coords.getZ());
                     if (te instanceof IAetherManipulator sink) {
-                        entry.setValue(sink);
+                        sinkConn.sink = sink;
                     }
                     else {
-                        iterSinks.remove();
+                        mutIterSinks.remove();
                     }
                 }
             }
-            iterSinks = currHandler.getAetherSinksIter();
+            Iterator<ImmutableSinkConnection> iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherManipulator next = iterSinks.next().getValue();
+                IAetherManipulator next = iterSinks.next().getSink();
                 boolean shouldPropagate = next.getAetherHandler().getAetherFromSource(curr, this.serverTick);
-                if (shouldPropagate) AetherSearchQueue.push(next);
+                if (shouldPropagate) aetherSearchQueue.push(next);
             }
-            if (currHandler.isUpdatable()) AetherUpdateQueue.add(curr);
+            if (currHandler.isUpdatable()) aetherUpdateQueue.add(curr);
         }
-        for (IAetherManipulator curr : AetherUpdateQueue) {
+        for (IAetherManipulator curr : aetherUpdateQueue) {
             curr.getAetherHandler().updateAether();
         }
-        AetherUpdateQueue.clear();
+        aetherUpdateQueue.clear();
     }
 
     public void reset() {
-        AetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
-        AetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
-        AetherRootCollectors = new HashSet<>();
-        AetherSearchQueue = new ArrayDeque<>();
-        AetherUpdateQueue = new HashSet<>();
+        aetherCollectors = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        aetherReleasers = new ArrayProximityMap4D<>(VolumeShape.SPHERE);
+        aetherRootCollectors = new HashSet<>();
+        aetherSearchQueue = new ArrayDeque<>();
+        aetherUpdateQueue = new HashSet<>();
     }
 }
