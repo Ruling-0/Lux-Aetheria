@@ -1,22 +1,41 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
+import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
+import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
 /**
  * Responsible for handling Aether flow and processing for a {@link IAetherManipulator} or other object that
  * participates in an Aether processing chain.
+ * <p>
+ * The processing chain occurs every tick, where it traverses BFS style from {@link IAetherCollector} root nodes.
+ * At each step, the current node retrieves Aether from connected sources
+ * ({@link #getAetherFromSource(IAetherManipulator, long)}).
+ * <p>
+ * {@link IAetherCollector}s keep track of an ambient level, which can be impacted by {@link IAetherReleaser}s.
+ * If the current node is an {@link IAetherReleaser}, it may change the amount of aether it releases into the
+ * environment
+ * during the BFS traversal. Thus, nodes (like {@link IAetherCollector}s) which need to do updates that can only occur
+ * at
+ * the very end of the BFS traversal (like calculate ambient levels from changed Aether release) return true in
+ * {@link #isUpdatable()}.
+ * <p>
+ * Details of the BFS traversal can be seen in {@link AetherManager}.
+ * <p>
+ * This is only required for {@link IAetherManipulator}s as they belong to the BFS traversal. Stand-alone devices
+ * (like machines that are their own collector and do not link to sinks) should not implement this.
  */
 public interface IAetherHandler {
 
@@ -37,10 +56,14 @@ public interface IAetherHandler {
     boolean removeAetherSink(IAetherManipulator sink);
 
     /**
-     * Gets an iterator over registered Aether sinks.
-     * Keys ({@link InterDimCoords}) are nonnull, values ({@link IAetherManipulator}) are nullable.
+     * Gets an immutable iterator (of immutable elements) over the connected sinks.
      */
-    Iterator<Map.Entry<InterDimCoords, IAetherManipulator>> getAetherSinksIter();
+    Iterator<ImmutableSinkConnection> getAetherSinksIter();
+
+    /**
+     * Gets a mutable iterator (of mutable elements) over the connected sinks.
+     */
+    Iterator<SinkConnection> getMutableSinksIter();
 
     /**
      * Gets the point on the source to sink ray where it first collides with a block or the sink itself.
@@ -50,12 +73,7 @@ public interface IAetherHandler {
     /**
      * Checks whether the provided {@link InterDimCoords} represent a registered Aether sink.
      */
-    boolean hasOutput(InterDimCoords coords);
-
-    /**
-     * Retrieve an Aether sink for the given coords.
-     */
-    IAetherManipulator getOutput(InterDimCoords coords);
+    boolean hasSink(InterDimCoords coords);
 
     /**
      * Checks the registered Aether sinks for the given coords and returns which output index they are bound to.
@@ -77,16 +95,6 @@ public interface IAetherHandler {
      */
     @Nonnull
     InterDimCoords getInterDimCoords();
-
-    /**
-     * Checks if a given Aether sink is invalid due to dynamic or outside influence.
-     * That is, any cause not from the sink itself (handled by {@link IAetherManipulator#disable}).
-     * One example: for same-dimension line-of-sight sinks, confirming path is clear.
-     *
-     * @param sinkHandler Aether handler of the sink.
-     * @return True if the sink is invalid, false otherwise.
-     */
-    boolean isInvalidSink(@Nullable IAetherHandler sinkHandler);
 
     /**
      * Get a clone of the total, pre-loss Aether output.
@@ -112,7 +120,7 @@ public interface IAetherHandler {
     boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick);
 
     /**
-     * Provides an {@link AethericEnergyUnit} to a requesting sink. If this is a root node of the
+     * Provides an {@link AethericEnergyUnit} to a connected sink. If this is a root node of the
      * {@link AetherManager}'s BFS traversal, it must set the {@link AethericEnergyUnit.AEUID} using the provided
      * tick. It is also the responsibility of this to handle loss calculation, and if there is a loss, to release it.
      * <p>
@@ -122,7 +130,7 @@ public interface IAetherHandler {
      * in this method, as the return value is the post-loss value.
      *
      * @param tick        Processing tick, for building a unique ID.
-     * @param sinkHandler Aether handler of the requesting sink.
+     * @param sinkHandler Aether handler of the connected sink.
      * @param dist        The distance between this and the sink, for loss calculations.
      * @return A new {@link AethericEnergyUnit} representing the post-loss output.
      */
@@ -130,12 +138,11 @@ public interface IAetherHandler {
     AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
 
     /**
-     * Whether this handler's Aether should be updated every tick after the {@link AetherManager} runs its BFS
-     * traversal.
-     * In this case, it is guaranteed that all released Aether values are final (set in {@link #getAetherFromSource}).
-     * Thus,
-     * this should not manipulate released Aether values. If True, {@link #updateAether} is called later for the actual
-     * update.
+     * Whether this handler should be updated every tick after the {@link AetherManager} runs its BFS
+     * traversal (see {@link IAetherHandler}).
+     * In this case, it is guaranteed that all external Aether values are final (set in {@link #getAetherFromSource}).
+     * Thus, this should not manipulate released or to-sink Aether values.
+     * If True, {@link #updateAether} is called later for the actual update.
      *
      * @return True if this should be updated, false otherwise.
      */
@@ -155,9 +162,8 @@ public interface IAetherHandler {
     void resetAether();
 
     /**
-     * This must iterate through all upstream sources which this handler is a sink of, and call
-     * {@link #removeAetherSink}
-     * to remove itself.
+     * This must iterate through all immediate upstream sources which this handler is a sink of, and call
+     * {@link #removeAetherSink} to remove itself.
      */
     void disconnectFromSources();
 

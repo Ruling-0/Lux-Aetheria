@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.AetherAspects;
+import com.ruling_0.luxaetheria.api.aether.AetherAspect;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
@@ -124,7 +124,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
-            if (this.aetherHandler.aetherIn.getAspectAmount(AetherAspects.RED.index) >= 1 && this.canSmelt()) {
+            if (this.aetherHandler.aetherIn.getAspectAmount(AetherAspect.RED) >= 1 && this.canSmelt()) {
                 // This is decremented before checks for non-zero val
                 this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
             }

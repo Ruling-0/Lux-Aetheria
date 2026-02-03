@@ -1,11 +1,17 @@
 package com.ruling_0.luxaetheria.common.items;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
+
+import net.minecraftforge.common.DimensionManager;
 
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
@@ -14,31 +20,30 @@ import com.ruling_0.luxaetheria.utils.LAUtils;
 
 public class ItemPylonBinder extends Item {
 
-    private IAetherManipulator boundManipulator = null;
-
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide,
                              float hitx, float hity, float hitz) {
         if (world.isRemote) return true;
+        IAetherManipulator boundManipulator = getBoundManipulator(stack);
         TileEntity te = world.getTileEntity(x, y, z);
         if (te instanceof IAetherManipulator aetherManipulator) {
-            if (this.boundManipulator != null) {
-                if (this.boundManipulator.equals(aetherManipulator)) return true;
+            if (boundManipulator != null) {
+                if (boundManipulator.equals(aetherManipulator)) return true;
                 boolean success;
-                IAetherHandler boundHandler = this.boundManipulator.getAetherHandler();
+                IAetherHandler boundHandler = boundManipulator.getAetherHandler();
                 InterDimCoords targetPos = aetherManipulator.getAetherHandler()
                     .getInterDimCoords();
-                if (boundHandler.hasOutput(targetPos)) {
+                if (boundHandler.hasSink(targetPos)) {
                     success = boundHandler.removeAetherSink(aetherManipulator);
                     if (!success) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.remove_sink"));
                         return true;
                     }
-                    this.boundManipulator = null;
+                    setBoundManipulator(stack, null);
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.unbound"));
                 }
                 else {
-                    if (!LAUtils.checkRayCollision(world, this.boundManipulator, aetherManipulator, true)) {
+                    if (!LAUtils.checkRayCollision(world, boundManipulator, aetherManipulator, true)) {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.blocked"));
                         return true;
                     }
@@ -47,21 +52,49 @@ public class ItemPylonBinder extends Item {
                         player.addChatMessage(new ChatComponentTranslation("LA.binder.fail.add_sink"));
                         return true;
                     }
-                    this.boundManipulator = null;
+                    setBoundManipulator(stack, null);
                     player.addChatMessage(new ChatComponentTranslation("LA.binder.bound"));
                 }
             }
             else {
-                this.boundManipulator = aetherManipulator;
+                setBoundManipulator(stack, aetherManipulator);
                 player.addChatMessage(new ChatComponentTranslation("LA.binder.selected"));
             }
             return true;
         }
-        if (player.isSneaking() && this.boundManipulator != null) {
-            this.boundManipulator = null;
+        if (player.isSneaking() && boundManipulator != null) {
+            setBoundManipulator(stack, null);
             player.addChatMessage(new ChatComponentTranslation("LA.binder.clear"));
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    private static IAetherManipulator getBoundManipulator(@Nonnull ItemStack stack) {
+        NBTTagCompound compound = stack.getTagCompound();
+        if (compound == null || !compound.hasKey("bound") || !compound.getBoolean("bound")) return null;
+        int x = compound.getInteger("boundX");
+        int y = compound.getInteger("boundY");
+        int z = compound.getInteger("boundZ");
+        int dim = compound.getInteger("boundDim");
+        TileEntity te = DimensionManager.getWorld(dim).getTileEntity(x, y, z);
+        if (te instanceof IAetherManipulator aetherManipulator) return aetherManipulator;
+        return null;
+    }
+
+    private static void setBoundManipulator(@Nonnull ItemStack stack, @Nullable IAetherManipulator boundManipulator) {
+        if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
+        NBTTagCompound compound = stack.getTagCompound();
+        if (boundManipulator == null) {
+            compound.setBoolean("bound", false);
+            return;
+        }
+        InterDimCoords targetPos = boundManipulator.getAetherHandler().getInterDimCoords();
+        compound.setInteger("boundX", targetPos.getX());
+        compound.setInteger("boundY", targetPos.getY());
+        compound.setInteger("boundZ", targetPos.getZ());
+        compound.setInteger("boundDim", targetPos.getDimID());
+        compound.setBoolean("bound", true);
     }
 }

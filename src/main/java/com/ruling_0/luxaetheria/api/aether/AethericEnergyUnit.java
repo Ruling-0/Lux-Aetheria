@@ -17,7 +17,7 @@ import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 public class AethericEnergyUnit {
 
     protected long amount = 0L;
-    protected double[] aspectRatios = { 1.0D, 1.0D, 1.0D };
+    protected double[] aspectRatios = new double[AetherAspect.VALUES.length];
     protected AEUID id;
 
     public AethericEnergyUnit() {
@@ -28,21 +28,10 @@ public class AethericEnergyUnit {
         this(amount, 0, 0, 0, 0);
     }
 
-    public AethericEnergyUnit(long amount, long origin, long tick, int dim) {
-        this(amount, origin, tick, 0, dim);
-    }
-
     public AethericEnergyUnit(long amount, long origin, long tick, int dim, int output) {
         this.amount = amount;
+        Arrays.fill(aspectRatios, 1.0D);
         this.id = new AEUID(origin, tick, output, dim);
-    }
-
-    public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, long origin, long tick, int dim,
-                              int output) {
-        this(amount, origin, tick, 0, dim);
-        if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
-        else System
-            .arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length, this.aspectRatios.length));
     }
 
     public AethericEnergyUnit(AethericEnergyUnit otherAeU) {
@@ -116,10 +105,10 @@ public class AethericEnergyUnit {
     public String toString() {
         DecimalFormat df = new DecimalFormat("0");
         return this.amount + " (" + EnumChatFormatting.RED +
-            df.format(this.getAspectRatio(AetherAspects.RED.index) * 100) + EnumChatFormatting.RESET + "%, " +
-            EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspects.GREEN.index) * 100) +
+            df.format(this.getAspectRatio(AetherAspect.RED) * 100) + EnumChatFormatting.RESET + "%, " +
+            EnumChatFormatting.GREEN + df.format(this.getAspectRatio(AetherAspect.GREEN) * 100) +
             EnumChatFormatting.RESET + "%, " + EnumChatFormatting.BLUE +
-            df.format(this.getAspectRatio(AetherAspects.BLUE.index) * 100) + EnumChatFormatting.RESET + "%)";
+            df.format(this.getAspectRatio(AetherAspect.BLUE) * 100) + EnumChatFormatting.RESET + "%)";
     }
 
     @Override
@@ -153,12 +142,12 @@ public class AethericEnergyUnit {
         this.amount += amount;
     }
 
-    public long getAspectAmount(int index) {
-        return (long) (this.amount * this.aspectRatios[index]);
+    public long getAspectAmount(AetherAspect aspect) {
+        return (long) (this.amount * this.aspectRatios[aspect.ordinal()]);
     }
 
-    public double getAspectRatio(int index) {
-        return this.aspectRatios[index];
+    public double getAspectRatio(AetherAspect aspect) {
+        return this.aspectRatios[aspect.ordinal()];
     }
 
     /**
@@ -184,11 +173,11 @@ public class AethericEnergyUnit {
             this.setToOther(incoming);
             return;
         }
-        long[] tempAspects = new long[AetherAspects.values().length];
+        long[] tempAspects = new long[AetherAspect.VALUES.length];
         long tempAmount = this.getAmount();
-        for (int i = 0; i < this.aspectRatios.length; ++i) {
-            tempAspects[i] = this.getAspectAmount(i) + incoming.getAspectAmount(i);
-            if (tempAspects[i] > tempAmount) tempAmount = tempAspects[i];
+        for (AetherAspect aspect : AetherAspect.VALUES) {
+            tempAspects[aspect.ordinal()] = this.getAspectAmount(aspect) + incoming.getAspectAmount(aspect);
+            if (tempAspects[aspect.ordinal()] > tempAmount) tempAmount = tempAspects[aspect.ordinal()];
         }
         this.setAmount(tempAmount);
         this.recalculateRatios(tempAspects);
@@ -196,19 +185,20 @@ public class AethericEnergyUnit {
 
     public void split(@Nonnull AethericEnergyUnit outgoing) {
         if (outgoing.getAmount() == 0L) return;
-        long[] tempIAspects = new long[AetherAspects.values().length];
-        long[] tempOAspects = new long[AetherAspects.values().length];
+        long[] tempIAspects = new long[AetherAspect.VALUES.length];
+        long[] tempOAspects = new long[AetherAspect.VALUES.length];
         long tempIAmount = 0L;
         long tempOAmount = 0L;
         boolean changedOut = false;
-        for (int i = 0; i < this.aspectRatios.length; ++i) {
-            if (this.getAspectAmount(i) < outgoing.getAspectAmount(i)) {
+        for (AetherAspect aspect : AetherAspect.VALUES) {
+            int i = aspect.ordinal();
+            if (this.getAspectAmount(aspect) < outgoing.getAspectAmount(aspect)) {
                 changedOut = true;
-                tempOAspects[i] = this.getAspectAmount(i);
+                tempOAspects[i] = this.getAspectAmount(aspect);
                 tempIAspects[i] = 0L;
                 if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
             }
-            tempIAspects[i] = this.getAspectAmount(i) - outgoing.getAspectAmount(i);
+            tempIAspects[i] = this.getAspectAmount(aspect) - outgoing.getAspectAmount(aspect);
             if (tempIAspects[i] > tempIAmount) tempIAmount = tempIAspects[i];
             if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
         }
@@ -232,14 +222,15 @@ public class AethericEnergyUnit {
      */
     public void moveToEquilibrium(long amount, double[] aspects) {
         long tempAmount = 0L;
-        long[] tempAspects = new long[AetherAspects.values().length];
-        for (int i = 0; i < this.aspectRatios.length; ++i) {
+        long[] tempAspects = new long[AetherAspect.VALUES.length];
+        for (AetherAspect aspect : AetherAspect.VALUES) {
+            int i = aspect.ordinal();
             double target = (amount * aspects[i]);
-            double current = this.getAspectAmount(i);
+            double current = this.getAspectAmount(aspect);
             double delta = Math.cbrt(current) * (target - current) / BASE_AETHER_RECHARGE;
             if (delta < 0.0D) delta = Math.min(-1.0D, delta);
             else if (delta > 0.0D) delta = Math.max(1.0D, delta);
-            tempAspects[i] = (long) (this.getAspectAmount(i) + delta);
+            tempAspects[i] = (long) (this.getAspectAmount(aspect) + delta);
             if (tempAspects[i] > tempAmount) tempAmount = tempAspects[i];
         }
         this.setAmount(tempAmount);
