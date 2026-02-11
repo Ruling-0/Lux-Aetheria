@@ -129,7 +129,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
             final var iter = handler.getAetherSinksIter();
             while (iter.hasNext()) {
                 var sink = iter.next();
-                InterDimCoords sinkCoords = sink.getKey();
+                InterDimCoords sinkCoords = sink.getSinkCoords();
                 if (sinkCoords.getDimID() != coords.getDimID()) continue;
                 targets.add(new Vector3i(sinkCoords.getX(), sinkCoords.getY(), sinkCoords.getZ()));
             }
