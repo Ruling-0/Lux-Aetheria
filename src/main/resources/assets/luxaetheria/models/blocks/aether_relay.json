@@ -4,6 +4,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"2": "luxaetheria:models/aether_relay",
+    "3": "luxaetheria:models/crystal",
 		"particle": "luxaetheria:models/aether_relay_particle"
 	},
 	"elements": [

@@ -39,6 +39,7 @@ import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector4f;
 
+// TODO: Refactor and break out into some ComplexModel, and make this relay-specific child class
 public class ModelAetherRelay extends JSONModel {
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(StateModelMap.class, new StateDeserializer())
@@ -223,18 +224,11 @@ public class ModelAetherRelay extends JSONModel {
         }
     }
 
-    private void generateQuads(ModelDeserializer.ModelElement e,
+    protected void generateQuads(ModelDeserializer.ModelElement e,
                                HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
                                boolean isTransparent) {
         final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation().getAffineMatrix();
         for (ModelDeserializer.ModelElement.Face f : e.faces()) {
-
-            float x = Float.MAX_VALUE;
-            float y = Float.MAX_VALUE;
-            float z = Float.MAX_VALUE;
-            float X = Float.MIN_VALUE;
-            float Y = Float.MIN_VALUE;
-            float Z = Float.MIN_VALUE;
 
             // Assign vertexes
             final var quad = new ModelQuad();
@@ -244,13 +238,6 @@ public class ModelAetherRelay extends JSONModel {
                 quad.setX(i, vert.x);
                 quad.setY(i, vert.y);
                 quad.setZ(i, vert.z);
-
-                x = min(x, vert.x);
-                y = min(y, vert.y);
-                z = min(z, vert.z);
-                X = max(X, vert.x);
-                Y = max(Y, vert.y);
-                Z = max(Z, vert.z);
             }
 
             // Set shading and lighting
@@ -480,6 +467,85 @@ public class ModelAetherRelay extends JSONModel {
                 this.generateQuads(e, sidedQuadStore, partRot, isTransparent);
             }
         }
+
+        // Generate gem
+        this.generateGem(sidedQuadStore, baseRot);
+
         return new PileOfQuads(sidedQuadStore, this.display, this.getParticle());
+    }
+
+    private void generateGem(HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine) {
+        final Vector3f pos = new Vector3f(0.5F, 0.484373F, 0.5F);
+        final float offsetY = 0.25F;
+        final float offsetXZ = 0.125F;
+        // Last element is for easy iteration without conditional
+        final Vector3f usedTwice = new Vector3f(pos.x - offsetXZ, pos.y, pos.z - offsetXZ).mulPosition(affine);
+        final Vector3f[] vertices = {
+            new Vector3f(pos.x, pos.y + offsetY, pos.z).mulPosition(affine),
+            new Vector3f(pos.x, pos.y - offsetY, pos.z).mulPosition(affine),
+            usedTwice,
+            new Vector3f(pos.x + offsetXZ, pos.y, pos.z - offsetXZ).mulPosition(affine),
+            new Vector3f(pos.x + offsetXZ, pos.y, pos.z + offsetXZ).mulPosition(affine),
+            new Vector3f(pos.x - offsetXZ, pos.y, pos.z + offsetXZ).mulPosition(affine),
+            usedTwice
+        };
+        final ForgeDirection[] dirs = { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH, ForgeDirection.WEST };
+
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 2; j < 6; ++j) {
+                final var quad = new ModelQuad();
+                if (i == 0) {
+                    quad.setX(0, vertices[i].x);
+                    quad.setY(0, vertices[i].y);
+                    quad.setZ(0, vertices[i].z);
+
+                    quad.setX(1, vertices[j+1].x);
+                    quad.setY(1, vertices[j+1].y);
+                    quad.setZ(1, vertices[j+1].z);
+
+                    quad.setX(2, vertices[j].x);
+                    quad.setY(2, vertices[j].y);
+                    quad.setZ(2, vertices[j].z);
+                    // This is a triangle, v2=v3 for degenerate quad
+                    quad.setX(3, vertices[j].x);
+                    quad.setY(3, vertices[j].y);
+                    quad.setZ(3, vertices[j].z);
+                }
+                else {
+                    quad.setX(0, vertices[i].x);
+                    quad.setY(0, vertices[i].y);
+                    quad.setZ(0, vertices[i].z);
+
+                    quad.setX(1, vertices[j].x);
+                    quad.setY(1, vertices[j].y);
+                    quad.setZ(1, vertices[j].z);
+
+                    quad.setX(2, vertices[j+1].x);
+                    quad.setY(2, vertices[j+1].y);
+                    quad.setZ(2, vertices[j+1].z);
+                    // This is a triangle, v2=v3 for degenerate quad
+                    quad.setX(3, vertices[j+1].x);
+                    quad.setY(3, vertices[j+1].y);
+                    quad.setZ(3, vertices[j+1].z);
+                }
+                // These are divided by 16 during bakeSprite
+                quad.setTexU(0, 8.0F);
+                quad.setTexV(0, 0.0F);
+                quad.setTexU(1, 0.0F);
+                quad.setTexV(1, 16.0F);
+                quad.setTexU(2, 16.0F);
+                quad.setTexV(2, 16.0F);
+
+                quad.setEmissiveness(240);
+                quad.setDirectionalShading(false);
+                quad.setHasAmbientOcclusion(false);
+                quad.setLightFace(ModelQuadFacing.fromForgeDir(dirs[j - 2]));
+
+                this.bakeSprite(quad, "luxaetheria:models/crystal");
+
+                ModelQuadFacing cullFace = ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN);
+                sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>()).add(quad);
+            }
+        }
     }
 }
