@@ -540,6 +540,7 @@ public class ModelAetherRelay extends JSONModel {
                 quad.setDirectionalShading(false);
                 quad.setHasAmbientOcclusion(false);
                 quad.setLightFace(ModelQuadFacing.fromForgeDir(dirs[j - 2]));
+                quad.setTransparent();
 
                 this.bakeSprite(quad, "luxaetheria:models/crystal");
 

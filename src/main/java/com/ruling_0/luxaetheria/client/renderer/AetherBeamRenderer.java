@@ -17,13 +17,17 @@ import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
     private static final ResourceLocation BEAM_TEXTURE = new ResourceLocation(
-        LuxAetheria.MODID,
-        "textures/entity/aether_beam.png");
+        LuxAetheria.MODID, "textures/entity/aether_beam.png");
+    private static final ResourceLocation FLARE_TEXTURE = new ResourceLocation(
+        LuxAetheria.MODID, "textures/entity/aether_flare.png");
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
@@ -32,14 +36,7 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         if (handler == null) return;
 
         Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
-        if (!iterSinks.hasNext()) return;
-
         AethericEnergyUnit aether = handler.getAetherOut();
-        if (aether.getAmount() <= 0) return;
-
-        byte red = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.RED) * 255);
-        byte green = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.GREEN) * 255);
-        byte blue = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.BLUE) * 255);
 
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -51,57 +48,92 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        this.bindTexture(BEAM_TEXTURE);
-
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.f, 240.f);
-
-        GL11.glColor4ub(red, green, blue, (byte) 200);
+        final Vector3f cameraPos = new Vector3f(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY,
+            ActiveRenderInfo.objectZ);
+        final Vector3f p = new Vector3f(cameraPos.x - ((float) x + 0.5F), cameraPos.y - ((float) y + 0.5F), cameraPos.z - ((float) z + 0.5F));
 
         Tessellator tessellator = Tessellator.instance;
-        double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
-        double uOffset = -time * 0.1;
+        if (iterSinks.hasNext() && aether.getAmount() > 0) {
 
-        Vec3 cameraPos = Vec3.createVectorHelper(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY,
-            ActiveRenderInfo.objectZ);
-        Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
+            byte red = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.RED) * 255);
+            byte green = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.GREEN) * 255);
+            byte blue = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.BLUE) * 255);
 
-        while (iterSinks.hasNext()) {
-            ImmutableSinkConnection sinkConn = iterSinks.next();
-            Vec3 sinkPos = sinkConn.getColCoords();
+            this.bindTexture(BEAM_TEXTURE);
 
-            Vec3 v = Vec3.createVectorHelper(sinkPos.xCoord - sourcePos.xCoord, sinkPos.yCoord - sourcePos.yCoord,
-                sinkPos.zCoord - sourcePos.zCoord); // Vector from source to sink
-            double dist = v.lengthVector();
-            double uvdist = dist * 4;
-            if (dist < 0.0001) continue;
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.f, 240.f);
 
-            Vec3 p = Vec3.createVectorHelper(cameraPos.xCoord - x, cameraPos.yCoord - y, cameraPos.zCoord - z);
-            Vec3 w = v.crossProduct(p);
-            if (w.lengthVector() < 1e-6) {
-                // If camera is perfectly aligned with beam, pick an arbitrary perpendicular
-                w = v.crossProduct(Vec3.createVectorHelper(0, 1, 0));
-                if (w.lengthVector() < 1e-6) {
-                    w = v.crossProduct(Vec3.createVectorHelper(1, 0, 0));
+            GL11.glColor4ub(red, green, blue, (byte) 255);
+
+            double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
+            double uOffset = -time * 0.1;
+            Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
+
+            while (iterSinks.hasNext()) {
+                ImmutableSinkConnection sinkConn = iterSinks.next();
+                Vec3 sinkPos = sinkConn.getColCoords();
+
+                final Vector3f v = new Vector3f((float) (sinkPos.xCoord - sourcePos.xCoord),
+                    (float) (sinkPos.yCoord - sourcePos.yCoord),(float) (sinkPos.zCoord - sourcePos.zCoord));
+                final double dist = v.length();
+                final double uvdist = dist * 4;
+                if (dist < 0.0001) continue;
+
+                Vector3f w = new Vector3f(v).cross(p);
+                if (w.length() < 1e-6) {
+                    // If camera is perfectly aligned with beam, pick an arbitrary perpendicular
+                    w = new Vector3f(v).cross(new Vector3f(0.0F, 1.0F, 0.0F));
+                    if (w.length() < 1e-6) {
+                        w = new Vector3f(v).cross(new Vector3f(1.0F, 0.0F, 0.0F));
+                        if (w.length() < 1e-6) w = new Vector3f(0.0F, 0.0F, 1.0F);
+                    }
                 }
+                w = w.normalize();
+
+                final double radius = 0.07;
+                final double wx = w.x * radius;
+                final double wy = w.y * radius;
+                final double wz = w.z * radius;
+
+                final double dx = sinkPos.xCoord - sourcePos.xCoord;
+                final double dy = sinkPos.yCoord - sourcePos.yCoord;
+                final double dz = sinkPos.zCoord - sourcePos.zCoord;
+
+                tessellator.startDrawingQuads();
+                tessellator.addVertexWithUV(-wx, -wy, -wz, 0, uOffset);
+                tessellator.addVertexWithUV(wx, wy, wz, 1, uOffset);
+                tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, uvdist + uOffset);
+                tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, uvdist + uOffset);
+                tessellator.draw();
             }
-            w = w.normalize();
-
-            double radius = 0.07;
-            double wx = w.xCoord * radius;
-            double wy = w.yCoord * radius;
-            double wz = w.zCoord * radius;
-
-            double dx = sinkPos.xCoord - sourcePos.xCoord;
-            double dy = sinkPos.yCoord - sourcePos.yCoord;
-            double dz = sinkPos.zCoord - sourcePos.zCoord;
-
-            tessellator.startDrawingQuads();
-            tessellator.addVertexWithUV(-wx, -wy, -wz, 0, uOffset);
-            tessellator.addVertexWithUV(wx, wy, wz, 1, uOffset);
-            tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, uvdist + uOffset);
-            tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, uvdist + uOffset);
-            tessellator.draw();
         }
+
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        this.bindTexture(FLARE_TEXTURE);
+
+        // Start facing North (neg Z), going TopLeft > BL > BR > TR
+        Vector3f v1 = new Vector3f(-1.0F / 16.0F, 1.0F / 16.0F, 0.0F);
+        Vector3f v2 = new Vector3f(-1.0F / 16.0F, -1.0F / 16.0F, 0.0F);
+        Vector3f v3 = new Vector3f(1.0F / 16.0F, -1.0F / 16.0F, 0.0F);
+        Vector3f v4 = new Vector3f(1.0F / 16.0F, 1.0F / 16.0F, 0.0F);
+        final Vector3f norm = new Vector3f(0.0F, 0.0F, -1.0F);
+
+        // Rotate perpendicular to camera
+        final Quaternionf q = new Quaternionf();
+        norm.rotationTo(p, q);
+        final Vector3f mov = new Vector3f(norm).mul(0.5F);
+        final Matrix4f rot = new Matrix4f().rotate(q).translate(mov);
+        v1.mulPosition(rot);
+        v2.mulPosition(rot);
+        v3.mulPosition(rot);
+        v4.mulPosition(rot);
+
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(v1.x, v1.y, v1.z, 0.0D, 0.0D);
+        tessellator.addVertexWithUV(v2.x, v2.y, v2.z, 0.0D, 1.0D);
+        tessellator.addVertexWithUV(v3.x, v3.y, v3.z, 1.0D, 1.0D);
+        tessellator.addVertexWithUV(v4.x, v4.y, v4.z, 1.0D, 0.0D);
+        tessellator.draw();
 
         GL11.glPopAttrib();
         GL11.glPopMatrix();
