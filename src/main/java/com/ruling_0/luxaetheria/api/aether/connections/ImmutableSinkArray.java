@@ -9,6 +9,8 @@ import net.minecraft.util.Vec3;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /**
  * An immutable view of an {@link AetherSinkArray}.
@@ -40,6 +42,5 @@ public interface ImmutableSinkArray {
     @SuppressWarnings("unused")
     AethericEnergyUnit getAeu(InterDimCoords sinkCoords);
 
-    @SuppressWarnings("unused")
-    Vec3 getColCoords(InterDimCoords sinkCoords);
+    Vector3fc getColCoords(InterDimCoords sinkCoords);
 }

@@ -4,14 +4,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import net.minecraft.util.Vec3;
-
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3fc;
 
 /**
  * Array-backed class for holding data about Aether sinks in an {@link IAetherHandler}.
@@ -62,7 +61,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
         return this.sinkConnections[index];
     }
 
-    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherManipulator sink, Vec3 colCoords,
+    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherManipulator sink, Vector3fc colCoords,
                        double dist) {
         if (this.sinkConnections[index] != null) return false;
         this.sinkConnections[index] = new SinkConnection(sinkCoords, sink, new AethericEnergyUnit(), colCoords, dist);
@@ -70,11 +69,11 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     }
 
     public boolean add(IAetherManipulator sink) {
-        return this.add(sink, new AethericEnergyUnit(), sink.getInterDimCoords().getVec3(),
+        return this.add(sink, new AethericEnergyUnit(), sink.getInterDimCoords().getVec3fc(),
             this.owner.getInterDimCoords().distance(sink.getInterDimCoords()));
     }
 
-    public boolean add(IAetherManipulator sink, AethericEnergyUnit aeu, Vec3 colCoords, double dist) {
+    public boolean add(IAetherManipulator sink, AethericEnergyUnit aeu, Vector3fc colCoords, double dist) {
         return this.add(new SinkConnection(sink.getInterDimCoords(), sink, aeu, colCoords, dist));
     }
 
@@ -185,7 +184,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     @Nullable
     @Override
-    public Vec3 getColCoords(InterDimCoords sinkCoords) {
+    public Vector3fc getColCoords(InterDimCoords sinkCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 return sinkConn.colCoords;
@@ -195,7 +194,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean setColCoords(InterDimCoords sinkCoords, Vec3 colCoords) {
+    public boolean setColCoords(InterDimCoords sinkCoords, Vector3fc colCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 sinkConn.colCoords = colCoords;

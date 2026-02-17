@@ -15,6 +15,7 @@ import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
+import org.joml.Vector3fc;
 
 /**
  * Responsible for handling Aether flow and processing for a {@link IAetherManipulator} or other object that
@@ -68,7 +69,7 @@ public interface IAetherHandler {
     /**
      * Gets the point on the source to sink ray where it first collides with a block or the sink itself.
      */
-    Vec3 getSinkCollisionCoords(InterDimCoords coords);
+    Vector3fc getSinkCollisionCoords(InterDimCoords coords);
 
     /**
      * Checks whether the provided {@link InterDimCoords} represent a registered Aether sink.

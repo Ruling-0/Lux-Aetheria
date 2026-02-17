@@ -7,6 +7,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public final class LAUtils {
 
@@ -117,5 +119,9 @@ public final class LAUtils {
             return mop;
         }
         return null;
+    }
+
+    public static Vector3f vec3ToVector3f(Vec3 vec3) {
+        return new Vector3f((float) vec3.xCoord, (float) vec3.yCoord, (float) vec3.zCoord);
     }
 }

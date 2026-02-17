@@ -8,6 +8,8 @@ import net.minecraft.util.Vec3;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 /**
  * Holds data about a connection from an {@link IAetherManipulator} to another.
@@ -28,15 +30,15 @@ public class SinkConnection implements ImmutableSinkConnection {
      * The first point of collision along the connection.
      * If there are no collisions, this equals sinkCoords.{@link InterDimCoords#getVec3()}
      */
-    public Vec3 colCoords;
+    public Vector3fc colCoords;
     public final double dist;
 
     public SinkConnection(InterDimCoords sinkCoords, @Nullable IAetherManipulator sink, @Nonnull AethericEnergyUnit aeu,
-                          Vec3 collCoords, double dist) {
+                          Vector3fc colCoords, double dist) {
         this.sinkCoords = sinkCoords;
         this.sink = sink;
         this.aeu = aeu;
-        this.colCoords = collCoords;
+        this.colCoords = colCoords;
         this.dist = dist;
     }
 
@@ -50,7 +52,7 @@ public class SinkConnection implements ImmutableSinkConnection {
     public AethericEnergyUnit getAeu() { return aeu; }
 
     @Override
-    public Vec3 getColCoords() { return colCoords; }
+    public Vector3fc getColCoords() { return colCoords; }
 
     @Override
     public double getDist() { return dist; }

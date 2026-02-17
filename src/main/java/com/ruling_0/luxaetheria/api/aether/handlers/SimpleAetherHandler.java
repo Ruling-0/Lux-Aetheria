@@ -24,6 +24,8 @@ import com.ruling_0.luxaetheria.utils.LAUtils;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IWDMLAProvider {
 
@@ -78,7 +80,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     public Iterator<SinkConnection> getMutableSinksIter() { return this.aetherSinks.iterator(); }
 
     @Override
-    public Vec3 getSinkCollisionCoords(InterDimCoords coords) {
+    public Vector3fc getSinkCollisionCoords(InterDimCoords coords) {
         return this.aetherSinks.getColCoords(coords);
     }
 
@@ -137,20 +139,21 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
         MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(),
             sinkCoords.getVec3(), true);
-        Vec3 oldCoords = this.aetherSinks.getColCoords(sinkCoords);
+        final Vector3fc oldCoords = this.aetherSinks.getColCoords(sinkCoords);
         if (mop != null) {
-            if (!mop.hitVec.equals(oldCoords)) {
-                if (oldCoords == null || !LAUtils.vec3Equals(oldCoords, sinkCoords.getVec3()))
+            final Vector3fc hit = LAUtils.vec3ToVector3f(mop.hitVec);
+            if (!hit.equals(oldCoords)) {
+                if (oldCoords == null || !oldCoords.equals(sinkCoords.getVec3fc()))
                     this.validSinks--;
-                this.aetherSinks.setColCoords(sinkCoords, mop.hitVec);
+                this.aetherSinks.setColCoords(sinkCoords, hit);
                 this.markForUpdate();
             }
             this.aetherRelease.merge(returnedAether);
             returnedAether.setAmount(0L);
             return true;
         }
-        if (oldCoords == null || !LAUtils.vec3Equals(oldCoords, sinkCoords.getVec3())) {
-            this.aetherSinks.setColCoords(sinkCoords, sinkCoords.getVec3());
+        if (oldCoords == null || !oldCoords.equals(sinkCoords.getVec3fc())) {
+            this.aetherSinks.setColCoords(sinkCoords, sinkCoords.getVec3fc());
             this.validSinks++;
             this.markForUpdate();
         }
@@ -233,10 +236,10 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             nbtAetherSink.setInteger("y", coords.getY());
             nbtAetherSink.setInteger("z", coords.getZ());
             nbtAetherSink.setInteger("dim", coords.getDimID());
-            Vec3 colCoords = sinkConn.colCoords;
-            nbtAetherSink.setDouble("cx", colCoords.xCoord);
-            nbtAetherSink.setDouble("cy", colCoords.yCoord);
-            nbtAetherSink.setDouble("cz", colCoords.zCoord);
+            Vector3fc colCoords = sinkConn.colCoords;
+            nbtAetherSink.setFloat("cx", colCoords.x());
+            nbtAetherSink.setFloat("cy", colCoords.y());
+            nbtAetherSink.setFloat("cz", colCoords.z());
             nbtAetherSink.setByte("idx", (byte) i);
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
@@ -262,7 +265,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             final double cz = nbtAetherSink.getDouble("cz");
 
             final InterDimCoords coords = new InterDimCoords(x, y, z, dim);
-            final Vec3 colCoords = Vec3.createVectorHelper(cx, cy, cz);
+            final Vector3f colCoords = new Vector3f((float) cx, (float) cy, (float) cz);
             final double dist = this.getInterDimCoords().distance(coords);
             this.aetherSinks.add(nbtAetherSink.getByte("idx"), coords, null, colCoords, dist);
 
