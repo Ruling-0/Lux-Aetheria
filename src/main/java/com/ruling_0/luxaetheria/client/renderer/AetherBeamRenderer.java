@@ -35,6 +35,7 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
         final IAetherHandler handler = ((IAetherManipulator) te).getAetherHandler();
         if (handler == null) return;
+        final Vector3f pos = new Vector3f((float) x + 0.5f, (float) y + 0.5f, (float) z + 0.5f);
 
         Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
         AethericEnergyUnit aether = handler.getAetherOut();
@@ -51,7 +52,6 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
         final Vector3f cameraPos = new Vector3f(ActiveRenderInfo.objectX, ActiveRenderInfo.objectY,
             ActiveRenderInfo.objectZ);
-        final Vector3f p = new Vector3f(cameraPos.x - ((float) x + 0.5F), cameraPos.y - ((float) y + 0.5F), cameraPos.z - ((float) z + 0.5F));
 
         Tessellator tessellator = Tessellator.instance;
         if (iterSinks.hasNext() && aether.getAmount() > 0) {
@@ -65,36 +65,12 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
             while (iterSinks.hasNext()) {
                 ImmutableSinkConnection sinkConn = iterSinks.next();
                 final Vector3fc sinkPos = sinkConn.getColCoords();
-                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, p, time);
+                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, time);
             }
         }
 
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         this.bindTexture(FLARE_TEXTURE);
-
-        // Start facing North (neg Z), going TopLeft > BL > BR > TR
-        Vector3f v1 = new Vector3f(-1.0F / 16.0F, 1.0F / 16.0F, 0.0F);
-        Vector3f v2 = new Vector3f(-1.0F / 16.0F, -1.0F / 16.0F, 0.0F);
-        Vector3f v3 = new Vector3f(1.0F / 16.0F, -1.0F / 16.0F, 0.0F);
-        Vector3f v4 = new Vector3f(1.0F / 16.0F, 1.0F / 16.0F, 0.0F);
-        final Vector3f norm = new Vector3f(0.0F, 0.0F, -1.0F);
-
-        // Rotate perpendicular to camera
-        final Quaternionf q = new Quaternionf();
-        norm.rotationTo(p, q);
-        final Vector3f mov = new Vector3f(norm).mul(0.5F);
-        final Matrix4f rot = new Matrix4f().rotate(q).translate(mov);
-        v1.mulPosition(rot);
-        v2.mulPosition(rot);
-        v3.mulPosition(rot);
-        v4.mulPosition(rot);
-
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(v1.x, v1.y, v1.z, 0.0D, 0.0D);
-        tessellator.addVertexWithUV(v2.x, v2.y, v2.z, 0.0D, 1.0D);
-        tessellator.addVertexWithUV(v3.x, v3.y, v3.z, 1.0D, 1.0D);
-        tessellator.addVertexWithUV(v4.x, v4.y, v4.z, 1.0D, 0.0D);
-        tessellator.draw();
+        RenderUtils.drawFlare(tessellator, pos, cameraPos);
 
         GL11.glPopAttrib();
         GL11.glPopMatrix();

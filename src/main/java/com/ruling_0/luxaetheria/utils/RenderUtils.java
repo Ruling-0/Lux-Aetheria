@@ -1,9 +1,9 @@
 package com.ruling_0.luxaetheria.utils;
 
-import com.ruling_0.luxaetheria.LuxAetheria;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.ResourceLocation;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11;
@@ -47,6 +47,42 @@ public final class RenderUtils {
         tessellator.addVertexWithUV(wx, wy, wz, 1, uOffset);
         tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, uvdist + uOffset);
         tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, uvdist + uOffset);
+        tessellator.draw();
+    }
+
+    public static void drawFlare(Tessellator tesellator, Vector3f pos, Vector3f camera) {
+        drawFlare(tesellator, pos, camera, new Vector3f(1.0f, 1.0f, 1.0f));
+    }
+
+    public static void drawFlare(Tessellator tessellator, Vector3f pos, Vector3f camera, Vector3f color) {
+        drawFlare(tessellator, pos, camera, color, new Vector3f(0.0f, 0.0f, 0.0f));
+    }
+
+    public static void drawFlare(Tessellator tessellator, Vector3f pos, Vector3f camera, Vector3f color, Vector3f offset) {
+        GL11.glColor4f(color.x, color.y, color.z, 1.0F);
+
+        // Start facing North (neg Z), going TopLeft > BL > BR > TR
+        Vector3f v1 = new Vector3f((-1.0F / 16.0F) + offset.x, (1.0F / 16.0F)  + offset.y, offset.z);
+        Vector3f v2 = new Vector3f((-1.0F / 16.0F) + offset.x, (-1.0F / 16.0F) + offset.y, offset.z);
+        Vector3f v3 = new Vector3f((1.0F / 16.0F)  + offset.x, (-1.0F / 16.0F) + offset.y, offset.z);
+        Vector3f v4 = new Vector3f((1.0F / 16.0F)  + offset.x, (1.0F / 16.0F)  + offset.y, offset.z);
+        final Vector3f norm = new Vector3f(0.0F, 0.0F, -1.0F);
+
+        // Rotate perpendicular to camera
+        final Vector3f p = new Vector3f(camera).sub(new Vector3f(pos).add(offset));
+        final Quaternionf q = new Quaternionf();
+        norm.rotationTo(p, q);
+        final Matrix4f rot = new Matrix4f().rotate(q);
+        v1.mulPosition(rot);
+        v2.mulPosition(rot);
+        v3.mulPosition(rot);
+        v4.mulPosition(rot);
+
+        tessellator.startDrawingQuads();
+        tessellator.addVertexWithUV(v1.x, v1.y, v1.z, 0.0D, 0.0D);
+        tessellator.addVertexWithUV(v2.x, v2.y, v2.z, 0.0D, 1.0D);
+        tessellator.addVertexWithUV(v3.x, v3.y, v3.z, 1.0D, 1.0D);
+        tessellator.addVertexWithUV(v4.x, v4.y, v4.z, 1.0D, 0.0D);
         tessellator.draw();
     }
 }
