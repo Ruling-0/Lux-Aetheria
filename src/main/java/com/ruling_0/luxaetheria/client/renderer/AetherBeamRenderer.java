@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.client.renderer;
 
 import java.util.Iterator;
 
+import com.ruling_0.luxaetheria.utils.RenderUtils;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -20,6 +21,7 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11;
 
 public class AetherBeamRenderer extends TileEntitySpecialRenderer {
@@ -31,7 +33,6 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
-        // TODO: add a flare effect at beam end
         final IAetherHandler handler = ((IAetherManipulator) te).getAetherHandler();
         if (handler == null) return;
 
@@ -54,57 +55,17 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
         Tessellator tessellator = Tessellator.instance;
         if (iterSinks.hasNext() && aether.getAmount() > 0) {
-
-            byte red = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.RED) * 255);
-            byte green = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.GREEN) * 255);
-            byte blue = (byte) Math.ceil(aether.getAspectRatio(AetherAspect.BLUE) * 255);
-
+            final Vector3f beamColor = new Vector3f((float) aether.getAspectRatio(AetherAspect.RED),
+                (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
             this.bindTexture(BEAM_TEXTURE);
 
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.f, 240.f);
-
-            GL11.glColor4ub(red, green, blue, (byte) 255);
-
             double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
-            double uOffset = -time * 0.1;
-            Vec3 sourcePos = Vec3.createVectorHelper(te.xCoord + 0.5, te.yCoord + 0.5, te.zCoord + 0.5);
+            final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
 
             while (iterSinks.hasNext()) {
                 ImmutableSinkConnection sinkConn = iterSinks.next();
-                Vec3 sinkPos = sinkConn.getColCoords();
-
-                final Vector3f v = new Vector3f((float) (sinkPos.xCoord - sourcePos.xCoord),
-                    (float) (sinkPos.yCoord - sourcePos.yCoord),(float) (sinkPos.zCoord - sourcePos.zCoord));
-                final double dist = v.length();
-                final double uvdist = dist * 4;
-                if (dist < 0.0001) continue;
-
-                Vector3f w = new Vector3f(v).cross(p);
-                if (w.length() < 1e-6) {
-                    // If camera is perfectly aligned with beam, pick an arbitrary perpendicular
-                    w = new Vector3f(v).cross(new Vector3f(0.0F, 1.0F, 0.0F));
-                    if (w.length() < 1e-6) {
-                        w = new Vector3f(v).cross(new Vector3f(1.0F, 0.0F, 0.0F));
-                        if (w.length() < 1e-6) w = new Vector3f(0.0F, 0.0F, 1.0F);
-                    }
-                }
-                w = w.normalize();
-
-                final double radius = 0.07;
-                final double wx = w.x * radius;
-                final double wy = w.y * radius;
-                final double wz = w.z * radius;
-
-                final double dx = sinkPos.xCoord - sourcePos.xCoord;
-                final double dy = sinkPos.yCoord - sourcePos.yCoord;
-                final double dz = sinkPos.zCoord - sourcePos.zCoord;
-
-                tessellator.startDrawingQuads();
-                tessellator.addVertexWithUV(-wx, -wy, -wz, 0, uOffset);
-                tessellator.addVertexWithUV(wx, wy, wz, 1, uOffset);
-                tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, uvdist + uOffset);
-                tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, uvdist + uOffset);
-                tessellator.draw();
+                final Vector3fc sinkPos = sinkConn.getColCoords();
+                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, p, time);
             }
         }
 
