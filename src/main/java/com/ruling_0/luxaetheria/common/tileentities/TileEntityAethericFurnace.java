@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -29,15 +30,11 @@ import java.util.ArrayList;
 public class TileEntityAethericFurnace extends TileEntityFurnace
                                        implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
 
-    protected InterDimCoords coords;
-    protected final SimpleRelayHandler aetherHandler;
     protected ArrayList<IAetherRelay> relays = new ArrayList<>();
     protected boolean isEnabled = false;
 
     public TileEntityAethericFurnace() {
         super();
-        this.coords = null;
-        this.aetherHandler = new SimpleRelayHandler(0, this);
     }
 
     @Override
@@ -51,7 +48,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     }
 
     @Override
-    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
+    public AethericEnergyUnit getAetherRelease() { return this.aetherHandler; }
 
     @Override
     public void enable() {
@@ -92,14 +89,11 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     public void writeToNBT(NBTTagCompound compound) {
         compound.setInteger("dimension", this.worldObj.provider.dimensionId);
         super.writeToNBT(compound);
-        this.aetherHandler.writeToNBT(compound);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound compound) {
-        this.coords = new InterDimCoords(compound);
         super.readFromNBT(compound);
-        this.aetherHandler.readFromNBT(compound);
     }
 
     @Override

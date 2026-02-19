@@ -4,14 +4,14 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
 /**
- * An Interface for things which release Aether into the environment. Must possess a {@link IReleaserHandler}.
+ * An Interface for things which release Aether into the environment..
  */
 public interface IAetherReleaser {
 
     /**
-     * Returns the {@link IReleaserHandler} for this releaser.
+     * Returns a clone {@link AethericEnergyUnit} representing the amount of Aether released by this releaser.
      */
-    IReleaserHandler getReleaserHandler();
+    AethericEnergyUnit getAetherRelease();
 
     /**
      * For disabling an {@link IAetherReleaser}.

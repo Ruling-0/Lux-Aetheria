@@ -121,7 +121,7 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
 
         this.ambientAether.addAmount(this.totalLoss);
         for (IAetherReleaser releaser : this.aetherReleasers) {
-            this.ambientAether.merge(releaser.getReleaserHandler().getAetherRelease());
+            this.ambientAether.merge(releaser.getAetherRelease());
         }
 
         this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);

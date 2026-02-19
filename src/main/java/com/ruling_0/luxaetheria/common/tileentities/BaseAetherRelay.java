@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -45,7 +46,7 @@ public abstract class BaseAetherRelay extends TileEntity
     public IRelayHandler getAetherHandler() { return this.aetherHandler; }
 
     @Override
-    public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
+    public AethericEnergyUnit getAetherRelease() { return this.aetherHandler.getAetherRelease(); }
 
     @Nonnull
     @Override
