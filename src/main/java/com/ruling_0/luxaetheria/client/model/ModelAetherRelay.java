@@ -93,7 +93,7 @@ public class ModelAetherRelay extends JSONModel {
                 .rotate(getDirRot(forgeDir))
                 .translate(-0.5f, -0.5f, -0.5f);
             if (targets.length == 0) {
-                this.matrices = new Matrix4fc[] { baseMat, baseMat };
+                this.matrices = new Matrix4fc[] { baseMat };
                 return;
             }
 

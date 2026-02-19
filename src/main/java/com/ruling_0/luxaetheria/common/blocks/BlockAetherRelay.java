@@ -120,6 +120,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
 
     @Override
     public BakedModel getModel(@Nullable IBlockAccess world, Block block, int meta, int x, int y, int z) {
+        // TODO: add caching
         Vector3i pos = new Vector3i(x, y, z);
         ArrayList<Vector3i> targets = new ArrayList<>(4);
         if (world != null) {
@@ -133,6 +134,9 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
                 if (sinkCoords.getDimID() != coords.getDimID()) continue;
                 targets.add(new Vector3i(sinkCoords.getX(), sinkCoords.getY(), sinkCoords.getZ()));
             }
+        }
+        else { // this is an item render, so show 1 arm pointing North
+            targets.add(new Vector3i(x, y, z - 1));
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);
         final JSONModel jsonModel = ModelRegistry
