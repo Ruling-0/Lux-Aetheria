@@ -11,7 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
@@ -78,7 +78,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     public AethericEnergyUnit getAmbientAether() { return new AethericEnergyUnit(this.ambientAether); }
 
     @Override
-    public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
+    public boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick) {
         return true;
     }
 

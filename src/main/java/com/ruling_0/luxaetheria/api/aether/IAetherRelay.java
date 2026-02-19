@@ -8,7 +8,7 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 /**
  * An Interface for things which intake and/or output Aether. Must possess an {@link IAetherHandler}.
  */
-public interface IAetherManipulator {
+public interface IAetherRelay {
 
     /**
      * Returns the {@link IAetherHandler} for this manipulator.
@@ -16,13 +16,13 @@ public interface IAetherManipulator {
     IAetherHandler getAetherHandler();
 
     /**
-     * For enabling (making a valid source/sink) an {@link IAetherManipulator}.
+     * For enabling (making a valid source/sink) an {@link IAetherRelay}.
      * Should be called whenever the manipulator is added to the world.
      */
     void enable();
 
     /**
-     * For disabling (making an invalid source/sink) an {@link IAetherManipulator}.
+     * For disabling (making an invalid source/sink) an {@link IAetherRelay}.
      * Should be called whenever the manipulator is destroyed or unloaded.
      * Must remove the manipulator from source/sink lists of upstream/downstream manipulators.
      */

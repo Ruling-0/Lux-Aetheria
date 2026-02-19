@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
@@ -15,7 +15,7 @@ import org.joml.Vector3fc;
 /**
  * Array-backed class for holding data about Aether sinks in an {@link IAetherHandler}.
  * Sink data is stored as a {@link SinkConnection}.
- * Each array index refers to a specific output of the owning {@link IAetherManipulator}.
+ * Each array index refers to a specific output of the owning {@link IAetherRelay}.
  * Allows for retrieving data by a sink's {@link InterDimCoords}.
  */
 public final class AetherSinkArray implements ImmutableSinkArray {
@@ -61,19 +61,19 @@ public final class AetherSinkArray implements ImmutableSinkArray {
         return this.sinkConnections[index];
     }
 
-    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherManipulator sink, Vector3fc colCoords,
+    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherRelay sink, Vector3fc colCoords,
                        double dist) {
         if (this.sinkConnections[index] != null) return false;
         this.sinkConnections[index] = new SinkConnection(sinkCoords, sink, new AethericEnergyUnit(), colCoords, dist);
         return true;
     }
 
-    public boolean add(IAetherManipulator sink) {
+    public boolean add(IAetherRelay sink) {
         return this.add(sink, new AethericEnergyUnit(), sink.getInterDimCoords().getVec3fc(),
             this.owner.getInterDimCoords().distance(sink.getInterDimCoords()));
     }
 
-    public boolean add(IAetherManipulator sink, AethericEnergyUnit aeu, Vector3fc colCoords, double dist) {
+    public boolean add(IAetherRelay sink, AethericEnergyUnit aeu, Vector3fc colCoords, double dist) {
         return this.add(new SinkConnection(sink.getInterDimCoords(), sink, aeu, colCoords, dist));
     }
 
@@ -140,7 +140,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     @Nullable
     @Override
-    public IAetherManipulator getSink(InterDimCoords sinkCoords) {
+    public IAetherRelay getSink(InterDimCoords sinkCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 return sinkConn.sink;
@@ -150,7 +150,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     }
 
     @SuppressWarnings("unused")
-    public boolean setSink(InterDimCoords sinkCoords, IAetherManipulator sink) {
+    public boolean setSink(InterDimCoords sinkCoords, IAetherRelay sink) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 sinkConn.sink = sink;

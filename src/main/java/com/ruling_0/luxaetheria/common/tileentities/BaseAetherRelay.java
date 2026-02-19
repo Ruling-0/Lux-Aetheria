@@ -10,7 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
@@ -24,18 +24,18 @@ import cpw.mods.fml.relauncher.SideOnly;
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
-public abstract class BaseAetherManipulator extends TileEntity
-                                            implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+public abstract class BaseAetherRelay extends TileEntity
+                                            implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected boolean isEnabled = false;
     protected InterDimCoords coords;
 
-    public BaseAetherManipulator() {
+    public BaseAetherRelay() {
         this(1);
     }
 
-    public BaseAetherManipulator(int maxAetherSinks) {
+    public BaseAetherRelay(int maxAetherSinks) {
         super();
         this.coords = null;
         this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);

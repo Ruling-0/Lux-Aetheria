@@ -9,7 +9,7 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
@@ -17,7 +17,7 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherManipulator, IWDMLAProvider {
+public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherRelay, IWDMLAProvider {
 
     protected InterDimCoords coords;
 

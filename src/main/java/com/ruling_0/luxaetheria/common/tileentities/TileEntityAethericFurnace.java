@@ -13,7 +13,7 @@ import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspect;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
@@ -25,7 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
-                                       implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                       implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleAetherHandler aetherHandler;
     protected final int maxAetherSinks = 1;

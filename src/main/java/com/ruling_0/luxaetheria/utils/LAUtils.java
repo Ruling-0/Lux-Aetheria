@@ -6,9 +6,8 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
 
 public final class LAUtils {
 
@@ -27,7 +26,7 @@ public final class LAUtils {
      *
      * @return True if the path is clear, false otherwise.
      */
-    public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
+    public static boolean checkRayCollision(World world, IAetherRelay start, IAetherRelay end,
                                             boolean includeLiquid) {
         return checkRayCollision(world, start.getAetherHandler().getPosVec3(), end.getAetherHandler().getPosVec3(),
             includeLiquid);

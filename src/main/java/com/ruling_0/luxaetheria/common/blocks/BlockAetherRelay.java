@@ -24,7 +24,7 @@ import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ResourceLoc;
 import com.gtnewhorizon.gtnhlib.client.model.unbaked.JSONModel;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
@@ -124,7 +124,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
         Vector3i pos = new Vector3i(x, y, z);
         ArrayList<Vector3i> targets = new ArrayList<>(4);
         if (world != null) {
-            final IAetherManipulator te = (IAetherManipulator) world.getTileEntity(x, y, z);
+            final IAetherRelay te = (IAetherRelay) world.getTileEntity(x, y, z);
             final IAetherHandler handler = te.getAetherHandler();
             final InterDimCoords coords = handler.getInterDimCoords();
             final var iter = handler.getAetherSinksIter();

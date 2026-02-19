@@ -4,12 +4,9 @@ import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.util.Vec3;
-
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 /**
@@ -37,7 +34,7 @@ public interface ImmutableSinkArray {
     Iterator<ImmutableSinkConnection> immutableIter();
 
     @SuppressWarnings("unused")
-    IAetherManipulator getSink(InterDimCoords sinkCoords);
+    IAetherRelay getSink(InterDimCoords sinkCoords);
 
     @SuppressWarnings("unused")
     AethericEnergyUnit getAeu(InterDimCoords sinkCoords);

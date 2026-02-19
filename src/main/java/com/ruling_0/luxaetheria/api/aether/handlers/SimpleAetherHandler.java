@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.connections.AetherSinkArray;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
@@ -34,28 +34,28 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     public final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     /**
      * This is used so the aether values are available to WDMLA.
-     * Triggers an aether reset on the next {@link #getAetherFromSource(IAetherManipulator, long)} call.
+     * Triggers an aether reset on the next {@link #getAetherFromSource(IAetherRelay, long)} call.
      */
     public boolean doResetAether = false;
 
     protected final int maxAetherSinks;
     protected final HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
-    protected final Object2DoubleOpenHashMap<IAetherManipulator> aetherSources = new Object2DoubleOpenHashMap<>();
+    protected final Object2DoubleOpenHashMap<IAetherRelay> aetherSources = new Object2DoubleOpenHashMap<>();
     protected final AetherSinkArray aetherSinks;
     protected long lastSourceTick = -1L;
     protected long lastSinkTick = -1L;
     protected int validSinks = 0;
 
-    private final IAetherManipulator owner;
+    private final IAetherRelay owner;
 
     public SimpleAetherHandler(int maxAetherSinks, TileEntity te) {
         this.maxAetherSinks = maxAetherSinks;
-        this.owner = (IAetherManipulator) te;
+        this.owner = (IAetherRelay) te;
         this.aetherSinks = new AetherSinkArray(this.maxAetherSinks, this);
     }
 
     @Override
-    public boolean addAetherSink(@Nonnull IAetherManipulator sink) {
+    public boolean addAetherSink(@Nonnull IAetherRelay sink) {
         if (!this.aetherSinks.add(sink)) return false;
         this.validSinks++;
         this.markForUpdate();
@@ -63,7 +63,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     }
 
     @Override
-    public boolean removeAetherSink(@Nonnull IAetherManipulator sink) {
+    public boolean removeAetherSink(@Nonnull IAetherRelay sink) {
         SinkConnection removed = this.aetherSinks.remove(sink.getInterDimCoords());
         if (removed == null) return false;
         this.aetherOut.split(removed.aeu);
@@ -109,7 +109,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
     public double getMaxSinkDistance() { return this.aetherSinks.getMaxSinkDistance(); }
 
     @Override
-    public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
+    public boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick) {
         if (tick != this.lastSourceTick) {
             this.lastSourceTick = tick;
             this.aetherIn.reset();
@@ -202,7 +202,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
     @Override
     public void disconnectFromSources() {
-        for (IAetherManipulator source : this.aetherSources.keySet()) {
+        for (IAetherRelay source : this.aetherSources.keySet()) {
             source.getAetherHandler().removeAetherSink(this.owner);
         }
     }
