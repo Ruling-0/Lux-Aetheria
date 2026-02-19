@@ -10,7 +10,7 @@ import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
@@ -30,7 +30,7 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
         this.coords = null;
     }
 
-    public IAetherHandler getAetherHandler() { return this.collectorHandler; }
+    public IRelayHandler getAetherHandler() { return this.collectorHandler; }
 
     @Nonnull
     @Override

@@ -6,14 +6,14 @@ import java.util.NoSuchElementException;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3fc;
 
 /**
- * Array-backed class for holding data about Aether sinks in an {@link IAetherHandler}.
+ * Array-backed class for holding data about Aether sinks in an {@link IRelayHandler}.
  * Sink data is stored as a {@link SinkConnection}.
  * Each array index refers to a specific output of the owning {@link IAetherRelay}.
  * Allows for retrieving data by a sink's {@link InterDimCoords}.
@@ -22,9 +22,9 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     private double maxSinkDistance = 0.0D;
     private final @Nullable SinkConnection[] sinkConnections;
-    private final IAetherHandler owner;
+    private final IRelayHandler owner;
 
-    public AetherSinkArray(int max, IAetherHandler owner) {
+    public AetherSinkArray(int max, IRelayHandler owner) {
         this.sinkConnections = new SinkConnection[max];
         this.owner = owner;
     }

@@ -38,7 +38,7 @@ import org.joml.Vector3fc;
  * This is only required for {@link IAetherRelay}s as they belong to the BFS traversal. Stand-alone devices
  * (like machines that are their own collector and do not link to sinks) should not implement this.
  */
-public interface IAetherHandler {
+public interface IRelayHandler {
 
     /**
      * Registers a downstream {@link IAetherRelay} to receive aether from this one.
@@ -136,11 +136,11 @@ public interface IAetherHandler {
      * @return A new {@link AethericEnergyUnit} representing the post-loss output.
      */
     @Nonnull
-    AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
+    AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist);
 
     /**
      * Whether this handler should be updated every tick after the {@link AetherManager} runs its BFS
-     * traversal (see {@link IAetherHandler}).
+     * traversal (see {@link IRelayHandler}).
      * In this case, it is guaranteed that all external Aether values are final (set in {@link #getAetherFromSource}).
      * Thus, this should not manipulate released or to-sink Aether values.
      * If True, {@link #updateAether} is called later for the actual update.

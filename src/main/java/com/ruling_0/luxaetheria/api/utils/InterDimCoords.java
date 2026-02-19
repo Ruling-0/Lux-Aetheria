@@ -23,7 +23,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     public InterDimCoords() {
         super();
-        this.world = null;
+        this.world = DimensionManager.getWorld(0);
     }
 
     public InterDimCoords(NBTTagCompound compound) {

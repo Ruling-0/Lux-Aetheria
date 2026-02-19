@@ -14,7 +14,7 @@ import com.ruling_0.luxaetheria.api.aether.AetherAspect;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -29,7 +29,7 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
 
     @Override
     public void renderTileEntityAt(TileEntity te, double x, double y, double z, float timeSinceLastTick) {
-        final IAetherHandler handler = ((IAetherRelay) te).getAetherHandler();
+        final IRelayHandler handler = ((IAetherRelay) te).getAetherHandler();
         if (handler == null) return;
         final Vector3f pos = new Vector3f((float) x + 0.5f, (float) y + 0.5f, (float) z + 0.5f);
 

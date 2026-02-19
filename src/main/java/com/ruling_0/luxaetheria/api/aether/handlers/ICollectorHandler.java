@@ -9,7 +9,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 /**
  * Responsible for handling Aether for an {@link IAetherCollector}. This involves maintaining an
  * {@link AethericEnergyUnit} which reflects the ambient environment's Aether level.
- * See {@link IAetherHandler}for details on the Aether system.
+ * See {@link IRelayHandler}for details on the Aether system.
  */
 public interface ICollectorHandler {
 

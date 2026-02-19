@@ -2,6 +2,7 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,45 +16,42 @@ import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspect;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class TileEntityAethericFurnace extends TileEntityFurnace
-                                       implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
+import java.util.ArrayList;
 
-    protected final SimpleAetherHandler aetherHandler;
-    protected final int maxAetherSinks = 1;
+public class TileEntityAethericFurnace extends TileEntityFurnace
+                                       implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+
     protected InterDimCoords coords;
+    protected final SimpleRelayHandler aetherHandler;
+    protected ArrayList<IAetherRelay> relays = new ArrayList<>();
     protected boolean isEnabled = false;
 
     public TileEntityAethericFurnace() {
-        this(1);
-    }
-
-    public TileEntityAethericFurnace(int maxAetherSinks) {
         super();
         this.coords = null;
-        this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);
+        this.aetherHandler = new SimpleRelayHandler(0, this);
     }
 
     @Override
-    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
+    public void bindRelay(IAetherRelay relay) {
+        this.relays.add(relay);
+    }
+
+    @Override
+    public void unbindRelay(IAetherRelay relay) {
+        this.relays.remove(relay);
+    }
 
     @Override
     public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }
-
-    @Nonnull
-    @Override
-    public InterDimCoords getInterDimCoords() {
-        if (this.coords == null) this.coords = new InterDimCoords(this);
-        return this.coords;
-    }
 
     @Override
     public void enable() {
@@ -69,8 +67,6 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
         if (!this.isEnabled) return;
         this.isEnabled = false;
         if (this.worldObj.isRemote) return;
-        this.aetherHandler.disconnectFromSources();
-        LuxAetheria.proxy.aetherManager.bulkOrphanSinks(this);
         LuxAetheria.proxy.aetherManager
             .disableReleaser(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);
     }

@@ -12,9 +12,9 @@ import net.minecraft.util.AxisAlignedBB;
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
@@ -27,7 +27,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 public abstract class BaseAetherRelay extends TileEntity
                                             implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
 
-    protected final SimpleAetherHandler aetherHandler;
+    protected final SimpleRelayHandler aetherHandler;
     protected boolean isEnabled = false;
     protected InterDimCoords coords;
 
@@ -38,11 +38,11 @@ public abstract class BaseAetherRelay extends TileEntity
     public BaseAetherRelay(int maxAetherSinks) {
         super();
         this.coords = null;
-        this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);
+        this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
     }
 
     @Override
-    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
+    public IRelayHandler getAetherHandler() { return this.aetherHandler; }
 
     @Override
     public IReleaserHandler getReleaserHandler() { return this.aetherHandler; }

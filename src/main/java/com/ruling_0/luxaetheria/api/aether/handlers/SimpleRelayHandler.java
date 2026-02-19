@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IWDMLAProvider {
+public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDMLAProvider {
 
     public final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
     public final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
@@ -48,7 +48,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
     private final IAetherRelay owner;
 
-    public SimpleAetherHandler(int maxAetherSinks, TileEntity te) {
+    public SimpleRelayHandler(int maxAetherSinks, TileEntity te) {
         this.maxAetherSinks = maxAetherSinks;
         this.owner = (IAetherRelay) te;
         this.aetherSinks = new AetherSinkArray(this.maxAetherSinks, this);
@@ -116,7 +116,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
             this.aetherRelease.reset();
             this.encounteredIDs.clear();
         }
-        IAetherHandler sourceHandler = source.getAetherHandler();
+        IRelayHandler sourceHandler = source.getAetherHandler();
         if (!this.aetherSources.containsKey(source)) {
             this.aetherSources.put(source, this.getInterDimCoords().distance(sourceHandler.getInterDimCoords()));
         }
@@ -162,7 +162,7 @@ public class SimpleAetherHandler implements IAetherHandler, IReleaserHandler, IW
 
     @Nonnull
     @Override
-    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
+    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
             this.aetherOut.reset();

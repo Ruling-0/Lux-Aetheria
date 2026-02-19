@@ -2,18 +2,18 @@ package com.ruling_0.luxaetheria.api.aether;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 /**
- * An Interface for things which intake and/or output Aether. Must possess an {@link IAetherHandler}.
+ * An Interface for things which move Aether via source/sink flows. Must possess an {@link IRelayHandler}.
  */
 public interface IAetherRelay {
 
     /**
-     * Returns the {@link IAetherHandler} for this manipulator.
+     * Returns the {@link IRelayHandler} for this manipulator.
      */
-    IAetherHandler getAetherHandler();
+    IRelayHandler getAetherHandler();
 
     /**
      * For enabling (making a valid source/sink) an {@link IAetherRelay}.

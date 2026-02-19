@@ -17,7 +17,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.ICollectorHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
@@ -99,7 +99,7 @@ public class AetherManager {
         aetherSearchQueue.addAll(orphanedManipulators);
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
-            IAetherHandler handler = curr.getAetherHandler();
+            IRelayHandler handler = curr.getAetherHandler();
             handler.resetAether();
             Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
@@ -119,7 +119,7 @@ public class AetherManager {
         this.serverTick++;
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
-            IAetherHandler currHandler = curr.getAetherHandler();
+            IRelayHandler currHandler = curr.getAetherHandler();
             Iterator<SinkConnection> mutIterSinks = currHandler.getMutableSinksIter();
             while (mutIterSinks.hasNext()) {
                 SinkConnection sinkConn = mutIterSinks.next();

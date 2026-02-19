@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 
@@ -30,7 +30,7 @@ public class ItemPylonBinder extends Item {
             if (boundManipulator != null) {
                 if (boundManipulator.equals(aetherManipulator)) return true;
                 boolean success;
-                IAetherHandler boundHandler = boundManipulator.getAetherHandler();
+                IRelayHandler boundHandler = boundManipulator.getAetherHandler();
                 InterDimCoords targetPos = aetherManipulator.getAetherHandler().getInterDimCoords();
                 if (boundHandler.hasSink(targetPos)) {
                     success = boundHandler.removeAetherSink(aetherManipulator);

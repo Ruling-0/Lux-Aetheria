@@ -15,7 +15,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
-public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
+public class SimpleCollectorHandler extends SimpleRelayHandler implements ICollectorHandler {
 
     public final AethericEnergyUnit ambientAether;
 
@@ -84,7 +84,7 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
     @Nonnull
     @Override
-    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
+    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
             this.aetherOut.reset();
