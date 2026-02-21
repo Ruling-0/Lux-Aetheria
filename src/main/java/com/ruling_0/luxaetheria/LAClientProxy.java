@@ -26,7 +26,6 @@ public class LAClientProxy extends LAProxy {
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCollectorPylon.class, new AetherBeamRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAetherRelay.class, new AetherBeamRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAethericFurnace.class, new AetherBeamRenderer());
     }
 
     @Override

@@ -21,6 +21,8 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
@@ -33,12 +35,18 @@ public abstract class BaseAetherRelay extends TileEntity
     protected InterDimCoords coords;
 
     public BaseAetherRelay() {
-        this(1);
+        this(null, ForgeDirection.DOWN);
     }
 
-    public BaseAetherRelay(int maxAetherSinks) {
+    public BaseAetherRelay(World world, ForgeDirection dir) {
+        this(world, dir, 1);
+    }
+
+    public BaseAetherRelay(World world, ForgeDirection dir, int maxAetherSinks) {
         super();
         this.coords = null;
+        // TODO: the manipulator will need to get coords from the onBlockPlaced command, then lazy set the TE
+        //  maybe have a queue of packed coords, and every time it checks relays it checks for non-0 queue and resolves it
         this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
     }
 
@@ -121,12 +129,7 @@ public abstract class BaseAetherRelay extends TileEntity
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         this.readFromNBT(pkt.func_148857_g());
-        worldObj.markBlockRangeForRenderUpdate(
-            this.xCoord,
-            this.yCoord,
-            this.zCoord,
-            this.xCoord,
-            this.yCoord,
+        worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord,
             this.zCoord);
     }
 

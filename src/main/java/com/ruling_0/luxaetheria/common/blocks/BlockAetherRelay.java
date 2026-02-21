@@ -9,6 +9,7 @@ import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 import java.util.ArrayList;
 
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -41,7 +42,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityAetherRelay();
+        return new TileEntityAetherRelay(world, ForgeDirection.getOrientation(meta).getOpposite());
     }
 
     @Override

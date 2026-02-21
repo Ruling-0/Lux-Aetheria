@@ -28,6 +28,10 @@ public class AethericEnergyUnit {
         this(amount, 0, 0, 0, 0);
     }
 
+    public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios) {
+        this(amount, aspectRatios, 0, 0, 0, 0);
+    }
+
     public AethericEnergyUnit(long amount, long origin, long tick, int dim, int output) {
         this.amount = amount;
         Arrays.fill(aspectRatios, 1.0D);
@@ -36,7 +40,7 @@ public class AethericEnergyUnit {
 
     public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, long origin, long tick, int dim,
                               int output) {
-        this(amount, origin, tick, 0, dim);
+        this(amount, origin, tick, dim, output);
         if (aspectRatios.length == this.aspectRatios.length) this.aspectRatios = aspectRatios;
         else System.arraycopy(aspectRatios, 0, this.aspectRatios, 0, Math.min(aspectRatios.length,
             this.aspectRatios.length));

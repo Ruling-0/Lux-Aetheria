@@ -103,6 +103,9 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     public InterDimCoords getInterDimCoords() { return this.owner.getInterDimCoords(); }
 
     @Override
+    public AethericEnergyUnit getAetherIn() { return this.aetherIn; }
+
+    @Override
     public AethericEnergyUnit getAetherOut() { return new AethericEnergyUnit(this.aetherOut); }
 
     @Override

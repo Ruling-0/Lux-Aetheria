@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,9 +29,11 @@ import cpw.mods.fml.relauncher.SideOnly;
 import java.util.ArrayList;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
-                                       implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+                                       implements IAetherManipulator, IAetherReleaser {
 
-    protected ArrayList<IAetherRelay> relays = new ArrayList<>();
+    protected final ArrayList<IAetherRelay> relays = new ArrayList<>();
+    protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
+    protected final AethericEnergyUnit consumption = new AethericEnergyUnit(1L, new double[]{1.0D, 0.0D, 0.0D});
     protected boolean isEnabled = false;
 
     public TileEntityAethericFurnace() {
@@ -48,7 +51,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     }
 
     @Override
-    public AethericEnergyUnit getAetherRelease() { return this.aetherHandler; }
+    public AethericEnergyUnit getAetherRelease() { return new AethericEnergyUnit(this.aetherRelease); }
 
     @Override
     public void enable() {
@@ -96,11 +99,6 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
         super.readFromNBT(compound);
     }
 
-    @Override
-    public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
-        this.aetherHandler.writeWDMLAData(compound);
-    }
-
     protected boolean canSmelt() {
         if (this.getStackInSlot(0) == null) {
             return false;
@@ -118,9 +116,14 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
-            if (this.aetherHandler.aetherIn.getAspectAmount(AetherAspect.RED) >= 1 && this.canSmelt()) {
-                // This is decremented before checks for non-zero val
-                this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
+            for (IAetherRelay relay : this.relays) {
+                final IRelayHandler handler = relay.getAetherHandler();
+                AethericEnergyUnit aether = handler.getAetherIn();
+                if (aether.getAspectAmount(AetherAspect.RED) >= 1 && this.canSmelt()) {
+                    aether.split(consumption);
+                    // This is decremented before checks for non-zero val
+                    this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
+                }
             }
         }
         super.updateEntity();
@@ -138,21 +141,5 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
         this.readFromNBT(pkt.func_148857_g());
         worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord,
             this.zCoord);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() { return TileEntityCollectorPylon.INFINITE_EXTENT_AABB; }
-
-    @SideOnly(Side.CLIENT)
-    public double getMaxRenderDistanceSquared() {
-        return Math.max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(),
-            4096.0D);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public boolean shouldRenderInPass(int pass) {
-        return pass == 1;
     }
 }

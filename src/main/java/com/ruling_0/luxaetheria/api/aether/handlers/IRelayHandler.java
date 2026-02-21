@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
@@ -29,11 +30,13 @@ import org.joml.Vector3fc;
  * If the current node is an {@link IAetherReleaser}, it may change the amount of aether it releases into the
  * environment
  * during the BFS traversal. Thus, nodes (like {@link IAetherCollector}s) which need to do updates that can only occur
- * at
- * the very end of the BFS traversal (like calculate ambient levels from changed Aether release) return true in
- * {@link #isUpdatable()}.
+ * at the very end of the BFS traversal (like calculate ambient levels from changed Aether release)
+ * return true in {@link #isUpdatable()}.
  * <p>
  * Details of the BFS traversal can be seen in {@link AetherManager}.
+ * <p>
+ * {@link IAetherManipulator}s use this to manipulate the passing Aether. They shall take the input Aether and
+ * directly manipulate it.
  * <p>
  * This is only required for {@link IAetherRelay}s as they belong to the BFS traversal. Stand-alone devices
  * (like machines that are their own collector and do not link to sinks) should not implement this.
@@ -96,6 +99,11 @@ public interface IRelayHandler {
      */
     @Nonnull
     InterDimCoords getInterDimCoords();
+
+    /**
+     * Get the actual input Aether.
+     */
+    AethericEnergyUnit getAetherIn();
 
     /**
      * Get a clone of the total, pre-loss Aether output.
