@@ -101,7 +101,7 @@ public interface IRelayHandler {
     InterDimCoords getInterDimCoords();
 
     /**
-     * Get the actual input Aether.
+     * Get a clone of the input Aether.
      */
     AethericEnergyUnit getAetherIn();
 
@@ -175,6 +175,8 @@ public interface IRelayHandler {
      * {@link #removeAetherSink} to remove itself.
      */
     void disconnectFromSources();
+
+    void setManipulator(IAetherManipulator manipulator);
 
     /**
      * Store this handler's information in NBT. It should write any Aether information that should be saved and loaded

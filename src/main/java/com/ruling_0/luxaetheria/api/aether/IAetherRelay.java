@@ -33,4 +33,9 @@ public interface IAetherRelay {
      */
     @Nonnull
     InterDimCoords getInterDimCoords();
+
+    default boolean equals(IAetherRelay other) {
+        if (other == null) return false;
+        return this.getInterDimCoords().equals(other.getInterDimCoords());
+    }
 }

@@ -195,6 +195,10 @@ public class AethericEnergyUnit {
         this.recalculateRatios(tempAspects);
     }
 
+    /**
+     * Reduces this AEU by the given outgoing AEU. Where this AEU has less of an aspect than the outgoing AEU,
+     * the outgoing AEU is changed to have this AEU's aspect amount, and this AEU's aspect amount is set to 0.
+     */
     public void split(@Nonnull AethericEnergyUnit outgoing) {
         if (outgoing.getAmount() == 0L) return;
         long[] tempIAspects = new long[AetherAspect.VALUES.length];
@@ -204,20 +208,34 @@ public class AethericEnergyUnit {
         boolean changedOut = false;
         for (AetherAspect aspect : AetherAspect.VALUES) {
             int i = aspect.ordinal();
+            tempOAspects[i] = outgoing.getAspectAmount(aspect);
             if (this.getAspectAmount(aspect) < outgoing.getAspectAmount(aspect)) {
                 changedOut = true;
                 tempOAspects[i] = this.getAspectAmount(aspect);
                 tempIAspects[i] = 0L;
-                if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
             }
             tempIAspects[i] = this.getAspectAmount(aspect) - outgoing.getAspectAmount(aspect);
             if (tempIAspects[i] > tempIAmount) tempIAmount = tempIAspects[i];
             if (tempOAspects[i] > tempOAmount) tempOAmount = tempOAspects[i];
         }
         this.setAmount(tempIAmount);
-        outgoing.setAmount(tempOAmount);
         this.recalculateRatios(tempIAspects);
-        if (changedOut) outgoing.recalculateRatios(tempOAspects);
+        if (changedOut) {
+            outgoing.setAmount(tempOAmount);
+            outgoing.recalculateRatios(tempOAspects);
+        }
+    }
+
+    /**
+     * Returns true if this AEU can have the outgoing AEU split off from it fully.
+     */
+    public boolean canSplit(@Nonnull AethericEnergyUnit outgoing) {
+        if (outgoing.getAmount() == 0L) return true;
+        if (this.getAmount() == 0L) return false;
+        for (AetherAspect aspect : AetherAspect.VALUES) {
+            if (this.getAspectAmount(aspect) < outgoing.getAspectAmount(aspect)) return false;
+        }
+        return true;
     }
 
     public void moveToEquilibrium(long amount) {

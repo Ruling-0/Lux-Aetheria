@@ -1,6 +1,7 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.AxisAlignedBB;
 
@@ -26,28 +28,46 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
                                        implements IAetherManipulator, IAetherReleaser {
 
     protected final ArrayList<IAetherRelay> relays = new ArrayList<>();
+    protected final ArrayDeque<InterDimCoords> relayCoords = new ArrayDeque<>();
     protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     protected final AethericEnergyUnit consumption = new AethericEnergyUnit(1L, new double[]{1.0D, 0.0D, 0.0D});
     protected boolean isEnabled = false;
+    protected @Nullable IAetherRelay activeRelay = null;
 
     public TileEntityAethericFurnace() {
         super();
     }
 
     @Override
-    public void bindRelay(IAetherRelay relay) {
-        this.relays.add(relay);
+    public void bindRelay(InterDimCoords relayCoords) {
+        this.relayCoords.add(relayCoords);
     }
 
     @Override
-    public void unbindRelay(IAetherRelay relay) {
+    public void unbindRelay(@Nonnull IAetherRelay relay) {
         this.relays.remove(relay);
+        if (relay.equals(this.activeRelay)) this.activeRelay = null;
+    }
+
+    @Override
+    public boolean isActive(@Nonnull IAetherRelay relay) {
+        return relay.equals(this.activeRelay);
+    }
+
+    @Override
+    public boolean manipulate(@Nonnull AethericEnergyUnit aetherIn) {
+        if (aetherIn.canSplit(this.consumption)) {
+            aetherIn.split(this.consumption);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -116,13 +136,22 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
+            while (!this.relayCoords.isEmpty()) {
+                InterDimCoords relayCoords = this.relayCoords.pop();
+                TileEntity te = this.worldObj.getTileEntity(relayCoords.x, relayCoords.y, relayCoords.z);
+                if (te instanceof IAetherRelay relay) {
+                    this.relays.add(relay);
+                    relay.getAetherHandler().setManipulator(this);
+                }
+            }
             for (IAetherRelay relay : this.relays) {
                 final IRelayHandler handler = relay.getAetherHandler();
                 AethericEnergyUnit aether = handler.getAetherIn();
-                if (aether.getAspectAmount(AetherAspect.RED) >= 1 && this.canSmelt()) {
-                    aether.split(consumption);
+                if (aether.canSplit(consumption) && this.canSmelt()) {
+                    this.activeRelay = relay;
                     // This is decremented before checks for non-zero val
                     this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
+                    break;
                 }
             }
         }

@@ -90,6 +90,29 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
                              int metadata) {
         return ForgeDirection.getOrientation(side).getOpposite().ordinal();
     }
+    @Override
+    public void onBlockAdded(World world, int x, int y, int z) {
+        super.onBlockAdded(world, x, y, z);
+        this.checkAndBreakInvalid(world, x, y, z);
+        ForgeDirection dir = ForgeDirection.getOrientation(world.getBlockMetadata(x, y, z));
+        TileEntity te = world.getTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+        if (te instanceof IAetherManipulator manipulator) {
+            manipulator.bindRelay(new InterDimCoords(x, y, z, world));
+        }
+    }
+
+    @Override
+    public void breakBlock(World world, int x, int y, int z, Block blockBroken, int meta) {
+        final ForgeDirection curDir = ForgeDirection.getOrientation(meta);
+        TileEntity te = world.getTileEntity(x + curDir.offsetX, y + curDir.offsetY, z + curDir.offsetZ);
+        if (te instanceof IAetherManipulator manipulator) {
+            TileEntity thisTE = world.getTileEntity(x, y, z);
+            if (thisTE instanceof IAetherRelay relayTE) {
+                manipulator.unbindRelay(relayTE);
+            }
+        }
+        super.breakBlock(world, x, y, z, blockBroken, meta);
+    }
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {

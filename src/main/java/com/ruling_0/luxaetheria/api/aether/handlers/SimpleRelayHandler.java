@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -44,7 +45,9 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     protected final AetherSinkArray aetherSinks;
     protected long lastSourceTick = -1L;
     protected long lastSinkTick = -1L;
+    protected long lastManipulatorTick = -1L;
     protected int validSinks = 0;
+    protected IAetherManipulator manipulator = null;
 
     private final IAetherRelay owner;
 
@@ -103,13 +106,30 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     public InterDimCoords getInterDimCoords() { return this.owner.getInterDimCoords(); }
 
     @Override
-    public AethericEnergyUnit getAetherIn() { return this.aetherIn; }
+    public AethericEnergyUnit getAetherIn() { return new AethericEnergyUnit(this.aetherIn); }
 
     @Override
     public AethericEnergyUnit getAetherOut() { return new AethericEnergyUnit(this.aetherOut); }
 
     @Override
     public double getMaxSinkDistance() { return this.aetherSinks.getMaxSinkDistance(); }
+
+    /**
+     * Returns true if the manipulator was able to manipulate the aether.
+     * Sets the last manipulator tick if true or if the manipulator is inactive.
+     */
+    protected boolean handleManipulator(long tick) {
+        if (manipulator == null || tick == lastManipulatorTick) return false;
+        if (!manipulator.isActive(this.owner)) {
+            this.lastManipulatorTick = tick;
+            return false;
+        }
+        if (manipulator.manipulate(this.aetherIn)) {
+            this.lastManipulatorTick = tick;
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick) {
@@ -127,6 +147,12 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
+            if (!this.handleManipulator(tick)) {
+                this.aetherRelease.merge(incoming);
+            }
+            else {
+                this.aetherRelease.reset();
+            }
             if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
             return true;
         }
@@ -170,8 +196,9 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             this.lastSinkTick = tick;
             this.aetherOut.reset();
         }
-        InterDimCoords sinkCoords = sinkHandler.getInterDimCoords();
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
+        if (!(this.lastManipulatorTick == tick)) return returnedAether;
+        InterDimCoords sinkCoords = sinkHandler.getInterDimCoords();
 
         returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.size());
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
@@ -208,6 +235,11 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         for (IAetherRelay source : this.aetherSources.keySet()) {
             source.getAetherHandler().removeAetherSink(this.owner);
         }
+    }
+
+    @Override
+    public void setManipulator(IAetherManipulator manipulator) {
+        this.manipulator = manipulator;
     }
 
     protected void clearSinks() {
