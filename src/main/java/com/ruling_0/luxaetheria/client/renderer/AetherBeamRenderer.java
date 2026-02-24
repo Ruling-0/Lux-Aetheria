@@ -32,6 +32,8 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
         final IRelayHandler handler = ((IAetherRelay) te).getAetherHandler();
         if (handler == null) return;
         final Vector3f pos = new Vector3f((float) x + 0.5f, (float) y + 0.5f, (float) z + 0.5f);
+        final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
+        final double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
 
         Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
         AethericEnergyUnit aether = handler.getAetherOut();
@@ -55,13 +57,10 @@ public class AetherBeamRenderer extends TileEntitySpecialRenderer {
                 (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
             this.bindTexture(BEAM_TEXTURE);
 
-            double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
-            final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
-
             while (iterSinks.hasNext()) {
                 ImmutableSinkConnection sinkConn = iterSinks.next();
                 final Vector3fc sinkPos = sinkConn.getColCoords();
-                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, time);
+                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos, time);
             }
         }
 

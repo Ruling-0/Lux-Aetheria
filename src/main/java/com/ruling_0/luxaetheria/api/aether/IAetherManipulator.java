@@ -14,4 +14,8 @@ public interface IAetherManipulator {
     boolean isActive(IAetherRelay relay);
 
     boolean manipulate(AethericEnergyUnit aetherIn);
+
+    AethericEnergyUnit getManipulationForRender();
+
+    InterDimCoords getInterDimCoords();
 }

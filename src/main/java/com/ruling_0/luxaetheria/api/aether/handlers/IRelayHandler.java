@@ -178,6 +178,17 @@ public interface IRelayHandler {
 
     void setManipulator(IAetherManipulator manipulator);
 
+    IAetherManipulator getManipulator();
+
+    /**
+     * Returns true if, during the current tick, the bound manipulator's effect occurred.
+     * For example, if the manipulation is splitting some Aether off the input Aether, this will return
+     * false if the Aether input was not enough to perform the manipulation.
+     */
+    boolean wasManipulated();
+
+    void markForUpdate();
+
     /**
      * Store this handler's information in NBT. It should write any Aether information that should be saved and loaded
      * alongside the chunk/world, as well as the coordinates of any sinks.

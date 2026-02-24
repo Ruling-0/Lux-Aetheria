@@ -10,26 +10,24 @@ import org.lwjgl.opengl.GL11;
 
 public final class RenderUtils {
 
-    public static void drawBeam(Tessellator tessellator, Vector3fc origin, Vector3fc target, Vector3f color, Vector3f camera, double time) {
+    public static void drawBeam(Tessellator tessellator, Vector3fc origin, Vector3fc target, Vector3f color,
+                                Vector3f camera, Vector3fc pos, double time) {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.f, 240.f);
 
         GL11.glColor4f(color.x, color.y, color.z, 1.0f);
         final double uOffset = -time * 0.1;
 
-        final Vector3f v = new Vector3f(target).sub(origin);
-        final double dist = v.length();
+        final Vector3f v = new Vector3f(target).sub(origin).mul(0.5f);
+        final double dist = v.length() * 2;
         final double uvdist = dist * 4;
         if (dist < 1e-6) return;
 
-        final Vector3f p = new Vector3f(camera).sub(new Vector3f(v).mul(0.5f));
+        final Vector3f u = new Vector3f(pos).add(v);
+        final Vector3f p = new Vector3f(u).sub(camera);
         Vector3f w = new Vector3f(v).cross(p);
-        if (w.length() < 1e-6) {
+        if (w.length() < 1e-9) {
             // If the camera is perfectly aligned with the beam, pick an arbitrary perpendicular
             w = new Vector3f(v).cross(new Vector3f(0.0F, 1.0F, 0.0F));
-            if (w.length() < 1e-6) {
-                w = new Vector3f(v).cross(new Vector3f(1.0F, 0.0F, 0.0F));
-                if (w.length() < 1e-6) w = new Vector3f(0.0F, 0.0F, 1.0F);
-            }
         }
         w.normalize();
 

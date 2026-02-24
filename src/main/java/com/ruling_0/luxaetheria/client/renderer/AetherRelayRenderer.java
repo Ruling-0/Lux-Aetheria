@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11;
@@ -30,6 +31,8 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
         final IRelayHandler handler = ((IAetherRelay) te).getAetherHandler();
         if (handler == null) return;
         final Vector3f pos = new Vector3f((float) x + 0.5f, (float) y + 0.5f, (float) z + 0.5f);
+        final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
+        final double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
 
         Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
         AethericEnergyUnit aether = handler.getAetherOut();
@@ -48,19 +51,25 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
             ActiveRenderInfo.objectZ);
 
         Tessellator tessellator = Tessellator.instance;
+        this.bindTexture(BEAM_TEXTURE);
         if (iterSinks.hasNext() && aether.getAmount() > 0) {
             final Vector3f beamColor = new Vector3f((float) aether.getAspectRatio(AetherAspect.RED),
                 (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
-            this.bindTexture(BEAM_TEXTURE);
-
-            double time = (double) te.getWorldObj().getTotalWorldTime() + timeSinceLastTick;
-            final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
 
             while (iterSinks.hasNext()) {
                 ImmutableSinkConnection sinkConn = iterSinks.next();
                 final Vector3fc sinkPos = sinkConn.getColCoords();
-                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, time);
+                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos, time);
             }
+        }
+
+        if (handler.wasManipulated()) {
+            final AethericEnergyUnit manipulation = handler.getManipulator().getManipulationForRender();
+            final Vector3f beamColor = new Vector3f((float) manipulation.getAspectRatio(AetherAspect.RED),
+                (float) manipulation.getAspectRatio(AetherAspect.GREEN), (float) manipulation.getAspectRatio(AetherAspect.BLUE));
+            ForgeDirection dir = ForgeDirection.getOrientation(te.getWorldObj().getBlockMetadata(te.xCoord, te.yCoord, te.zCoord));
+            final Vector3f sinkPos = new Vector3f(sourcePos).add(new Vector3f(dir.offsetX, dir.offsetY, dir.offsetZ).mul(0.5F));
+            RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos, time);
         }
 
         this.bindTexture(FLARE_TEXTURE);

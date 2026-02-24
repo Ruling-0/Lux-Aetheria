@@ -24,6 +24,7 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import net.minecraftforge.common.DimensionManager;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -48,6 +49,8 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     protected long lastManipulatorTick = -1L;
     protected int validSinks = 0;
     protected IAetherManipulator manipulator = null;
+    protected InterDimCoords manipCoords = null;
+    protected boolean wasManipulated = false;
 
     private final IAetherRelay owner;
 
@@ -119,13 +122,19 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
      * Sets the last manipulator tick if true or if the manipulator is inactive.
      */
     protected boolean handleManipulator(long tick) {
+        boolean didChange = false;
         if (manipulator == null || tick == lastManipulatorTick) return false;
+        if (this.wasManipulated) didChange = true;
+        this.wasManipulated = false;
         if (!manipulator.isActive(this.owner)) {
             this.lastManipulatorTick = tick;
+            if (didChange) this.markForUpdate();
             return false;
         }
         if (manipulator.manipulate(this.aetherIn)) {
             this.lastManipulatorTick = tick;
+            this.wasManipulated = true;
+            if (!didChange) this.markForUpdate();
             return true;
         }
         return false;
@@ -147,13 +156,17 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
+            if (this.lastManipulatorTick == tick) {
+                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
+                return true;
+            }
             if (!this.handleManipulator(tick)) {
                 this.aetherRelease.merge(incoming);
             }
             else {
                 this.aetherRelease.reset();
+                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
             }
-            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
             return true;
         }
         else {
@@ -240,16 +253,38 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public void setManipulator(IAetherManipulator manipulator) {
         this.manipulator = manipulator;
+        this.manipCoords = manipulator.getInterDimCoords();
+    }
+
+    @Override
+    public IAetherManipulator getManipulator() {
+        if (this.manipulator == null && this.manipCoords != null) {
+            World world = this.manipCoords.getWorld();
+            TileEntity te = world.getTileEntity(this.manipCoords.x, this.manipCoords.y, this.manipCoords.z);
+            if (te instanceof IAetherManipulator manip) this.manipulator = manip;
+        }
+        return this.manipulator;
+    }
+
+    @Override
+    public boolean wasManipulated() {
+        return this.wasManipulated;
     }
 
     protected void clearSinks() {
         this.aetherSinks.clear();
     }
 
-    protected void markForUpdate() {
+    @Override
+    public void markForUpdate() {
         final InterDimCoords coords = this.getInterDimCoords();
         final World world = coords.getWorld();
         world.markBlockForUpdate(coords.x, coords.y, coords.z);
+        Iterator<SinkConnection> sinkIter = this.aetherSinks.iterator();
+        while (sinkIter.hasNext()) {
+            SinkConnection sinkConn = sinkIter.next();
+            sinkConn.getSink().getAetherHandler().markForUpdate();
+        }
     }
 
     @Override
@@ -279,6 +314,14 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);
+        compound.setBoolean("wasManipulated", this.wasManipulated);
+        if (this.manipCoords != null) {
+            InterDimCoords manipCoords = this.manipCoords;
+            compound.setInteger("manipX", manipCoords.getX());
+            compound.setInteger("manipY", manipCoords.getY());
+            compound.setInteger("manipZ", manipCoords.getZ());
+            compound.setInteger("manipDim", manipCoords.getDimID());
+        }
     }
 
     @Override
@@ -304,8 +347,16 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             final double dist = this.getInterDimCoords().distance(coords);
             this.aetherSinks.add(nbtAetherSink.getByte("idx"), coords, null, colCoords, dist);
 
-            if (coords.getVec3().equals(colCoords)) validSinks++;
+            if (coords.getVec3fc().equals(colCoords)) validSinks++;
             else validSinks--;
+        }
+        this.wasManipulated = compound.getBoolean("wasManipulated");
+        if (compound.hasKey("manipX")) {
+            final int x = compound.getInteger("manipX");
+            final int y = compound.getInteger("manipY");
+            final int z = compound.getInteger("manipZ");
+            final int dim = compound.getInteger("manipDim");
+            this.manipCoords = new InterDimCoords(x, y, z, dim);
         }
     }
 

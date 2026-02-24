@@ -39,6 +39,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
     protected final AethericEnergyUnit consumption = new AethericEnergyUnit(1L, new double[]{1.0D, 0.0D, 0.0D});
     protected boolean isEnabled = false;
+    protected boolean isActive = false;
     protected @Nullable IAetherRelay activeRelay = null;
 
     public TileEntityAethericFurnace() {
@@ -58,7 +59,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
 
     @Override
     public boolean isActive(@Nonnull IAetherRelay relay) {
-        return relay.equals(this.activeRelay);
+        return this.isActive && relay.equals(this.activeRelay);
     }
 
     @Override
@@ -69,6 +70,12 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
         }
         return false;
     }
+
+    @Override
+    public AethericEnergyUnit getManipulationForRender() { return new AethericEnergyUnit(this.consumption); }
+
+    @Override
+    public InterDimCoords getInterDimCoords() { return new InterDimCoords(this); }
 
     @Override
     public AethericEnergyUnit getAetherRelease() { return new AethericEnergyUnit(this.aetherRelease); }
@@ -136,6 +143,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     @Override
     public void updateEntity() {
         if (!this.worldObj.isRemote) {
+
             while (!this.relayCoords.isEmpty()) {
                 InterDimCoords relayCoords = this.relayCoords.pop();
                 TileEntity te = this.worldObj.getTileEntity(relayCoords.x, relayCoords.y, relayCoords.z);
@@ -144,15 +152,30 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
                     relay.getAetherHandler().setManipulator(this);
                 }
             }
-            for (IAetherRelay relay : this.relays) {
-                final IRelayHandler handler = relay.getAetherHandler();
-                AethericEnergyUnit aether = handler.getAetherIn();
-                if (aether.canSplit(consumption) && this.canSmelt()) {
-                    this.activeRelay = relay;
-                    // This is decremented before checks for non-zero val
-                    this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
-                    break;
+
+            if (this.canSmelt()) {
+                if (this.activeRelay == null || !(this.activeRelay.getAetherHandler().wasManipulated())) {
+                    this.activeRelay = null;
+                    this.aetherRelease.reset();
+                    for (IAetherRelay relay : this.relays) {
+                        final IRelayHandler handler = relay.getAetherHandler();
+                        AethericEnergyUnit aether = handler.getAetherIn();
+                        if (aether.canSplit(this.consumption)) {
+                            this.activeRelay = relay;
+                            this.isActive = true;
+                            this.aetherRelease.merge(this.consumption);
+                            // This is decremented before checks for non-zero val
+                            this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
+                            break;
+                        }
+                    }
                 }
+                else {
+                    this.furnaceBurnTime = Math.max(2, this.furnaceBurnTime + 1);
+                }
+            }
+            else {
+                this.isActive = false;
             }
         }
         super.updateEntity();

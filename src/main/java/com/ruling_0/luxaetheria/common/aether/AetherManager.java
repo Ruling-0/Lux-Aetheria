@@ -89,6 +89,7 @@ public class AetherManager {
     }
 
     public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) return;
         aetherSearchQueue.clear();
 
         /*
