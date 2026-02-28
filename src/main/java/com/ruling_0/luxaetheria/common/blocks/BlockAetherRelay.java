@@ -118,16 +118,8 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
         final int meta = world.getBlockMetadata(x, y, z);
         final ForgeDirection curDir = ForgeDirection.getOrientation(meta).getOpposite();
-        if (world.isSideSolid(x - curDir.offsetX, curDir.offsetY, curDir.offsetZ, curDir)) return;
+        if (world.isSideSolid(x - curDir.offsetX, y - curDir.offsetY, z - curDir.offsetZ, curDir)) return;
         if (this.checkAndBreakInvalid(world, x, y, z)) {
-
-            for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
-                if (world.isSideSolid(x - dir.offsetX, y - dir.offsetY, z - dir.offsetZ, dir)) {
-                    world.setBlockMetadataWithNotify(x, y, z, dir.getOpposite().ordinal(), 3);
-                    return;
-                }
-            }
-
             this.dropBlockAsItem(world, x, y, z, meta, 0);
             world.setBlockToAir(x, y, z);
         }
