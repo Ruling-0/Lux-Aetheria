@@ -162,7 +162,7 @@ public class ModelAetherRelay extends JSONModel {
                         dir.z = -dir.z;
                         final Vector3f dirAZ = new Vector3f(dir.x, dir.y, 0.0f).normalize();
 
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).z;
+                        final float sinAZ = -(new Vector3f(orig).cross(dirAZ).z);
                         final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
                             (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
                         final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.z);
@@ -199,7 +199,7 @@ public class ModelAetherRelay extends JSONModel {
                         dir.x = -dir.x;
                         final Vector3f dirAZ = new Vector3f(0.0f, dir.y, dir.z).normalize();
 
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).x;
+                        final float sinAZ = -(new Vector3f(orig).cross(dirAZ).x);
                         final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
                             (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
                         final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.x);
