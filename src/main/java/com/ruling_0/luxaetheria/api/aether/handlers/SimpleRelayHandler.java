@@ -123,20 +123,34 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
      */
     protected boolean handleManipulator(long tick) {
         boolean didChange = false;
-        if (manipulator == null || tick == lastManipulatorTick) return false;
+
+        if (tick == lastManipulatorTick) return false;
+        if (this.manipulator == null) {
+            if (this.manipCoords != null) {
+                World world = this.manipCoords.getWorld();
+                TileEntity te = world.getTileEntity(this.manipCoords.x, this.manipCoords.y, this.manipCoords.z);
+                if (te instanceof IAetherManipulator manip) this.manipulator = manip;
+            }
+            this.lastManipulatorTick = tick;
+            return false;
+        }
+
         if (this.wasManipulated) didChange = true;
         this.wasManipulated = false;
+
         if (!manipulator.isActive(this.owner)) {
             this.lastManipulatorTick = tick;
             if (didChange) this.markForUpdate();
             return false;
         }
+
         if (manipulator.manipulate(this.aetherIn)) {
             this.lastManipulatorTick = tick;
             this.wasManipulated = true;
             if (!didChange) this.markForUpdate();
             return true;
         }
+
         return false;
     }
 
