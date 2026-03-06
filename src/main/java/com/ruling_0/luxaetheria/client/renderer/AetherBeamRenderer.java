@@ -2,7 +2,6 @@ package com.ruling_0.luxaetheria.client.renderer;
 
 import java.util.Iterator;
 
-import com.ruling_0.luxaetheria.utils.RenderUtils;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -15,6 +14,7 @@ import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
+import com.ruling_0.luxaetheria.utils.RenderUtils;
 
 import org.joml.Vector3f;
 import org.joml.Vector3fc;

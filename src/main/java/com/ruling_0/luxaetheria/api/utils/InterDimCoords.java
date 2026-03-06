@@ -11,6 +11,7 @@ import net.minecraftforge.common.DimensionManager;
 
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
+
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -80,5 +81,5 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     public Vec3 getVec3() { return Vec3.createVectorHelper(this.x + 0.5, this.y + 0.5, this.z + 0.5); }
 
-    public Vector3fc getVec3fc() {return new Vector3f(this.x + 0.5f, this.y + 0.5f, this.z + 0.5f); }
+    public Vector3fc getVec3fc() { return new Vector3f(this.x + 0.5f, this.y + 0.5f, this.z + 0.5f); }
 }

@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +14,7 @@ import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.connections.AetherSinkArray;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
@@ -24,7 +24,6 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
-import net.minecraftforge.common.DimensionManager;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;

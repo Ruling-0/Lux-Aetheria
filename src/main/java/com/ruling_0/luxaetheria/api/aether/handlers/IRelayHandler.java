@@ -4,18 +4,19 @@ import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
+
 import org.joml.Vector3fc;
 
 /**

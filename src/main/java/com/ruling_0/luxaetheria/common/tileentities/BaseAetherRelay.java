@@ -2,33 +2,33 @@ package com.ruling_0.luxaetheria.common.tileentities;
 
 import javax.annotation.Nonnull;
 
-import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
+
+import net.minecraftforge.common.util.ForgeDirection;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
 public abstract class BaseAetherRelay extends TileEntity
-                                            implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
+                                      implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
 
     protected final SimpleRelayHandler aetherHandler;
     protected boolean isEnabled = false;
@@ -46,7 +46,8 @@ public abstract class BaseAetherRelay extends TileEntity
         super();
         this.coords = null;
         // TODO: the manipulator will need to get coords from the onBlockPlaced command, then lazy set the TE
-        //  maybe have a queue of packed coords, and every time it checks relays it checks for non-0 queue and resolves it
+        // maybe have a queue of packed coords, and every time it checks relays it checks for non-0 queue and resolves
+        // it
         this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
     }
 

@@ -1,11 +1,11 @@
 package com.ruling_0.luxaetheria.common.tileentities;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,22 +14,14 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.AetherAspect;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
-import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 public class TileEntityAethericFurnace extends TileEntityFurnace
                                        implements IAetherManipulator, IAetherReleaser {
@@ -37,7 +29,7 @@ public class TileEntityAethericFurnace extends TileEntityFurnace
     protected final ArrayList<IAetherRelay> relays = new ArrayList<>();
     protected final ArrayDeque<InterDimCoords> relayCoords = new ArrayDeque<>();
     protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
-    protected final AethericEnergyUnit consumption = new AethericEnergyUnit(1L, new double[]{1.0D, 0.0D, 0.0D});
+    protected final AethericEnergyUnit consumption = new AethericEnergyUnit(1L, new double[] { 1.0D, 0.0D, 0.0D });
     protected boolean isEnabled = false;
     protected boolean isActive = false;
     protected @Nullable IAetherRelay activeRelay = null;

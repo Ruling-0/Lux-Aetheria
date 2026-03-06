@@ -1,6 +1,5 @@
 package com.ruling_0.luxaetheria.api.aether;
 
-import com.ruling_0.luxaetheria.api.aether.handlers.IReleaserHandler;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
 /**

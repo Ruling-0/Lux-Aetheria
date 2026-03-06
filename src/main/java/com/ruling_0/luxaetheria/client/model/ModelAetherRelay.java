@@ -2,7 +2,6 @@ package com.ruling_0.luxaetheria.client.model;
 
 import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelDeserializer.ModelElement.Rotation.NOOP;
 import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry.MODEL_LOGGER;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -225,8 +224,8 @@ public class ModelAetherRelay extends JSONModel {
     }
 
     protected void generateQuads(ModelDeserializer.ModelElement e,
-                               HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
-                               boolean isTransparent) {
+                                 HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
+                                 boolean isTransparent) {
         final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation().getAffineMatrix();
         for (ModelDeserializer.ModelElement.Face f : e.faces()) {
 
@@ -489,7 +488,8 @@ public class ModelAetherRelay extends JSONModel {
             new Vector3f(pos.x - offsetXZ, pos.y, pos.z + offsetXZ).mulPosition(affine),
             usedTwice
         };
-        final ForgeDirection[] dirs = { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH, ForgeDirection.WEST };
+        final ForgeDirection[] dirs = { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH,
+            ForgeDirection.WEST };
 
         for (int i = 0; i < 2; ++i) {
             for (int j = 2; j < 6; ++j) {
@@ -499,9 +499,9 @@ public class ModelAetherRelay extends JSONModel {
                     quad.setY(0, vertices[i].y);
                     quad.setZ(0, vertices[i].z);
 
-                    quad.setX(1, vertices[j+1].x);
-                    quad.setY(1, vertices[j+1].y);
-                    quad.setZ(1, vertices[j+1].z);
+                    quad.setX(1, vertices[j + 1].x);
+                    quad.setY(1, vertices[j + 1].y);
+                    quad.setZ(1, vertices[j + 1].z);
 
                     quad.setX(2, vertices[j].x);
                     quad.setY(2, vertices[j].y);
@@ -520,13 +520,13 @@ public class ModelAetherRelay extends JSONModel {
                     quad.setY(1, vertices[j].y);
                     quad.setZ(1, vertices[j].z);
 
-                    quad.setX(2, vertices[j+1].x);
-                    quad.setY(2, vertices[j+1].y);
-                    quad.setZ(2, vertices[j+1].z);
+                    quad.setX(2, vertices[j + 1].x);
+                    quad.setY(2, vertices[j + 1].y);
+                    quad.setZ(2, vertices[j + 1].z);
                     // This is a triangle, v2=v3 for degenerate quad
-                    quad.setX(3, vertices[j+1].x);
-                    quad.setY(3, vertices[j+1].y);
-                    quad.setZ(3, vertices[j+1].z);
+                    quad.setX(3, vertices[j + 1].x);
+                    quad.setY(3, vertices[j + 1].y);
+                    quad.setZ(3, vertices[j + 1].z);
                 }
                 // These are divided by 16 during bakeSprite
                 quad.setTexU(0, 8.0F);

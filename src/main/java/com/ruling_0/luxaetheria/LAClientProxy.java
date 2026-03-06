@@ -4,7 +4,6 @@ import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
 import com.ruling_0.luxaetheria.client.renderer.AetherBeamRenderer;
 import com.ruling_0.luxaetheria.client.renderer.AetherRelayRenderer;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
 import cpw.mods.fml.client.registry.ClientRegistry;

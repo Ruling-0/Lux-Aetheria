@@ -7,6 +7,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
+
 import org.joml.Vector3f;
 
 public final class LAUtils {

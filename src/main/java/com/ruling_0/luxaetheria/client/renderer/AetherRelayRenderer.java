@@ -1,5 +1,15 @@
 package com.ruling_0.luxaetheria.client.renderer;
 
+import java.util.Iterator;
+
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
+
+import net.minecraftforge.common.util.ForgeDirection;
+
 import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherAspect;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
@@ -7,17 +17,10 @@ import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.utils.RenderUtils;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.ForgeDirection;
+
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Iterator;
 
 public class AetherRelayRenderer extends TileEntitySpecialRenderer {
 
@@ -66,9 +69,12 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
         if (handler.wasManipulated()) {
             final AethericEnergyUnit manipulation = handler.getManipulator().getManipulationForRender();
             final Vector3f beamColor = new Vector3f((float) manipulation.getAspectRatio(AetherAspect.RED),
-                (float) manipulation.getAspectRatio(AetherAspect.GREEN), (float) manipulation.getAspectRatio(AetherAspect.BLUE));
-            ForgeDirection dir = ForgeDirection.getOrientation(te.getWorldObj().getBlockMetadata(te.xCoord, te.yCoord, te.zCoord));
-            final Vector3f sinkPos = new Vector3f(sourcePos).add(new Vector3f(dir.offsetX, dir.offsetY, dir.offsetZ).mul(0.5F));
+                (float) manipulation.getAspectRatio(AetherAspect.GREEN),
+                (float) manipulation.getAspectRatio(AetherAspect.BLUE));
+            ForgeDirection dir = ForgeDirection
+                .getOrientation(te.getWorldObj().getBlockMetadata(te.xCoord, te.yCoord, te.zCoord));
+            final Vector3f sinkPos = new Vector3f(sourcePos)
+                .add(new Vector3f(dir.offsetX, dir.offsetY, dir.offsetZ).mul(0.5F));
             RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos, time);
         }
 
