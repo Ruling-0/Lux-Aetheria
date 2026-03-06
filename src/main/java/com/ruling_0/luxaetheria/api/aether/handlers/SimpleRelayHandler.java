@@ -129,7 +129,10 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             if (this.manipCoords != null) {
                 World world = this.manipCoords.getWorld();
                 TileEntity te = world.getTileEntity(this.manipCoords.x, this.manipCoords.y, this.manipCoords.z);
-                if (te instanceof IAetherManipulator manip) this.manipulator = manip;
+                if (te instanceof IAetherManipulator manip) {
+                    this.manipulator = manip;
+                    manip.bindRelay(this.getInterDimCoords());
+                }
             }
             this.lastManipulatorTick = tick;
             return false;
