@@ -36,8 +36,7 @@
 dependencies {
     api("com.github.GTNewHorizons:ModularUI2:2.3.23-1.7.10:dev")
 
-    //api("com.github.GTNewHorizons:GTNHLib:0.9.3:dev")
-    api("com.github.GTNewHorizons:GTNHLib:99.99.99")
+    api("com.github.GTNewHorizons:GTNHLib:0.9.37:dev")
 
     devOnlyNonPublishable("com.github.GTNewHorizons:WDMla:2.7.4:dev")
 
