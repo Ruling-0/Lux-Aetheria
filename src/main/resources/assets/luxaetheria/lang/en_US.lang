@@ -1,0 +1,21 @@
+LA.aether.aspect_blue=TEMP BLUE
+LA.aether.aspect_green=TEMP GREEN
+LA.aether.aspect_red=TEMP RED
+
+LA.binder.bound=Connection bound
+LA.binder.clear=Selection cleared
+LA.binder.fail.blocked=Binding failed: no clear line between source and sink
+LA.binder.fail.remove_sink=Binding failed: cannot remove sink
+LA.binder.fail.remove_source=Binding failed: cannot remove source
+LA.binder.fail.add_sink=Binding failed: invalid sink
+LA.binder.fail.add_source=Binding failed: invalid source
+LA.binder.selected=Selected source for binding
+LA.binder.unbound=Connection unbound
+
+LA.WDMLA.aether_ambient=Ambient Aether
+LA.WDMLA.aether_in=Aether In
+LA.WDMLA.aether_out=Aether Out
+LA.WDMLA.aether_release=Aether Released
+
+tile.aetheric_furnace.name=Aetheric Furnace
+tile.collector_pylon.name=Collector Pylon
