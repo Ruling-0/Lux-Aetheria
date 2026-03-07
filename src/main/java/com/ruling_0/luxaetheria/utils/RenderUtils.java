@@ -12,15 +12,13 @@ import org.lwjgl.opengl.GL11;
 public final class RenderUtils {
 
     public static void drawBeam(Tessellator tessellator, Vector3fc origin, Vector3fc target, Vector3f color,
-                                Vector3f camera, Vector3fc pos, double time) {
+                                Vector3f camera, Vector3fc pos) {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.f, 240.f);
 
         GL11.glColor4f(color.x, color.y, color.z, 1.0f);
-        final double uOffset = -time * 0.1;
 
         final Vector3f v = new Vector3f(target).sub(origin).mul(0.5f);
         final double dist = v.length() * 2;
-        final double uvdist = dist * 4;
         if (dist < 1e-6) return;
 
         final Vector3f u = new Vector3f(pos).add(v);
@@ -42,10 +40,10 @@ public final class RenderUtils {
         final double dz = target.z() - origin.z();
 
         tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(-wx, -wy, -wz, 0, uOffset);
-        tessellator.addVertexWithUV(wx, wy, wz, 1, uOffset);
-        tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, uvdist + uOffset);
-        tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, uvdist + uOffset);
+        tessellator.addVertexWithUV(-wx, -wy, -wz, 0, 0);
+        tessellator.addVertexWithUV(wx, wy, wz, 1, 0);
+        tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, 1);
+        tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, 1);
         tessellator.draw();
     }
 
