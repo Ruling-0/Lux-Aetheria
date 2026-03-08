@@ -35,19 +35,12 @@ public abstract class BaseAetherRelay extends TileEntity
     protected InterDimCoords coords;
 
     public BaseAetherRelay() {
-        this(null, ForgeDirection.DOWN);
+        this(1);
     }
 
-    public BaseAetherRelay(World world, ForgeDirection dir) {
-        this(world, dir, 1);
-    }
-
-    public BaseAetherRelay(World world, ForgeDirection dir, int maxAetherSinks) {
+    public BaseAetherRelay(int maxAetherSinks) {
         super();
         this.coords = null;
-        // TODO: the manipulator will need to get coords from the onBlockPlaced command, then lazy set the TE
-        // maybe have a queue of packed coords, and every time it checks relays it checks for non-0 queue and resolves
-        // it
         this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
     }
 

@@ -125,7 +125,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     public int numConnections() {
         int ret = 0;
         for (SinkConnection sinkConn : this.sinkConnections) {
-            if (sinkConn != null && sinkConn.sink != null) ret += 1;
+            if (sinkConn != null) ret += 1;
         }
         return ret;
     }
@@ -213,14 +213,14 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     private final class ImmutableSinkIter implements Iterator<ImmutableSinkConnection> {
 
-        private int index = 0;
+        private int index = -1;
         private int nextKnown = 0;
 
         public ImmutableSinkIter() {}
 
         @Override
         public boolean hasNext() {
-            for (int i = index; i < AetherSinkArray.this.size(); ++i) {
+            for (int i = index + 1; i < AetherSinkArray.this.size(); ++i) {
                 if (AetherSinkArray.this.get(i) != null) {
                     this.nextKnown = i;
                     return true;
@@ -230,12 +230,12 @@ public final class AetherSinkArray implements ImmutableSinkArray {
         }
 
         @Override
-        public ImmutableSinkConnection next() {
+        public SinkConnection next() {
             if (!(this.nextKnown > this.index) && !this.hasNext()) {
                 throw new NoSuchElementException();
             }
-            this.index = this.nextKnown + 1;
-            return AetherSinkArray.this.get(this.nextKnown);
+            this.index = this.nextKnown;
+            return AetherSinkArray.this.get(this.index);
         }
     }
 

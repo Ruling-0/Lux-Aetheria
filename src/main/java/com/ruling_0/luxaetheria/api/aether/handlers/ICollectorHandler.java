@@ -54,9 +54,4 @@ public interface ICollectorHandler {
      * This should reverse the effects of {@link #addReleaserInRange}.
      */
     void removeReleaserInRange(@Nonnull IAetherReleaser releaser);
-
-    /**
-     * Should return a clone of the current ambient Aether level.
-     */
-    AethericEnergyUnit getAmbientAether();
 }

@@ -42,17 +42,6 @@ import org.joml.Vector4f;
 // TODO: Refactor and break out into some ComplexModel, and make this relay-specific child class
 public class ModelAetherRelay extends JSONModel {
 
-    public static final Gson GSON = new GsonBuilder().registerTypeAdapter(StateModelMap.class, new StateDeserializer())
-        .registerTypeAdapter(JSONModel.class, new ModelDeserializer())
-        .create();
-
-    public ModelAetherRelay(ResourceLoc.@Nullable ModelLoc parentId, boolean useAO,
-                            Map<ModelDeserializer.Position, ModelDeserializer.Position.ModelDisplay> display,
-                            @NotNull Object2ObjectMap<String, String> textures,
-                            List<ModelDeserializer.ModelElement> elements) {
-        super(parentId, useAO, display, textures, elements);
-    }
-
     public ModelAetherRelay(JSONModel model) {
         super(model);
     }

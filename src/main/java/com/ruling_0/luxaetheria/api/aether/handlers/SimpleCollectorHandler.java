@@ -75,9 +75,6 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
     }
 
     @Override
-    public AethericEnergyUnit getAmbientAether() { return new AethericEnergyUnit(this.ambientAether); }
-
-    @Override
     public boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick) {
         return true;
     }

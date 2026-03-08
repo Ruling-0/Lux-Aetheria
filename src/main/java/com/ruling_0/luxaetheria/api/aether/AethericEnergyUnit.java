@@ -57,10 +57,6 @@ public class AethericEnergyUnit {
         public int output;
         public int dim;
 
-        public AEUID(TileEntity te, long tick, int output) {
-            this.setVals(te, tick, output);
-        }
-
         public AEUID(long origin, long tick, int output, int dim) {
             this.origin = origin;
             this.tick = tick;
