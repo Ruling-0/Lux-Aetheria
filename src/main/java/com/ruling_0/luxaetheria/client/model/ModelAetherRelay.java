@@ -5,6 +5,7 @@ import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry.MODEL_
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,6 +221,18 @@ public class ModelAetherRelay extends JSONModel {
 
         public int count() {
             return this.matrices.length;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof RelayBakeData other)) return false;
+            return Arrays.equals(this.matrices, other.matrices);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(this.matrices);
         }
     }
 
