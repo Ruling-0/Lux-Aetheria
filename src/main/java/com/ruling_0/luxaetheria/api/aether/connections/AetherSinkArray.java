@@ -241,7 +241,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     private final class SinkIter implements Iterator<SinkConnection> {
 
-        private int index = 0;
+        private int index = -1;
         private int nextKnown = 0;
 
         public SinkIter() {}
