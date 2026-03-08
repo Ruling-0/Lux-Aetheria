@@ -9,18 +9,17 @@ import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 import java.util.ArrayList;
 
-import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
+import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
@@ -34,7 +33,6 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
 public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
@@ -42,8 +40,8 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     private static final ResourceLoc.ModelLoc MODEL_LOC = new ResourceLoc.ModelLoc("luxaetheria",
         "blocks/aether_relay");
 
-    private static final ThreadsafeCache<ModelAetherRelay.RelayBakeData, BakedModel> BAKED_MODEL_CACHE =
-        new ThreadsafeCache<>(64, key -> {
+    private static final ThreadsafeCache<ModelAetherRelay.RelayBakeData, BakedModel> BAKED_MODEL_CACHE = new ThreadsafeCache<>(
+        64, key -> {
             final JSONModel jsonModel = ModelRegistry.getJSONModel(MODEL_LOC);
             final ModelAetherRelay model = new ModelAetherRelay(jsonModel);
             return model.bake((ModelAetherRelay.RelayBakeData) key);
@@ -150,7 +148,6 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
 
     @Override
     public BakedModel getModel(BakedModelQuadContext context) {
-        // TODO: add caching
         int meta = 0;
         Vector3i pos = new Vector3i(0, 0, 0);
         ArrayList<Vector3i> targets = new ArrayList<>(4);
