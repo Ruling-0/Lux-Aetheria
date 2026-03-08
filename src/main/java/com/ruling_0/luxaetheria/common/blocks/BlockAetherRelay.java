@@ -9,6 +9,8 @@ import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 import java.util.ArrayList;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -37,9 +39,11 @@ import org.joml.Vector3i;
 
 public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
 
+    @SideOnly(Side.CLIENT)
     private static final ResourceLoc.ModelLoc MODEL_LOC = new ResourceLoc.ModelLoc("luxaetheria",
         "blocks/aether_relay");
 
+    @SideOnly(Side.CLIENT)
     private static final ThreadsafeCache<ModelAetherRelay.RelayBakeData, BakedModel> BAKED_MODEL_CACHE = new ThreadsafeCache<>(
         64, key -> {
             final JSONModel jsonModel = ModelRegistry.getJSONModel(MODEL_LOC);
@@ -147,6 +151,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public BakedModel getModel(BakedModelQuadContext context) {
         int meta = 0;
         Vector3i pos = new Vector3i(0, 0, 0);
