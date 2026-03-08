@@ -9,8 +9,6 @@ import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 import java.util.ArrayList;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -35,6 +33,8 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
 public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
