@@ -551,9 +551,9 @@ public class ModelAetherRelay extends JSONModel {
                 quad.setTexU(3, 16.0F);
                 quad.setTexV(3, 16.0F);
 
-                quad.setEmissiveness(240);
-                quad.setDirectionalShading(false);
-                quad.setHasAmbientOcclusion(false);
+                quad.setEmissiveness(0);
+                quad.setDirectionalShading(true);
+                quad.setHasAmbientOcclusion(true);
                 quad.setLightFace(ModelQuadFacing.fromForgeDir(dirs[j - 2]));
                 quad.setTransparent();
 
