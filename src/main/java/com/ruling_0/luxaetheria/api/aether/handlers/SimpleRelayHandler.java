@@ -30,14 +30,9 @@ import org.joml.Vector3fc;
 
 public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDMLAProvider {
 
-    public final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
-    public final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
-    public final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
-    /**
-     * This is used so the aether values are available to WDMLA.
-     * Triggers an aether reset on the next {@link #getAetherFromSource(IAetherRelay, long)} call.
-     */
-    public boolean doResetAether = false;
+    protected final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
+    protected final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
+    protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
 
     protected final int maxAetherSinks;
     protected final HashSet<AethericEnergyUnit.AEUID> encounteredIDs = new HashSet<>();
@@ -229,7 +224,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         if (!(this.lastManipulatorTick == tick)) return returnedAether;
         InterDimCoords sinkCoords = sinkHandler.getInterDimCoords();
 
-        returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.size());
+        returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.numConnections());
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
 
         long loss = returnedAether.calculateLoss(dist);
@@ -299,6 +294,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         Iterator<SinkConnection> sinkIter = this.aetherSinks.iterator();
         while (sinkIter.hasNext()) {
             SinkConnection sinkConn = sinkIter.next();
+            if (sinkConn.getSink() == null) continue;
             sinkConn.getSink().getAetherHandler().markForUpdate();
         }
     }
@@ -354,12 +350,12 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             final int y = nbtAetherSink.getInteger("y");
             final int z = nbtAetherSink.getInteger("z");
             final int dim = nbtAetherSink.getInteger("dim");
-            final double cx = nbtAetherSink.getDouble("cx");
-            final double cy = nbtAetherSink.getDouble("cy");
-            final double cz = nbtAetherSink.getDouble("cz");
+            final float cx = nbtAetherSink.getFloat("cx");
+            final float cy = nbtAetherSink.getFloat("cy");
+            final float cz = nbtAetherSink.getFloat("cz");
 
             final InterDimCoords coords = new InterDimCoords(x, y, z, dim);
-            final Vector3f colCoords = new Vector3f((float) cx, (float) cy, (float) cz);
+            final Vector3f colCoords = new Vector3f(cx, cy, cz);
             final double dist = this.getInterDimCoords().distance(coords);
             this.aetherSinks.add(nbtAetherSink.getByte("idx"), coords, null, colCoords, dist);
 

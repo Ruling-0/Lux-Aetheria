@@ -29,7 +29,7 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     public InterDimCoords(NBTTagCompound compound) {
         this(compound.getInteger("x"), compound.getInteger("y"),
-            compound.getInteger("z"), compound.getInteger("dim"));
+            compound.getInteger("z"), compound.getInteger("dimension"));
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
@@ -66,7 +66,13 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) return false;
-        return ((InterDimCoords) obj).world == this.world;
+        if (!(obj instanceof InterDimCoords iobj)) return false;
+        return iobj.world == this.world;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + this.world.provider.dimensionId;
     }
 
     @Override

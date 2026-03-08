@@ -94,7 +94,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     @Override
     public void onBlockAdded(World world, int x, int y, int z) {
         super.onBlockAdded(world, x, y, z);
-        this.checkAndBreakInvalid(world, x, y, z);
+        if (!this.checkAndBreakInvalid(world, x, y, z)) return;
         ForgeDirection dir = ForgeDirection.getOrientation(world.getBlockMetadata(x, y, z));
         TileEntity te = world.getTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
         if (te instanceof IAetherManipulator manipulator) {
@@ -120,10 +120,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
         final int meta = world.getBlockMetadata(x, y, z);
         final ForgeDirection curDir = ForgeDirection.getOrientation(meta).getOpposite();
         if (world.isSideSolid(x - curDir.offsetX, y - curDir.offsetY, z - curDir.offsetZ, curDir)) return;
-        if (this.checkAndBreakInvalid(world, x, y, z)) {
-            this.dropBlockAsItem(world, x, y, z, meta, 0);
-            world.setBlockToAir(x, y, z);
-        }
+        this.checkAndBreakInvalid(world, x, y, z);
     }
 
     private boolean checkAndBreakInvalid(World world, int x, int y, int z) {

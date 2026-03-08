@@ -94,7 +94,7 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
 
         // TODO: handle insufficient ambient aether
         returnedAether.setAmount(
-            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
+            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.numConnections());
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
 
         long loss = returnedAether.calculateLoss(dist);

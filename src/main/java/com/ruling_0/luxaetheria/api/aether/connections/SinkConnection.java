@@ -19,7 +19,7 @@ public class SinkConnection implements ImmutableSinkConnection {
      * These are final, new coords should be a new {@link SinkConnection}.
      */
     public final InterDimCoords sinkCoords;
-    public IAetherRelay sink;
+    public @Nullable IAetherRelay sink;
     /**
      * The Aether being sent along this connection
      */
@@ -44,6 +44,7 @@ public class SinkConnection implements ImmutableSinkConnection {
     public InterDimCoords getSinkCoords() { return sinkCoords; }
 
     @Override
+    @Nullable
     public IAetherRelay getSink() { return sink; }
 
     @Override

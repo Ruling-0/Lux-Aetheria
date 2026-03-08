@@ -29,6 +29,11 @@ public interface ImmutableSinkArray {
     int size();
 
     /**
+     * Returns a count of how many connections exist (are not null).
+     */
+    int numConnections();
+
+    /**
      * Provides an iterator consisting of {@link ImmutableSinkConnection}.
      * This iterator is also immutable, and so does not support {@link Iterator#remove()}.
      */
