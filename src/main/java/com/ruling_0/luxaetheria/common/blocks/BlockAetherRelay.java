@@ -42,7 +42,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityAetherRelay(world, ForgeDirection.getOrientation(meta).getOpposite());
+        return new TileEntityAetherRelay();
     }
 
     @Override

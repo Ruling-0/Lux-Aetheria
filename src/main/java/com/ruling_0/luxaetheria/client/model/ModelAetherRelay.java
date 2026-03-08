@@ -296,26 +296,24 @@ public class ModelAetherRelay extends JSONModel {
 
     public BakedModel bake(RelayBakeData data) {
         final var sidedQuadStore = new HashMap<ModelQuadFacing, ArrayList<ModelQuadView>>(7);
-        final var parts = new ArrayList[data.count()];
+        final var parts = new ArrayList<ArrayList<ModelDeserializer.ModelElement>>(data.count());
         int colCount = 0;
         for (int i = 0; i < data.count(); ++i) {
-            parts[i] = new ArrayList<ModelDeserializer.ModelElement>();
+            parts.add(new ArrayList<>());
         }
 
         for (ModelDeserializer.ModelElement e : this.elements) {
             final int partID = Integer.parseInt(e.name().split(":")[1]);
             // partID 0 always rendered
             if (partID > data.count() - 1) continue;
-            // noinspection unchecked
-            parts[partID].add(e);
+            parts.get(partID).add(e);
             if (partID == 0) ++colCount;
         }
         final Vector3f[] colBoxes = new Vector3f[colCount * 2];
         int colIdx = 0;
 
         // i=0 handles base and collisions
-        // noinspection unchecked
-        final ArrayList<ModelDeserializer.ModelElement> base = parts[0];
+        final ArrayList<ModelDeserializer.ModelElement> base = parts.get(0);
         final var baseRot = data.getAffineMatrix(0);
         for (ModelDeserializer.ModelElement e : base) {
             final var eNameParts = e.name().split(":");
@@ -376,8 +374,7 @@ public class ModelAetherRelay extends JSONModel {
         }
 
         for (int i = 1; i < data.count(); ++i) {
-            // noinspection unchecked
-            final ArrayList<ModelDeserializer.ModelElement> part = parts[i];
+            final ArrayList<ModelDeserializer.ModelElement> part = parts.get(i);
             final var partRot = data.getAffineMatrix(i);
             int cullIdx = Integer.MAX_VALUE;
 
