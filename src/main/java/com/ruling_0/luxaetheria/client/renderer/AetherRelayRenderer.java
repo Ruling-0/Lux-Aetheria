@@ -37,7 +37,6 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
         final Vector3f sourcePos = new Vector3f(te.xCoord + 0.5F, te.yCoord + 0.5F, te.zCoord + 0.5F);
 
         Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
-        AethericEnergyUnit aether = handler.getAetherOut();
 
         GL11.glPushMatrix();
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
@@ -67,15 +66,14 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
             RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
         }
 
-        if (iterSinks.hasNext() && aether.getAmount() > 0) {
+        while (iterSinks.hasNext()) {
+            ImmutableSinkConnection sinkConn = iterSinks.next();
+            AethericEnergyUnit aether = sinkConn.getAeu();
+            if (aether.getAmount() == 0) continue;
             final Vector3f beamColor = new Vector3f((float) aether.getAspectRatio(AetherAspect.RED),
                 (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
-
-            while (iterSinks.hasNext()) {
-                ImmutableSinkConnection sinkConn = iterSinks.next();
-                final Vector3fc sinkPos = sinkConn.getColCoords();
-                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
-            }
+            final Vector3fc sinkPos = sinkConn.getColCoords();
+            RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
         }
 
         this.bindTexture(FLARE_TEXTURE);
