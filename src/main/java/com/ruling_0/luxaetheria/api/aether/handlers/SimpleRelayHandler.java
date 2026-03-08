@@ -31,7 +31,6 @@ import org.joml.Vector3fc;
 public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDMLAProvider {
 
     protected final AethericEnergyUnit aetherIn = new AethericEnergyUnit();
-    protected final AethericEnergyUnit aetherOut = new AethericEnergyUnit();
     protected final AethericEnergyUnit aetherRelease = new AethericEnergyUnit();
 
     protected final int maxAetherSinks;
@@ -66,7 +65,6 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     public boolean removeAetherSink(@Nonnull IAetherRelay sink) {
         SinkConnection removed = this.aetherSinks.remove(sink.getInterDimCoords());
         if (removed == null) return false;
-        this.aetherOut.split(removed.aeu);
         LuxAetheria.proxy.aetherManager.addOrphanedManipulator(sink);
         this.markForUpdate();
         this.validSinks--;
@@ -104,9 +102,6 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
 
     @Override
     public AethericEnergyUnit getAetherIn() { return new AethericEnergyUnit(this.aetherIn); }
-
-    @Override
-    public AethericEnergyUnit getAetherOut() { return new AethericEnergyUnit(this.aetherOut); }
 
     @Override
     public double getMaxSinkDistance() { return this.aetherSinks.getMaxSinkDistance(); }
@@ -187,7 +182,6 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     }
 
     protected boolean handleSinkCollision(AethericEnergyUnit returnedAether, InterDimCoords sinkCoords) {
-        this.aetherOut.merge(returnedAether);
         this.aetherSinks.setAeu(sinkCoords, returnedAether);
 
         MovingObjectPosition mop = LAUtils.getRayCollision(this.getInterDimCoords().getWorld(), this.getPosVec3(),
@@ -213,12 +207,20 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         return false;
     }
 
+    protected void handleLoss(double dist, AethericEnergyUnit aether) {
+        long loss = aether.calculateLoss(dist);
+        aether.setAmount(Math.max(0L, aether.getAmount() - loss));
+
+        AethericEnergyUnit toRelease = new AethericEnergyUnit(aether);
+        toRelease.setAmount(loss);
+        this.aetherRelease.merge(toRelease);
+    }
+
     @Nonnull
     @Override
     public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
-            this.aetherOut.reset();
         }
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
         if (!(this.lastManipulatorTick == tick)) return returnedAether;
@@ -226,13 +228,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
 
         returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.numConnections());
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
-
-        long loss = returnedAether.calculateLoss(dist);
-        returnedAether.setAmount(Math.max(0L, returnedAether.getAmount() - loss));
-
-        AethericEnergyUnit toRelease = new AethericEnergyUnit(returnedAether);
-        toRelease.setAmount(loss);
-        this.aetherRelease.merge(toRelease);
+        this.handleLoss(dist, returnedAether);
 
         return returnedAether;
     }
@@ -249,9 +245,12 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public void resetAether() {
         this.aetherIn.reset();
-        this.aetherOut.reset();
         this.aetherRelease.reset();
         this.encounteredIDs.clear();
+        Iterator<SinkConnection> iter = this.aetherSinks.iterator();
+        while (iter.hasNext()) {
+            iter.next().aeu.reset();
+        }
     }
 
     @Override
@@ -304,25 +303,28 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         NBTTagCompound nbtAetherIn = new NBTTagCompound();
         this.aetherIn.writeToNBT(nbtAetherIn);
         compound.setTag("aetherIn", nbtAetherIn);
-        NBTTagCompound nbtAetherOut = new NBTTagCompound();
-        this.aetherOut.writeToNBT(nbtAetherOut);
-        compound.setTag("aetherOut", nbtAetherOut);
 
         NBTTagList nbtAetherSinks = new NBTTagList();
         for (int i = 0; i < this.maxAetherSinks; ++i) {
             SinkConnection sinkConn = this.aetherSinks.get(i);
             if (sinkConn == null) continue;
             NBTTagCompound nbtAetherSink = new NBTTagCompound();
+
             InterDimCoords coords = sinkConn.sinkCoords;
             nbtAetherSink.setInteger("x", coords.getX());
             nbtAetherSink.setInteger("y", coords.getY());
             nbtAetherSink.setInteger("z", coords.getZ());
             nbtAetherSink.setInteger("dim", coords.getDimID());
+
             Vector3fc colCoords = sinkConn.colCoords;
             nbtAetherSink.setFloat("cx", colCoords.x());
             nbtAetherSink.setFloat("cy", colCoords.y());
             nbtAetherSink.setFloat("cz", colCoords.z());
             nbtAetherSink.setByte("idx", (byte) i);
+
+            NBTTagCompound nbtSinkAeu = new NBTTagCompound();
+            sinkConn.aeu.writeToNBT(nbtSinkAeu);
+            nbtAetherSink.setTag("aeu", nbtSinkAeu);
             nbtAetherSinks.appendTag(nbtAetherSink);
         }
         compound.setTag("aetherSinks", nbtAetherSinks);
@@ -339,7 +341,6 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public void readFromNBT(@Nonnull NBTTagCompound compound) {
         this.aetherIn.readFromNBT(compound.getCompoundTag("aetherIn"));
-        this.aetherOut.readFromNBT(compound.getCompoundTag("aetherOut"));
 
         NBTTagList nbtAetherSinks = compound.getTagList("aetherSinks", 10);
         this.clearSinks();
@@ -359,6 +360,12 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             final double dist = this.getInterDimCoords().distance(coords);
             this.aetherSinks.add(nbtAetherSink.getByte("idx"), coords, null, colCoords, dist);
 
+            if (nbtAetherSink.hasKey("aeu")) {
+                AethericEnergyUnit aeu = new AethericEnergyUnit();
+                aeu.readFromNBT(nbtAetherSink.getCompoundTag("aeu"));
+                this.aetherSinks.setAeu(coords, aeu);
+            }
+
             if (coords.getVec3fc().equals(colCoords)) validSinks++;
             else validSinks--;
         }
@@ -377,8 +384,13 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         NBTTagCompound nbtAetherIn = new NBTTagCompound();
         this.aetherIn.writeToNBT(nbtAetherIn);
         compound.setTag("aetherIn", nbtAetherIn);
+        AethericEnergyUnit aetherOut = new AethericEnergyUnit();
+        for (int i = 0; i < this.maxAetherSinks; ++i) {
+            SinkConnection sinkConn = this.aetherSinks.get(i);
+            if (sinkConn != null) aetherOut.merge(sinkConn.aeu);
+        }
         NBTTagCompound nbtAetherOut = new NBTTagCompound();
-        this.aetherOut.writeToNBT(nbtAetherOut);
+        aetherOut.writeToNBT(nbtAetherOut);
         compound.setTag("aetherOut", nbtAetherOut);
         NBTTagCompound nbtAetherRelease = new NBTTagCompound();
         this.aetherRelease.writeToNBT(nbtAetherRelease);

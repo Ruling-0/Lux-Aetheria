@@ -38,7 +38,11 @@ public abstract class BaseAetherRelay extends TileEntity
     public BaseAetherRelay(int maxAetherSinks) {
         super();
         this.coords = null;
-        this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
+        this.aetherHandler = createAetherHandler(maxAetherSinks);
+    }
+
+    protected SimpleRelayHandler createAetherHandler(int maxAetherSinks) {
+        return new SimpleRelayHandler(maxAetherSinks, this);
     }
 
     @Override

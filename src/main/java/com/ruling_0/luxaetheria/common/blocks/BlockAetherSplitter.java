@@ -28,21 +28,21 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.client.model.LAModelRegistry;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherSplitter;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
-public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
+public class BlockAetherSplitter extends BlockContainer implements IBlockModelProvider {
 
-    public BlockAetherRelay() {
+    public BlockAetherSplitter() {
         super(Material.glass);
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityAetherRelay();
+        return new TileEntityAetherSplitter();
     }
 
     @Override
@@ -159,7 +159,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
                 }
             }
         }
-        else { // this is an item render, so show 1 arm pointing North
+        else {
             targets.add(new Vector3i(0, 0, -1));
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);

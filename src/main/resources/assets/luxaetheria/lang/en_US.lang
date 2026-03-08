@@ -20,5 +20,6 @@ LA.WDMLA.aether_release=Aether Released
 item.pylon_binder.name=Pylon Binder
 
 tile.aether_relay.name=Aether Relay
+tile.aether_splitter.name=Aether Splitter
 tile.aetheric_furnace.name=Aetheric Furnace
 tile.collector_pylon.name=Collector Pylon
