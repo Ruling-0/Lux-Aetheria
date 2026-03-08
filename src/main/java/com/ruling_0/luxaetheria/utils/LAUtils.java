@@ -6,13 +6,15 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 
-public class LAUtils {
+import org.joml.Vector3f;
+
+public final class LAUtils {
 
     /**
      * Equality check between {@link Vec3} because it's not implemented in Mojang's code.
-     * 
+     *
      * @return True if v1's x, y, and z match those of v2, false otherwise.
      */
     public static boolean vec3Equals(Vec3 v1, Vec3 v2) {
@@ -25,14 +27,9 @@ public class LAUtils {
      *
      * @return True if the path is clear, false otherwise.
      */
-    public static boolean checkRayCollision(World world, IAetherManipulator start, IAetherManipulator end,
+    public static boolean checkRayCollision(World world, IAetherRelay start, IAetherRelay end,
                                             boolean includeLiquid) {
-        return checkRayCollision(
-            world,
-            start.getAetherHandler()
-                .getPosVec3(),
-            end.getAetherHandler()
-                .getPosVec3(),
+        return checkRayCollision(world, start.getAetherHandler().getPosVec3(), end.getAetherHandler().getPosVec3(),
             includeLiquid);
     }
 
@@ -113,12 +110,18 @@ public class LAUtils {
             block.getCollisionBoundingBoxFromPool(world, x, y, z) != null) {
             MovingObjectPosition mop = block.collisionRayTrace(world, x, y, z, u, v);
             if (mop == null || mop.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return null;
-            if (mop.blockX == MathHelper.floor_double(u.xCoord) && mop.blockY == MathHelper.floor_double(u.yCoord) &&
-                mop.blockZ == MathHelper.floor_double(u.zCoord)) return null;
-            if (mop.blockX == MathHelper.floor_double(v.xCoord) && mop.blockY == MathHelper.floor_double(v.yCoord) &&
-                mop.blockZ == MathHelper.floor_double(v.zCoord)) return null;
+            if (mop.blockX == MathHelper.floor_double(u.xCoord) &&
+                mop.blockY == MathHelper.floor_double(u.yCoord) && mop.blockZ == MathHelper.floor_double(u.zCoord))
+                return null;
+            if (mop.blockX == MathHelper.floor_double(v.xCoord) &&
+                mop.blockY == MathHelper.floor_double(v.yCoord) && mop.blockZ == MathHelper.floor_double(v.zCoord))
+                return null;
             return mop;
         }
         return null;
+    }
+
+    public static Vector3f vec3ToVector3f(Vec3 vec3) {
+        return new Vector3f((float) vec3.xCoord, (float) vec3.yCoord, (float) vec3.zCoord);
     }
 }

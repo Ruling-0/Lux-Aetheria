@@ -8,8 +8,6 @@ import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 
 public class BlockAethericFurnace extends BlockFurnace {
 
-    protected boolean isActive;
-
     public BlockAethericFurnace(boolean isActive) {
         super(isActive);
     }

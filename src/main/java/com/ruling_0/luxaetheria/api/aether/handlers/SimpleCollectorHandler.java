@@ -11,11 +11,11 @@ import net.minecraft.tileentity.TileEntity;
 
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
-public class SimpleCollectorHandler extends SimpleAetherHandler implements ICollectorHandler {
+public class SimpleCollectorHandler extends SimpleRelayHandler implements ICollectorHandler {
 
     public final AethericEnergyUnit ambientAether;
 
@@ -75,16 +75,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
     }
 
     @Override
-    public AethericEnergyUnit getAmbientAether() { return new AethericEnergyUnit(this.ambientAether); }
-
-    @Override
-    public boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick) {
+    public boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick) {
         return true;
     }
 
     @Nonnull
     @Override
-    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist) {
+    public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
             this.aetherOut.reset();
@@ -94,7 +91,8 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
 
         // TODO: handle insufficient ambient aether
         returnedAether.setAmount(
-            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) / this.aetherSinks.size());
+            Math.min(this.getAetherCollectionAmount(), this.ambientAether.getAmount()) /
+                this.aetherSinks.numConnections());
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
 
         long loss = returnedAether.calculateLoss(dist);
@@ -115,15 +113,13 @@ public class SimpleCollectorHandler extends SimpleAetherHandler implements IColl
         }
 
         for (IAetherCollector collector : this.collectorsInRangeList) {
-            this.ambientAether.addAmount(
-                -collector.getCollectorHandler()
-                    .getAetherCollectionAmount());
+            this.ambientAether.addAmount(-collector.getCollectorHandler().getAetherCollectionAmount());
         }
         this.ambientAether.addAmount(-this.getAetherCollectionAmount());
 
         this.ambientAether.addAmount(this.totalLoss);
         for (IAetherReleaser releaser : this.aetherReleasers) {
-            this.ambientAether.merge(releaser.getReleaserHandler().getAetherRelease());
+            this.ambientAether.merge(releaser.getAetherRelease());
         }
 
         this.ambientAether.moveToEquilibrium(BASE_AMBIENT_AETHER);

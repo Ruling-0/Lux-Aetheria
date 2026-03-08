@@ -8,6 +8,9 @@ import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleCollectorHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 public abstract class BaseAetherCollector extends TileEntity implements IAetherCollector, IWDMLAProvider {
 
     protected final SimpleCollectorHandler collectorHandler;
@@ -71,5 +74,11 @@ public abstract class BaseAetherCollector extends TileEntity implements IAetherC
     public void readFromNBT(NBTTagCompound compound) {
         super.readFromNBT(compound);
         this.collectorHandler.readFromNBT(compound);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 1;
     }
 }

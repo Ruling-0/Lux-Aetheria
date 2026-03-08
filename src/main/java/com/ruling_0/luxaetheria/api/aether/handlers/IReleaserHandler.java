@@ -5,7 +5,7 @@ import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 
 /**
  * Responsible for handling Aether for an {@link IAetherReleaser}.
- * See {@link IAetherHandler}for details on the Aether system.
+ * See {@link IRelayHandler}for details on the Aether system.
  */
 public interface IReleaserHandler {
 

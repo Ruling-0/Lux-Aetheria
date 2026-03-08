@@ -44,13 +44,11 @@ public enum Mods implements IMod {
     public String getResourceLocation() { return resourceDomain; }
 
     public String getResourcePath(String path) {
-        return this.getResourceLocation(path)
-            .toString();
+        return this.getResourceLocation(path).toString();
     }
 
     public String getResourcePath(String... path) {
-        return this.getResourceLocation(path)
-            .toString();
+        return this.getResourceLocation(path).toString();
     }
 
     public ResourceLocation getResourceLocation(String path) {

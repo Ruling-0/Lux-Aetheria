@@ -13,8 +13,8 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.common.DimensionManager;
 
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 
@@ -24,15 +24,14 @@ public class ItemPylonBinder extends Item {
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int ordSide,
                              float hitx, float hity, float hitz) {
         if (world.isRemote) return true;
-        IAetherManipulator boundManipulator = getBoundManipulator(stack);
+        IAetherRelay boundManipulator = getBoundManipulator(stack);
         TileEntity te = world.getTileEntity(x, y, z);
-        if (te instanceof IAetherManipulator aetherManipulator) {
+        if (te instanceof IAetherRelay aetherManipulator) {
             if (boundManipulator != null) {
                 if (boundManipulator.equals(aetherManipulator)) return true;
                 boolean success;
-                IAetherHandler boundHandler = boundManipulator.getAetherHandler();
-                InterDimCoords targetPos = aetherManipulator.getAetherHandler()
-                    .getInterDimCoords();
+                IRelayHandler boundHandler = boundManipulator.getAetherHandler();
+                InterDimCoords targetPos = aetherManipulator.getAetherHandler().getInterDimCoords();
                 if (boundHandler.hasSink(targetPos)) {
                     success = boundHandler.removeAetherSink(aetherManipulator);
                     if (!success) {
@@ -71,7 +70,7 @@ public class ItemPylonBinder extends Item {
     }
 
     @Nullable
-    private static IAetherManipulator getBoundManipulator(@Nonnull ItemStack stack) {
+    private static IAetherRelay getBoundManipulator(@Nonnull ItemStack stack) {
         NBTTagCompound compound = stack.getTagCompound();
         if (compound == null || !compound.hasKey("bound") || !compound.getBoolean("bound")) return null;
         int x = compound.getInteger("boundX");
@@ -79,11 +78,11 @@ public class ItemPylonBinder extends Item {
         int z = compound.getInteger("boundZ");
         int dim = compound.getInteger("boundDim");
         TileEntity te = DimensionManager.getWorld(dim).getTileEntity(x, y, z);
-        if (te instanceof IAetherManipulator aetherManipulator) return aetherManipulator;
+        if (te instanceof IAetherRelay aetherManipulator) return aetherManipulator;
         return null;
     }
 
-    private static void setBoundManipulator(@Nonnull ItemStack stack, @Nullable IAetherManipulator boundManipulator) {
+    private static void setBoundManipulator(@Nonnull ItemStack stack, @Nullable IAetherRelay boundManipulator) {
         if (!stack.hasTagCompound()) stack.setTagCompound(new NBTTagCompound());
         NBTTagCompound compound = stack.getTagCompound();
         if (boundManipulator == null) {

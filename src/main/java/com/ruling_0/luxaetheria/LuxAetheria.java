@@ -4,6 +4,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
@@ -47,6 +48,7 @@ public class LuxAetheria {
 
         GameRegistry.registerTileEntity(TileEntityAethericFurnace.class, "LATileEntityAethericFurnace");
         GameRegistry.registerTileEntity(TileEntityCollectorPylon.class, "LATileEntityCollectorPylon");
+        GameRegistry.registerTileEntity(TileEntityAetherRelay.class, "LATileEntityAetherRelay");
     }
 
     @Mod.EventHandler

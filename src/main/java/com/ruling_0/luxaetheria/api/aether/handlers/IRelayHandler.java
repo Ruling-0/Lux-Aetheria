@@ -10,50 +10,55 @@ import net.minecraft.util.Vec3;
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
 import com.ruling_0.luxaetheria.api.aether.connections.ImmutableSinkConnection;
 import com.ruling_0.luxaetheria.api.aether.connections.SinkConnection;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.common.aether.AetherManager;
 
+import org.joml.Vector3fc;
+
 /**
- * Responsible for handling Aether flow and processing for a {@link IAetherManipulator} or other object that
+ * Responsible for handling Aether flow and processing for a {@link IAetherRelay} or other object that
  * participates in an Aether processing chain.
  * <p>
  * The processing chain occurs every tick, where it traverses BFS style from {@link IAetherCollector} root nodes.
  * At each step, the current node retrieves Aether from connected sources
- * ({@link #getAetherFromSource(IAetherManipulator, long)}).
+ * ({@link #getAetherFromSource(IAetherRelay, long)}).
  * <p>
  * {@link IAetherCollector}s keep track of an ambient level, which can be impacted by {@link IAetherReleaser}s.
  * If the current node is an {@link IAetherReleaser}, it may change the amount of aether it releases into the
  * environment
  * during the BFS traversal. Thus, nodes (like {@link IAetherCollector}s) which need to do updates that can only occur
- * at
- * the very end of the BFS traversal (like calculate ambient levels from changed Aether release) return true in
- * {@link #isUpdatable()}.
+ * at the very end of the BFS traversal (like calculate ambient levels from changed Aether release)
+ * return true in {@link #isUpdatable()}.
  * <p>
  * Details of the BFS traversal can be seen in {@link AetherManager}.
  * <p>
- * This is only required for {@link IAetherManipulator}s as they belong to the BFS traversal. Stand-alone devices
+ * {@link IAetherManipulator}s use this to manipulate the passing Aether. They shall take the input Aether and
+ * directly manipulate it.
+ * <p>
+ * This is only required for {@link IAetherRelay}s as they belong to the BFS traversal. Stand-alone devices
  * (like machines that are their own collector and do not link to sinks) should not implement this.
  */
-public interface IAetherHandler {
+public interface IRelayHandler {
 
     /**
-     * Registers a downstream {@link IAetherManipulator} to receive aether from this one.
+     * Registers a downstream {@link IAetherRelay} to receive aether from this one.
      *
      * @param sink The downstream manipulator.
      * @return Whether the sink was successfully added.
      */
-    boolean addAetherSink(IAetherManipulator sink);
+    boolean addAetherSink(IAetherRelay sink);
 
     /**
-     * Removes a downstream {@link IAetherManipulator}.
+     * Removes a downstream {@link IAetherRelay}.
      *
      * @param sink The downstream manipulator.
      * @return Whether the sink was successfully removed.
      */
-    boolean removeAetherSink(IAetherManipulator sink);
+    boolean removeAetherSink(IAetherRelay sink);
 
     /**
      * Gets an immutable iterator (of immutable elements) over the connected sinks.
@@ -68,7 +73,7 @@ public interface IAetherHandler {
     /**
      * Gets the point on the source to sink ray where it first collides with a block or the sink itself.
      */
-    Vec3 getSinkCollisionCoords(InterDimCoords coords);
+    Vector3fc getSinkCollisionCoords(InterDimCoords coords);
 
     /**
      * Checks whether the provided {@link InterDimCoords} represent a registered Aether sink.
@@ -97,6 +102,11 @@ public interface IAetherHandler {
     InterDimCoords getInterDimCoords();
 
     /**
+     * Get a clone of the input Aether.
+     */
+    AethericEnergyUnit getAetherIn();
+
+    /**
      * Get a clone of the total, pre-loss Aether output.
      */
     AethericEnergyUnit getAetherOut();
@@ -117,7 +127,7 @@ public interface IAetherHandler {
      * @param tick   The tick this is calculated on
      * @return True if this should be added to the BFS queue for downstream processing, false otherwise.
      */
-    boolean getAetherFromSource(@Nonnull IAetherManipulator source, long tick);
+    boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick);
 
     /**
      * Provides an {@link AethericEnergyUnit} to a connected sink. If this is a root node of the
@@ -135,11 +145,11 @@ public interface IAetherHandler {
      * @return A new {@link AethericEnergyUnit} representing the post-loss output.
      */
     @Nonnull
-    AethericEnergyUnit getAetherForSink(long tick, @Nonnull IAetherHandler sinkHandler, double dist);
+    AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist);
 
     /**
      * Whether this handler should be updated every tick after the {@link AetherManager} runs its BFS
-     * traversal (see {@link IAetherHandler}).
+     * traversal (see {@link IRelayHandler}).
      * In this case, it is guaranteed that all external Aether values are final (set in {@link #getAetherFromSource}).
      * Thus, this should not manipulate released or to-sink Aether values.
      * If True, {@link #updateAether} is called later for the actual update.
@@ -166,6 +176,19 @@ public interface IAetherHandler {
      * {@link #removeAetherSink} to remove itself.
      */
     void disconnectFromSources();
+
+    void setManipulator(IAetherManipulator manipulator);
+
+    IAetherManipulator getManipulator();
+
+    /**
+     * Returns true if, during the current tick, the bound manipulator's effect occurred.
+     * For example, if the manipulation is splitting some Aether off the input Aether, this will return
+     * false if the Aether input was not enough to perform the manipulation.
+     */
+    boolean wasManipulated();
+
+    void markForUpdate();
 
     /**
      * Store this handler's information in NBT. It should write any Aether information that should be saved and loaded

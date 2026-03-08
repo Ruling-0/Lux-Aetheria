@@ -5,6 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
+import com.ruling_0.luxaetheria.common.blocks.BlockAetherRelay;
 import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 
@@ -17,6 +18,7 @@ public enum LABlocks {
     AETHERIC_FURNACE(true, new BlockAethericFurnace(false), "aetheric_furnace"),
     AETHERIC_FURNACE_LIT(true, new BlockAethericFurnace(true), "aetheric_furance_lit", false),
     COLLECTOR_PYLON(true, new BlockCollectorPylon(), "collector_pylon"),
+    AETHER_RELAY(true, new BlockAetherRelay(), "aether_relay"),
     ;
 
     // spotless:on

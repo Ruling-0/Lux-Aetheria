@@ -1,36 +1,21 @@
 package com.ruling_0.luxaetheria.api.aether;
 
-import javax.annotation.Nonnull;
-
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 /**
- * An Interface for things which intake and/or output Aether. Must possess an {@link IAetherHandler}.
+ * An interface for entities that receive and manipulate Aether provided by an {@link IAetherRelay}
  */
 public interface IAetherManipulator {
 
-    /**
-     * Returns the {@link IAetherHandler} for this manipulator.
-     */
-    IAetherHandler getAetherHandler();
+    void bindRelay(InterDimCoords relayCoords);
 
-    /**
-     * For enabling (making a valid source/sink) an {@link IAetherManipulator}.
-     * Should be called whenever the manipulator is added to the world.
-     */
-    void enable();
+    void unbindRelay(IAetherRelay relay);
 
-    /**
-     * For disabling (making an invalid source/sink) an {@link IAetherManipulator}.
-     * Should be called whenever the manipulator is destroyed or unloaded.
-     * Must remove the manipulator from source/sink lists of upstream/downstream manipulators.
-     */
-    void disable();
+    boolean isActive(IAetherRelay relay);
 
-    /**
-     * Gets the {@link InterDimCoords} of this.
-     */
-    @Nonnull
+    boolean manipulate(AethericEnergyUnit aetherIn);
+
+    AethericEnergyUnit getManipulationForRender();
+
     InterDimCoords getInterDimCoords();
 }

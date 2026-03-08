@@ -3,38 +3,49 @@ package com.ruling_0.luxaetheria.common.tileentities;
 import javax.annotation.Nonnull;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
+import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.IAetherReleaser;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
-import com.ruling_0.luxaetheria.api.aether.handlers.SimpleAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
+import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Base class for any {@link TileEntity} that can be linked into an Aether processing chain.
  */
-public abstract class BaseAetherManipulator extends TileEntity
-                                            implements IAetherManipulator, IAetherReleaser, IWDMLAProvider {
+public abstract class BaseAetherRelay extends TileEntity
+                                      implements IAetherRelay, IAetherReleaser, IWDMLAProvider {
 
-    protected final SimpleAetherHandler aetherHandler;
+    protected final SimpleRelayHandler aetherHandler;
     protected boolean isEnabled = false;
     protected InterDimCoords coords;
 
-    public BaseAetherManipulator() {
+    public BaseAetherRelay() {
         this(1);
     }
 
-    public BaseAetherManipulator(int maxAetherSinks) {
+    public BaseAetherRelay(int maxAetherSinks) {
         super();
         this.coords = null;
-        this.aetherHandler = new SimpleAetherHandler(maxAetherSinks, this);
+        this.aetherHandler = new SimpleRelayHandler(maxAetherSinks, this);
     }
 
     @Override
-    public IAetherHandler getAetherHandler() { return this.aetherHandler; }
+    public IRelayHandler getAetherHandler() { return this.aetherHandler; }
+
+    @Override
+    public AethericEnergyUnit getAetherRelease() { return this.aetherHandler.getAetherRelease(); }
 
     @Nonnull
     @Override
@@ -97,5 +108,35 @@ public abstract class BaseAetherManipulator extends TileEntity
     @Override
     public void writeWDMLAData(@Nonnull NBTTagCompound compound) {
         this.aetherHandler.writeWDMLAData(compound);
+    }
+
+    @Override
+    public Packet getDescriptionPacket() {
+        NBTTagCompound compound = new NBTTagCompound();
+        this.writeToNBT(compound);
+        return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, 1, compound);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+        this.readFromNBT(pkt.func_148857_g());
+        worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord,
+            this.zCoord);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox() { return TileEntityCollectorPylon.INFINITE_EXTENT_AABB; }
+
+    @SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared() {
+        return Math.max(this.aetherHandler.getMaxSinkDistance() * this.aetherHandler.getMaxSinkDistance(),
+            4096.0D);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 1;
     }
 }

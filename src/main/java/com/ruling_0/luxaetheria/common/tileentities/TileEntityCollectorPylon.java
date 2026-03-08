@@ -9,15 +9,15 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
 import com.ruling_0.luxaetheria.LuxAetheria;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.IWDMLAProvider;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherManipulator, IWDMLAProvider {
+public class TileEntityCollectorPylon extends BaseAetherCollector implements IAetherRelay, IWDMLAProvider {
 
     protected InterDimCoords coords;
 
@@ -30,7 +30,7 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
         this.coords = null;
     }
 
-    public IAetherHandler getAetherHandler() { return this.collectorHandler; }
+    public IRelayHandler getAetherHandler() { return this.collectorHandler; }
 
     @Nonnull
     @Override
@@ -74,27 +74,23 @@ public class TileEntityCollectorPylon extends BaseAetherCollector implements IAe
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
         this.readFromNBT(pkt.func_148857_g());
-        worldObj.markBlockRangeForRenderUpdate(
-            this.xCoord,
-            this.yCoord,
-            this.zCoord,
-            this.xCoord,
-            this.yCoord,
+        worldObj.markBlockRangeForRenderUpdate(this.xCoord, this.yCoord, this.zCoord, this.xCoord, this.yCoord,
             this.zCoord);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
-        double d0 = this.collectorHandler.getMaxSinkDistance();
-        return AxisAlignedBB
-            .getBoundingBox(this.xCoord, this.yCoord, this.zCoord, this.xCoord + 1, this.yCoord + 1, this.zCoord + 1)
-            .expand(d0, d0, d0);
-    }
+    public AxisAlignedBB getRenderBoundingBox() { return TileEntityCollectorPylon.INFINITE_EXTENT_AABB; }
 
     @SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared() {
-        return Math
-            .max(this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance(), 4096.0D);
+        return Math.max(this.collectorHandler.getMaxSinkDistance() * this.collectorHandler.getMaxSinkDistance(),
+            4096.0D);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldRenderInPass(int pass) {
+        return pass == 1;
     }
 }

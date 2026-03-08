@@ -4,28 +4,27 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import net.minecraft.util.Vec3;
-
 import com.ruling_0.luxaetheria.api.aether.AethericEnergyUnit;
-import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
-import com.ruling_0.luxaetheria.api.aether.handlers.IAetherHandler;
+import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
+import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3fc;
 
 /**
- * Array-backed class for holding data about Aether sinks in an {@link IAetherHandler}.
+ * Array-backed class for holding data about Aether sinks in an {@link IRelayHandler}.
  * Sink data is stored as a {@link SinkConnection}.
- * Each array index refers to a specific output of the owning {@link IAetherManipulator}.
+ * Each array index refers to a specific output of the owning {@link IAetherRelay}.
  * Allows for retrieving data by a sink's {@link InterDimCoords}.
  */
 public final class AetherSinkArray implements ImmutableSinkArray {
 
     private double maxSinkDistance = 0.0D;
     private final @Nullable SinkConnection[] sinkConnections;
-    private final IAetherHandler owner;
+    private final IRelayHandler owner;
 
-    public AetherSinkArray(int max, IAetherHandler owner) {
+    public AetherSinkArray(int max, IRelayHandler owner) {
         this.sinkConnections = new SinkConnection[max];
         this.owner = owner;
     }
@@ -62,19 +61,19 @@ public final class AetherSinkArray implements ImmutableSinkArray {
         return this.sinkConnections[index];
     }
 
-    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherManipulator sink, Vec3 colCoords,
+    public boolean add(int index, InterDimCoords sinkCoords, @Nullable IAetherRelay sink, Vector3fc colCoords,
                        double dist) {
         if (this.sinkConnections[index] != null) return false;
         this.sinkConnections[index] = new SinkConnection(sinkCoords, sink, new AethericEnergyUnit(), colCoords, dist);
         return true;
     }
 
-    public boolean add(IAetherManipulator sink) {
-        return this.add(sink, new AethericEnergyUnit(), sink.getInterDimCoords().getVec3(),
+    public boolean add(IAetherRelay sink) {
+        return this.add(sink, new AethericEnergyUnit(), sink.getInterDimCoords().getVec3fc(),
             this.owner.getInterDimCoords().distance(sink.getInterDimCoords()));
     }
 
-    public boolean add(IAetherManipulator sink, AethericEnergyUnit aeu, Vec3 colCoords, double dist) {
+    public boolean add(IAetherRelay sink, AethericEnergyUnit aeu, Vector3fc colCoords, double dist) {
         return this.add(new SinkConnection(sink.getInterDimCoords(), sink, aeu, colCoords, dist));
     }
 
@@ -119,6 +118,11 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     @Override
     public int size() {
+        return this.sinkConnections.length;
+    }
+
+    @Override
+    public int numConnections() {
         int ret = 0;
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null) ret += 1;
@@ -141,7 +145,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     @Nullable
     @Override
-    public IAetherManipulator getSink(InterDimCoords sinkCoords) {
+    public IAetherRelay getSink(InterDimCoords sinkCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 return sinkConn.sink;
@@ -151,7 +155,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     }
 
     @SuppressWarnings("unused")
-    public boolean setSink(InterDimCoords sinkCoords, IAetherManipulator sink) {
+    public boolean setSink(InterDimCoords sinkCoords, IAetherRelay sink) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 sinkConn.sink = sink;
@@ -185,7 +189,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     @Nullable
     @Override
-    public Vec3 getColCoords(InterDimCoords sinkCoords) {
+    public Vector3fc getColCoords(InterDimCoords sinkCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 return sinkConn.colCoords;
@@ -195,7 +199,7 @@ public final class AetherSinkArray implements ImmutableSinkArray {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public boolean setColCoords(InterDimCoords sinkCoords, Vec3 colCoords) {
+    public boolean setColCoords(InterDimCoords sinkCoords, Vector3fc colCoords) {
         for (SinkConnection sinkConn : this.sinkConnections) {
             if (sinkConn != null && sinkConn.sinkCoords.equals(sinkCoords)) {
                 sinkConn.colCoords = colCoords;
@@ -209,42 +213,14 @@ public final class AetherSinkArray implements ImmutableSinkArray {
 
     private final class ImmutableSinkIter implements Iterator<ImmutableSinkConnection> {
 
-        private int index = 0;
+        private int index = -1;
         private int nextKnown = 0;
 
         public ImmutableSinkIter() {}
 
         @Override
         public boolean hasNext() {
-            for (int i = index; i < AetherSinkArray.this.size(); ++i) {
-                if (AetherSinkArray.this.get(i) != null) {
-                    this.nextKnown = i;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public ImmutableSinkConnection next() {
-            if (!(this.nextKnown > this.index) && !this.hasNext()) {
-                throw new NoSuchElementException();
-            }
-            this.index = this.nextKnown + 1;
-            return AetherSinkArray.this.get(this.nextKnown);
-        }
-    }
-
-    private final class SinkIter implements Iterator<SinkConnection> {
-
-        private int index = 0;
-        private int nextKnown = 0;
-
-        public SinkIter() {}
-
-        @Override
-        public boolean hasNext() {
-            for (int i = index; i < AetherSinkArray.this.size(); ++i) {
+            for (int i = index + 1; i < AetherSinkArray.this.size(); ++i) {
                 if (AetherSinkArray.this.get(i) != null) {
                     this.nextKnown = i;
                     return true;
@@ -258,8 +234,36 @@ public final class AetherSinkArray implements ImmutableSinkArray {
             if (!(this.nextKnown > this.index) && !this.hasNext()) {
                 throw new NoSuchElementException();
             }
-            this.index = this.nextKnown + 1;
-            return AetherSinkArray.this.get(this.nextKnown);
+            this.index = this.nextKnown;
+            return AetherSinkArray.this.get(this.index);
+        }
+    }
+
+    private final class SinkIter implements Iterator<SinkConnection> {
+
+        private int index = -1;
+        private int nextKnown = 0;
+
+        public SinkIter() {}
+
+        @Override
+        public boolean hasNext() {
+            for (int i = index + 1; i < AetherSinkArray.this.size(); ++i) {
+                if (AetherSinkArray.this.get(i) != null) {
+                    this.nextKnown = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public SinkConnection next() {
+            if (!(this.nextKnown > this.index) && !this.hasNext()) {
+                throw new NoSuchElementException();
+            }
+            this.index = this.nextKnown;
+            return AetherSinkArray.this.get(this.index);
         }
 
         @Override

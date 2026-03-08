@@ -12,6 +12,9 @@ import net.minecraftforge.common.DimensionManager;
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.gtnhlib.blockpos.IWorldReferent;
 
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
+
 /**
  * Extension of {@link BlockPos} which also stores a reference to the {@link World} it is in.
  */
@@ -21,11 +24,12 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
 
     public InterDimCoords() {
         super();
-        this.world = null;
+        this.world = DimensionManager.getWorld(0);
     }
 
     public InterDimCoords(NBTTagCompound compound) {
-        this(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"), compound.getInteger("dim"));
+        this(compound.getInteger("x"), compound.getInteger("y"),
+            compound.getInteger("z"), compound.getInteger("dimension"));
     }
 
     public InterDimCoords(int x, int y, int z, int dim) {
@@ -62,7 +66,13 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) return false;
-        return ((InterDimCoords) obj).world == this.world;
+        if (!(obj instanceof InterDimCoords iobj)) return false;
+        return iobj.world == this.world;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + this.world.provider.dimensionId;
     }
 
     @Override
@@ -76,4 +86,6 @@ public class InterDimCoords extends BlockPos implements IWorldReferent {
     }
 
     public Vec3 getVec3() { return Vec3.createVectorHelper(this.x + 0.5, this.y + 0.5, this.z + 0.5); }
+
+    public Vector3fc getVec3fc() { return new Vector3f(this.x + 0.5f, this.y + 0.5f, this.z + 0.5f); }
 }
