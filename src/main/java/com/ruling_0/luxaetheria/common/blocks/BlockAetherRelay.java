@@ -9,16 +9,18 @@ import static net.minecraftforge.common.util.ForgeDirection.WEST;
 
 import java.util.ArrayList;
 
+import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldAccess;
 import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.gtnewhorizon.gtnhlib.api.IModelProvider;
+import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
@@ -34,7 +36,7 @@ import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
-public class BlockAetherRelay extends BlockContainer implements IModelProvider {
+public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
 
     public BlockAetherRelay() {
         super(Material.glass);
@@ -136,11 +138,20 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
     }
 
     @Override
-    public BakedModel getModel(@Nullable IBlockAccess world, Block block, int meta, int x, int y, int z) {
+    public BakedModel getModel(BakedModelQuadContext context) {
         // TODO: add caching
-        Vector3i pos = new Vector3i(x, y, z);
+        int meta = 0;
+        Vector3i pos = new Vector3i(0, 0, 0);
         ArrayList<Vector3i> targets = new ArrayList<>(4);
-        if (world != null) {
+        if (context instanceof BakedModelQuadContext.World worldContext) {
+            final IBlockAccess world = worldContext.getWorld();
+            final int x = worldContext.getX();
+            final int y = worldContext.getY();
+            final int z = worldContext.getZ();
+            pos.x = x;
+            pos.y = y;
+            pos.z = z;
+            meta = world.getBlockMetadata(x, y, z);
             final IAetherRelay te = (IAetherRelay) world.getTileEntity(x, y, z);
             final IRelayHandler handler = te.getAetherHandler();
             final InterDimCoords coords = handler.getInterDimCoords();
@@ -153,7 +164,7 @@ public class BlockAetherRelay extends BlockContainer implements IModelProvider {
             }
         }
         else { // this is an item render, so show 1 arm pointing North
-            targets.add(new Vector3i(x, y, z - 1));
+            targets.add(new Vector3i(0, 0, -1));
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);
         final JSONModel jsonModel = ModelRegistry
