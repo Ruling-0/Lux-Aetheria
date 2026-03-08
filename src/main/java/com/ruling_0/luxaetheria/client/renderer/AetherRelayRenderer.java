@@ -54,16 +54,6 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
 
         Tessellator tessellator = Tessellator.instance;
         this.bindTexture(BEAM_TEXTURE);
-        if (iterSinks.hasNext() && aether.getAmount() > 0) {
-            final Vector3f beamColor = new Vector3f((float) aether.getAspectRatio(AetherAspect.RED),
-                (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
-
-            while (iterSinks.hasNext()) {
-                ImmutableSinkConnection sinkConn = iterSinks.next();
-                final Vector3fc sinkPos = sinkConn.getColCoords();
-                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
-            }
-        }
 
         if (handler.wasManipulated()) {
             final AethericEnergyUnit manipulation = handler.getManipulator().getManipulationForRender();
@@ -75,6 +65,17 @@ public class AetherRelayRenderer extends TileEntitySpecialRenderer {
             final Vector3f sinkPos = new Vector3f(sourcePos)
                 .add(new Vector3f(dir.offsetX, dir.offsetY, dir.offsetZ).mul(0.5F));
             RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
+        }
+
+        if (iterSinks.hasNext() && aether.getAmount() > 0) {
+            final Vector3f beamColor = new Vector3f((float) aether.getAspectRatio(AetherAspect.RED),
+                (float) aether.getAspectRatio(AetherAspect.GREEN), (float) aether.getAspectRatio(AetherAspect.BLUE));
+
+            while (iterSinks.hasNext()) {
+                ImmutableSinkConnection sinkConn = iterSinks.next();
+                final Vector3fc sinkPos = sinkConn.getColCoords();
+                RenderUtils.drawBeam(tessellator, sourcePos, sinkPos, beamColor, cameraPos, pos);
+            }
         }
 
         this.bindTexture(FLARE_TEXTURE);

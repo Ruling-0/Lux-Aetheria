@@ -39,11 +39,31 @@ public final class RenderUtils {
         final double dy = target.y() - origin.y();
         final double dz = target.z() - origin.z();
 
+        final double endScale = 1.0 / (16.0 * dist);
+        final double ex = dx * endScale;
+        final double ey = dy * endScale;
+        final double ez = dz * endScale;
+
         tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV(-wx, -wy, -wz, 0, 0);
-        tessellator.addVertexWithUV(wx, wy, wz, 1, 0);
-        tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, 1);
-        tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, 1);
+
+        // Origin end
+        tessellator.addVertexWithUV(-wx, -wy, -wz, 0, 1);
+        tessellator.addVertexWithUV(wx, wy, wz, 1, 1);
+        tessellator.addVertexWithUV(ex + wx, ey + wy, ez + wz, 1, 2.0 / 3.0);
+        tessellator.addVertexWithUV(ex - wx, ey - wy, ez - wz, 0, 2.0 / 3.0);
+
+        // Middle
+        tessellator.addVertexWithUV(ex - wx, ey - wy, ez - wz, 0, 2.0 / 3.0);
+        tessellator.addVertexWithUV(ex + wx, ey + wy, ez + wz, 1, 2.0 / 3.0);
+        tessellator.addVertexWithUV(dx - ex + wx, dy - ey + wy, dz - ez + wz, 1, 1.0 / 3.0);
+        tessellator.addVertexWithUV(dx - ex - wx, dy - ey - wy, dz - ez - wz, 0, 1.0 / 3.0);
+
+        // Target end
+        tessellator.addVertexWithUV(dx - ex - wx, dy - ey - wy, dz - ez - wz, 0, 1.0 / 3.0);
+        tessellator.addVertexWithUV(dx - ex + wx, dy - ey + wy, dz - ez + wz, 1, 1.0 / 3.0);
+        tessellator.addVertexWithUV(dx + wx, dy + wy, dz + wz, 1, 0);
+        tessellator.addVertexWithUV(dx - wx, dy - wy, dz - wz, 0, 0);
+
         tessellator.draw();
     }
 
