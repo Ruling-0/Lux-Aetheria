@@ -22,14 +22,11 @@ import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
-import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
-import com.gtnewhorizon.gtnhlib.client.model.loading.ResourceLoc;
-import com.gtnewhorizon.gtnhlib.client.model.unbaked.JSONModel;
-import com.gtnewhorizon.gtnhlib.concurrent.ThreadsafeCache;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
+import com.ruling_0.luxaetheria.client.model.LAModelRegistry;
 import com.ruling_0.luxaetheria.client.model.ModelAetherRelay;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
 
@@ -38,18 +35,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
 public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
-
-    @SideOnly(Side.CLIENT)
-    private static final ResourceLoc.ModelLoc MODEL_LOC = new ResourceLoc.ModelLoc("luxaetheria",
-        "blocks/aether_relay");
-
-    @SideOnly(Side.CLIENT)
-    private static final ThreadsafeCache<ModelAetherRelay.RelayBakeData, BakedModel> BAKED_MODEL_CACHE = new ThreadsafeCache<>(
-        64, key -> {
-            final JSONModel jsonModel = ModelRegistry.getJSONModel(MODEL_LOC);
-            final ModelAetherRelay model = new ModelAetherRelay(jsonModel);
-            return model.bake((ModelAetherRelay.RelayBakeData) key);
-        }, false);
 
     public BlockAetherRelay() {
         super(Material.glass);
@@ -180,6 +165,6 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
             targets.add(new Vector3i(0, 0, -1));
         }
         final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);
-        return BAKED_MODEL_CACHE.get(data);
+        return LAModelRegistry.getAetherRelayModel(data);
     }
 }
