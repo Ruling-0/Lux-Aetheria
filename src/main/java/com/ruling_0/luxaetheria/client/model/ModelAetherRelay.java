@@ -29,7 +29,6 @@ import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.joml.Vector4f;
 
-// TODO: Refactor and break out into some ComplexModel, and make this relay-specific child class
 public class ModelAetherRelay extends JSONModel {
 
     public ModelAetherRelay(JSONModel model) {
