@@ -39,7 +39,7 @@ public class ModelAetherRelay extends JSONModel {
 
         public enum RelayType {
             RELAY,
-            SPLITTER
+            ASPECT_SPLITTER
         }
 
         private final Matrix4fc[] matrices;
@@ -111,7 +111,7 @@ public class ModelAetherRelay extends JSONModel {
 
         public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta, RelayType relayType) {
             this.relayType = relayType;
-            this.gemRotation = relayType == RelayType.SPLITTER ? computeGemRotation(pos, targets) : 0.0f;
+            this.gemRotation = relayType == RelayType.ASPECT_SPLITTER ? computeGemRotation(pos, targets) : 0.0f;
             final ForgeDirection forgeDir = ForgeDirection.getOrientation(meta);
             final Vector3fc orig = getOrig(forgeDir);
 
@@ -371,7 +371,7 @@ public class ModelAetherRelay extends JSONModel {
 
                 int tintIndex = -1;
                 if (eNameParts[0].equals("lens") && eID != 0) {
-                    if (data.relayType() == RelayBakeData.RelayType.SPLITTER) {
+                    if (data.relayType() == RelayBakeData.RelayType.ASPECT_SPLITTER) {
                         tintIndex = i - 1;
                     }
                     else {
@@ -383,7 +383,7 @@ public class ModelAetherRelay extends JSONModel {
         }
 
         // Generate gem
-        if (data.relayType() == RelayBakeData.RelayType.SPLITTER) {
+        if (data.relayType() == RelayBakeData.RelayType.ASPECT_SPLITTER) {
             this.generateTriPrismGem(sidedQuadStore, baseRot, data.gemRotation());
         }
         else {

@@ -145,6 +145,10 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
         return colorMultiplier(null, 0, 0, 0, tintIndex);
     }
 
+    protected ModelAetherRelay.RelayBakeData.RelayType getRelayType() {
+        return ModelAetherRelay.RelayBakeData.RelayType.RELAY;
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public BakedModel getModel(BakedModelQuadContext context) {
@@ -176,7 +180,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
             targets.add(new Vector3i(0, 0, -1));
         }
         final var data = new ModelAetherRelay.RelayBakeData(
-            pos, targets.toArray(new Vector3i[0]), meta, ModelAetherRelay.RelayBakeData.RelayType.RELAY);
+            pos, targets.toArray(new Vector3i[0]), meta, this.getRelayType());
         return LAModelRegistry.getAetherRelayModel(data);
     }
 }

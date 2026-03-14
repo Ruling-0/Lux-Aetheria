@@ -10,9 +10,9 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.aether.handlers.SimpleRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
-public class SplitterHandler extends SimpleRelayHandler {
+public class AspectSplitterHandler extends SimpleRelayHandler {
 
-    public SplitterHandler(int maxAetherSinks, TileEntity te) {
+    public AspectSplitterHandler(int maxAetherSinks, TileEntity te) {
         super(maxAetherSinks, te);
     }
 
