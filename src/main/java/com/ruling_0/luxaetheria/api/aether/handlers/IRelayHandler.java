@@ -107,11 +107,6 @@ public interface IRelayHandler {
     AethericEnergyUnit getAetherIn();
 
     /**
-     * Get a clone of the total, pre-loss Aether output.
-     */
-    AethericEnergyUnit getAetherOut();
-
-    /**
      * Get the maximum sink distance, to set render distance and AABB.
      */
     double getMaxSinkDistance();

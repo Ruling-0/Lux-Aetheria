@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -22,6 +23,7 @@ import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
+import com.gtnewhorizon.gtnhlib.client.model.color.IBlockColor;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
@@ -34,7 +36,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
-public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider {
+public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider, IBlockColor {
 
     public BlockAetherRelay() {
         super(Material.glass);
@@ -133,6 +135,21 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     }
 
     @Override
+    public int colorMultiplier(IBlockAccess world, int x, int y, int z, int tintIndex) {
+        if (tintIndex == 0) return 0xFFD700;
+        return -1;
+    }
+
+    @Override
+    public int colorMultiplier(ItemStack stack, int tintIndex) {
+        return colorMultiplier(null, 0, 0, 0, tintIndex);
+    }
+
+    protected ModelAetherRelay.RelayBakeData.RelayType getRelayType() {
+        return ModelAetherRelay.RelayBakeData.RelayType.RELAY;
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public BakedModel getModel(BakedModelQuadContext context) {
         int meta = 0;
@@ -147,21 +164,23 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
             pos.y = y;
             pos.z = z;
             meta = world.getBlockMetadata(x, y, z);
-            final IAetherRelay te = (IAetherRelay) world.getTileEntity(x, y, z);
-            final IRelayHandler handler = te.getAetherHandler();
-            final InterDimCoords coords = handler.getInterDimCoords();
-            final var iter = handler.getAetherSinksIter();
-            while (iter.hasNext()) {
-                var sink = iter.next();
-                InterDimCoords sinkCoords = sink.getSinkCoords();
-                if (sinkCoords.getDimID() != coords.getDimID()) continue;
-                targets.add(new Vector3i(sinkCoords.getX(), sinkCoords.getY(), sinkCoords.getZ()));
+            if (world.getTileEntity(x, y, z) instanceof IAetherRelay te) {
+                final IRelayHandler handler = te.getAetherHandler();
+                final InterDimCoords coords = handler.getInterDimCoords();
+                final var iter = handler.getAetherSinksIter();
+                while (iter.hasNext()) {
+                    var sink = iter.next();
+                    InterDimCoords sinkCoords = sink.getSinkCoords();
+                    if (sinkCoords.getDimID() != coords.getDimID()) continue;
+                    targets.add(new Vector3i(sinkCoords.getX(), sinkCoords.getY(), sinkCoords.getZ()));
+                }
             }
         }
         else { // this is an item render, so show 1 arm pointing North
             targets.add(new Vector3i(0, 0, -1));
         }
-        final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);
+        final var data = new ModelAetherRelay.RelayBakeData(
+            pos, targets.toArray(new Vector3i[0]), meta, this.getRelayType());
         return LAModelRegistry.getAetherRelayModel(data);
     }
 }

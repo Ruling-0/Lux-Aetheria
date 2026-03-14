@@ -84,7 +84,6 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
     public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
-            this.aetherOut.reset();
         }
         AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
         InterDimCoords sinkCoords = sinkHandler.getInterDimCoords();
@@ -108,10 +107,6 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
 
     @Override
     public void updateAether() {
-        if (this.aetherSinks.isEmpty()) {
-            this.aetherOut.reset();
-        }
-
         for (IAetherCollector collector : this.collectorsInRangeList) {
             this.ambientAether.addAmount(-collector.getCollectorHandler().getAetherCollectionAmount());
         }

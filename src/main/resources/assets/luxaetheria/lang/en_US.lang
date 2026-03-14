@@ -21,4 +21,5 @@ item.pylon_binder.name=Pylon Binder
 
 tile.aether_relay.name=Aether Relay
 tile.aetheric_furnace.name=Aetheric Furnace
+tile.aspect_splitter.name=Aspect Splitter
 tile.collector_pylon.name=Collector Pylon

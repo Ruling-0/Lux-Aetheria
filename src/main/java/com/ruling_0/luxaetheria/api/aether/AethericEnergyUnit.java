@@ -28,6 +28,10 @@ public class AethericEnergyUnit {
         this(amount, 0, 0, 0, 0);
     }
 
+    public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios, AEUID id) {
+        this(amount, aspectRatios, id.origin, id.tick, id.dim, id.output);
+    }
+
     public AethericEnergyUnit(long amount, @Nonnull double[] aspectRatios) {
         this(amount, aspectRatios, 0, 0, 0, 0);
     }
