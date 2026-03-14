@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -22,6 +23,7 @@ import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
 import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
+import com.gtnewhorizon.gtnhlib.client.model.color.IBlockColor;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
 import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
@@ -34,7 +36,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
-public class BlockAetherSplitter extends BlockContainer implements IBlockModelProvider {
+public class BlockAetherSplitter extends BlockContainer implements IBlockModelProvider, IBlockColor {
 
     public BlockAetherSplitter() {
         super(Material.glass);
@@ -133,6 +135,21 @@ public class BlockAetherSplitter extends BlockContainer implements IBlockModelPr
     }
 
     @Override
+    public int colorMultiplier(IBlockAccess world, int x, int y, int z, int tintIndex) {
+        return switch (tintIndex) {
+            case 0 -> 0xFF0000;
+            case 1 -> 0x00FF00;
+            case 2 -> 0x0000FF;
+            default -> -1;
+        };
+    }
+
+    @Override
+    public int colorMultiplier(ItemStack stack, int tintIndex) {
+        return colorMultiplier(null, 0, 0, 0, tintIndex);
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public BakedModel getModel(BakedModelQuadContext context) {
         int meta = 0;
@@ -162,7 +179,8 @@ public class BlockAetherSplitter extends BlockContainer implements IBlockModelPr
         else {
             targets.add(new Vector3i(0, 0, -1));
         }
-        final var data = new ModelAetherRelay.RelayBakeData(pos, targets.toArray(new Vector3i[0]), meta);
+        final var data = new ModelAetherRelay.RelayBakeData(
+            pos, targets.toArray(new Vector3i[0]), meta, ModelAetherRelay.RelayBakeData.RelayType.SPLITTER);
         return LAModelRegistry.getAetherRelayModel(data);
     }
 }

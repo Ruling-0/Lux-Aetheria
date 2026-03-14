@@ -38,7 +38,14 @@ public class ModelAetherRelay extends JSONModel {
 
     public static final class RelayBakeData {
 
+        public enum RelayType {
+            RELAY,
+            SPLITTER
+        }
+
         private final Matrix4fc[] matrices;
+        private final RelayType relayType;
+        private final float gemRotation;
 
         /**
          * Original vector of the arms
@@ -63,7 +70,9 @@ public class ModelAetherRelay extends JSONModel {
             };
         }
 
-        public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta) {
+        public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta, RelayType relayType) {
+            this.relayType = relayType;
+            this.gemRotation = relayType == RelayType.SPLITTER ? computeGemRotation(pos, targets) : 0.0f;
             final ForgeDirection forgeDir = ForgeDirection.getOrientation(meta);
             final Vector3fc orig = getOrig(forgeDir);
 
@@ -202,22 +211,63 @@ public class ModelAetherRelay extends JSONModel {
             return this.matrices.length;
         }
 
+        public RelayType relayType() {
+            return this.relayType;
+        }
+
+        public float gemRotation() {
+            return this.gemRotation;
+        }
+
+        private static float computeGemRotation(Vector3i pos, Vector3i[] targets) {
+            if (targets.length == 0) return 0.0f;
+
+            final float TWO_PI = (float) (2 * Math.PI);
+            float[] angles = new float[targets.length];
+            for (int i = 0; i < targets.length; i++) {
+                float dx = targets[i].x - pos.x;
+                float dz = targets[i].z - pos.z;
+                float a = (float) Math.atan2(dx, dz);
+                angles[i] = a < 0 ? a + TWO_PI : a;
+            }
+            Arrays.sort(angles);
+
+            int largestIdx = angles.length - 1;
+            float largestGap = angles[0] + TWO_PI - angles[angles.length - 1];
+            for (int i = 0; i < angles.length - 1; i++) {
+                float gap = angles[i + 1] - angles[i];
+                if (gap > largestGap) {
+                    largestGap = gap;
+                    largestIdx = i;
+                }
+            }
+            float arcStart = angles[(largestIdx + 1) % angles.length];
+
+            // Rotate so a face normal points along the middle direction.
+            // Default face 0 normal points +Z, so rotate by middleAngle from +Z.
+            return arcStart + (TWO_PI - largestGap) / 2;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof RelayBakeData other)) return false;
-            return Arrays.equals(this.matrices, other.matrices);
+            return this.relayType == other.relayType && Float.compare(this.gemRotation, other.gemRotation) == 0 &&
+                Arrays.equals(this.matrices, other.matrices);
         }
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(this.matrices);
+            int result = Arrays.hashCode(this.matrices);
+            result = 31 * result + this.relayType.hashCode();
+            result = 31 * result + Float.hashCode(this.gemRotation);
+            return result;
         }
     }
 
     protected void generateQuads(ModelDeserializer.ModelElement e,
                                  HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
-                                 boolean isTransparent) {
+                                 boolean isTransparent, int tintIndex) {
         final Matrix4f rot = (e.rotation() == null) ? NOOP.getAffineMatrix() : e.rotation().getAffineMatrix();
         for (ModelDeserializer.ModelElement.Face f : e.faces()) {
 
@@ -256,8 +306,7 @@ public class ModelAetherRelay extends JSONModel {
             }
             this.bakeSprite(quad, texName);
 
-            // Set the tint index
-            quad.setColorIndex(f.tintIndex());
+            quad.setColorIndex(tintIndex >= 0 ? tintIndex : f.tintIndex());
 
             if (isTransparent) quad.setTransparent();
 
@@ -370,7 +419,7 @@ public class ModelAetherRelay extends JSONModel {
             }
             colBoxes[colIdx++] = cFrom;
             colBoxes[colIdx++] = cTo;
-            this.generateQuads(e, sidedQuadStore, baseRot, isTransparent);
+            this.generateQuads(e, sidedQuadStore, baseRot, isTransparent, -1);
         }
 
         for (int i = 1; i < data.count(); ++i) {
@@ -452,12 +501,27 @@ public class ModelAetherRelay extends JSONModel {
                 final var eID = Integer.parseInt(eNameParts[2]);
                 final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
                 if (eID > cullIdx) continue;
-                this.generateQuads(e, sidedQuadStore, partRot, isTransparent);
+
+                int tintIndex = -1;
+                if (eNameParts[0].equals("lens") && eID != 0) {
+                    if (data.relayType() == RelayBakeData.RelayType.SPLITTER) {
+                        tintIndex = i - 1;
+                    }
+                    else {
+                        tintIndex = 0;
+                    }
+                }
+                this.generateQuads(e, sidedQuadStore, partRot, isTransparent, tintIndex);
             }
         }
 
         // Generate gem
-        this.generateGem(sidedQuadStore, baseRot);
+        if (data.relayType() == RelayBakeData.RelayType.SPLITTER) {
+            this.generateTriPrismGem(sidedQuadStore, baseRot, data.gemRotation());
+        }
+        else {
+            this.generateGem(sidedQuadStore, baseRot);
+        }
 
         return new PileOfQuads(sidedQuadStore, this.display, this.getParticle());
     }
@@ -483,11 +547,10 @@ public class ModelAetherRelay extends JSONModel {
         for (int i = 0; i < 2; ++i) {
             for (int j = 2; j < 6; ++j) {
                 final var quad = new ModelQuad();
+                quad.setX(0, vertices[i].x);
+                quad.setY(0, vertices[i].y);
+                quad.setZ(0, vertices[i].z);
                 if (i == 0) {
-                    quad.setX(0, vertices[i].x);
-                    quad.setY(0, vertices[i].y);
-                    quad.setZ(0, vertices[i].z);
-
                     quad.setX(1, vertices[j + 1].x);
                     quad.setY(1, vertices[j + 1].y);
                     quad.setZ(1, vertices[j + 1].z);
@@ -501,10 +564,6 @@ public class ModelAetherRelay extends JSONModel {
                     quad.setZ(3, vertices[j].z);
                 }
                 else {
-                    quad.setX(0, vertices[i].x);
-                    quad.setY(0, vertices[i].y);
-                    quad.setZ(0, vertices[i].z);
-
                     quad.setX(1, vertices[j].x);
                     quad.setY(1, vertices[j].y);
                     quad.setZ(1, vertices[j].z);
@@ -531,6 +590,7 @@ public class ModelAetherRelay extends JSONModel {
                 quad.setDirectionalShading(true);
                 quad.setHasAmbientOcclusion(true);
                 quad.setLightFace(ModelQuadFacing.fromForgeDir(dirs[j - 2]));
+                quad.setColorIndex(-1);
                 quad.setTransparent();
 
                 this.bakeSprite(quad, "luxaetheria:models/crystal");
@@ -538,6 +598,148 @@ public class ModelAetherRelay extends JSONModel {
                 ModelQuadFacing cullFace = ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN);
                 sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>()).add(quad);
             }
+        }
+    }
+
+    private void generateTriPrismGem(HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
+                                     float gemRotation) {
+        final Vector3f center = new Vector3f(0.5F, 0.484373F, 0.5F);
+        final float halfHeight = 0.25F;
+        final float R = 0.125F;
+        final float sin60 = (float) Math.sin(Math.toRadians(60));
+
+        final Matrix4f combinedAffine = new Matrix4f()
+            .translate(0.5f, 0.5f, 0.5f)
+            .rotateY(gemRotation)
+            .translate(-0.5f, -0.5f, -0.5f)
+            .mul(affine);
+
+        // Equilateral triangle vertices in XZ.
+        // v0: north, v1: SE, v2: SW.
+        // Face between v1-v2 has outward normal +Z; after gemRotation
+        // it aligns parallel to the middle beam direction.
+        final float topY = center.y + halfHeight;
+        final float botY = center.y - halfHeight;
+
+        final Vector3f[] top = {
+            new Vector3f(center.x, topY, center.z - R).mulPosition(combinedAffine),
+            new Vector3f(center.x + R * sin60, topY, center.z + R * 0.5f).mulPosition(combinedAffine),
+            new Vector3f(center.x - R * sin60, topY, center.z + R * 0.5f).mulPosition(combinedAffine),
+        };
+        final Vector3f[] bot = {
+            new Vector3f(center.x, botY, center.z - R).mulPosition(combinedAffine),
+            new Vector3f(center.x + R * sin60, botY, center.z + R * 0.5f).mulPosition(combinedAffine),
+            new Vector3f(center.x - R * sin60, botY, center.z + R * 0.5f).mulPosition(combinedAffine),
+        };
+
+        // 3 rectangular side faces
+        final int[][] edges = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
+        final ForgeDirection[] faceDirs = { ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST };
+        final ModelQuadFacing noCull = ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN);
+
+        for (int f = 0; f < 3; f++) {
+            final int a = edges[f][0], b = edges[f][1];
+            final var quad = new ModelQuad();
+            quad.setX(0, top[b].x);
+            quad.setY(0, top[b].y);
+            quad.setZ(0, top[b].z);
+            quad.setX(1, bot[b].x);
+            quad.setY(1, bot[b].y);
+            quad.setZ(1, bot[b].z);
+            quad.setX(2, bot[a].x);
+            quad.setY(2, bot[a].y);
+            quad.setZ(2, bot[a].z);
+            quad.setX(3, top[a].x);
+            quad.setY(3, top[a].y);
+            quad.setZ(3, top[a].z);
+
+            quad.setTexU(0, 0.0F);
+            quad.setTexV(0, 0.0F);
+            quad.setTexU(1, 0.0F);
+            quad.setTexV(1, 16.0F);
+            quad.setTexU(2, 16.0F);
+            quad.setTexV(2, 16.0F);
+            quad.setTexU(3, 16.0F);
+            quad.setTexV(3, 0.0F);
+
+            quad.setEmissiveness(0);
+            quad.setDirectionalShading(true);
+            quad.setHasAmbientOcclusion(true);
+            quad.setLightFace(ModelQuadFacing.fromForgeDir(faceDirs[f]));
+            quad.setColorIndex(-1);
+            quad.setTransparent();
+            this.bakeSprite(quad, "luxaetheria:models/crystal");
+            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
+        }
+
+        // Top triangle cap
+        {
+            final var quad = new ModelQuad();
+            quad.setX(0, top[0].x);
+            quad.setY(0, top[0].y);
+            quad.setZ(0, top[0].z);
+            quad.setX(1, top[2].x);
+            quad.setY(1, top[2].y);
+            quad.setZ(1, top[2].z);
+            quad.setX(2, top[1].x);
+            quad.setY(2, top[1].y);
+            quad.setZ(2, top[1].z);
+            quad.setX(3, top[1].x);
+            quad.setY(3, top[1].y);
+            quad.setZ(3, top[1].z);
+
+            quad.setTexU(0, 8.0F);
+            quad.setTexV(0, 0.0F);
+            quad.setTexU(1, 0.0F);
+            quad.setTexV(1, 16.0F);
+            quad.setTexU(2, 16.0F);
+            quad.setTexV(2, 16.0F);
+            quad.setTexU(3, 16.0F);
+            quad.setTexV(3, 16.0F);
+
+            quad.setEmissiveness(0);
+            quad.setDirectionalShading(true);
+            quad.setHasAmbientOcclusion(true);
+            quad.setLightFace(ModelQuadFacing.fromForgeDir(ForgeDirection.UP));
+            quad.setColorIndex(-1);
+            quad.setTransparent();
+            this.bakeSprite(quad, "luxaetheria:models/crystal");
+            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
+        }
+
+        // Bottom triangle cap
+        {
+            final var quad = new ModelQuad();
+            quad.setX(0, bot[0].x);
+            quad.setY(0, bot[0].y);
+            quad.setZ(0, bot[0].z);
+            quad.setX(1, bot[1].x);
+            quad.setY(1, bot[1].y);
+            quad.setZ(1, bot[1].z);
+            quad.setX(2, bot[2].x);
+            quad.setY(2, bot[2].y);
+            quad.setZ(2, bot[2].z);
+            quad.setX(3, bot[2].x);
+            quad.setY(3, bot[2].y);
+            quad.setZ(3, bot[2].z);
+
+            quad.setTexU(0, 8.0F);
+            quad.setTexV(0, 0.0F);
+            quad.setTexU(1, 0.0F);
+            quad.setTexV(1, 16.0F);
+            quad.setTexU(2, 16.0F);
+            quad.setTexV(2, 16.0F);
+            quad.setTexU(3, 16.0F);
+            quad.setTexV(3, 16.0F);
+
+            quad.setEmissiveness(0);
+            quad.setDirectionalShading(true);
+            quad.setHasAmbientOcclusion(true);
+            quad.setLightFace(ModelQuadFacing.fromForgeDir(ForgeDirection.DOWN));
+            quad.setColorIndex(-1);
+            quad.setTransparent();
+            this.bakeSprite(quad, "luxaetheria:models/crystal");
+            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
         }
     }
 }
