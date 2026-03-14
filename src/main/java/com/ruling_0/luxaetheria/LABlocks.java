@@ -20,7 +20,7 @@ public enum LABlocks {
     AETHERIC_FURNACE_LIT(true, new BlockAethericFurnace(true), "aetheric_furance_lit", false),
     COLLECTOR_PYLON(true, new BlockCollectorPylon(), "collector_pylon"),
     AETHER_RELAY(true, new BlockAetherRelay(), "aether_relay"),
-    AETHER_SPLITTER(true, new BlockAspectSplitter(), "aether_splitter"),
+    ASPECT_SPLITTER(true, new BlockAspectSplitter(), "aspect_splitter"),
     ;
 
     // spotless:on
