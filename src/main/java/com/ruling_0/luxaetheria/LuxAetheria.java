@@ -5,8 +5,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
-import com.ruling_0.luxaetheria.common.tileentities.TileEntityAspectSplitter;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAethericFurnace;
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAspectSplitter;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
 import cpw.mods.fml.common.Mod;

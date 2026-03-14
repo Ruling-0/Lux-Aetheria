@@ -6,8 +6,8 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 import com.ruling_0.luxaetheria.common.blocks.BlockAetherRelay;
-import com.ruling_0.luxaetheria.common.blocks.BlockAspectSplitter;
 import com.ruling_0.luxaetheria.common.blocks.BlockAethericFurnace;
+import com.ruling_0.luxaetheria.common.blocks.BlockAspectSplitter;
 import com.ruling_0.luxaetheria.common.blocks.BlockCollectorPylon;
 
 import cpw.mods.fml.common.registry.GameRegistry;
