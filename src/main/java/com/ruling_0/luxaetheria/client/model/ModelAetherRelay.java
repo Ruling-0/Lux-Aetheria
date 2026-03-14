@@ -70,6 +70,46 @@ public class ModelAetherRelay extends JSONModel {
             };
         }
 
+        // spotless:off
+        private static Matrix4f computeArmMatrix(Vector3i target, Vector3i pos, Vector3fc orig,
+                                                  ForgeDirection forgeDir) {
+            final Vector3f dir = new Vector3f(target.sub(pos)).normalize();
+
+            final int axis;
+            final boolean negateDir, negateSin, dirRotFirst;
+            switch (forgeDir) {
+                case DOWN, UNKNOWN -> { axis = 1; negateDir = false; negateSin = false; dirRotFirst = false; }
+                case UP            -> { axis = 1; negateDir = true;  negateSin = false; dirRotFirst = false; }
+                case NORTH         -> { axis = 2; negateDir = false; negateSin = false; dirRotFirst = true;  }
+                case SOUTH         -> { axis = 2; negateDir = true;  negateSin = true;  dirRotFirst = true;  }
+                case WEST          -> { axis = 0; negateDir = false; negateSin = false; dirRotFirst = true;  }
+                case EAST          -> { axis = 0; negateDir = true;  negateSin = true;  dirRotFirst = true;  }
+                default -> throw new IllegalArgumentException("Unexpected direction: " + forgeDir);
+            }
+            // spotless:on
+
+            if (negateDir) dir.setComponent(axis, -dir.get(axis));
+
+            final Vector3f dirAZ = new Vector3f(dir);
+            dirAZ.setComponent(axis, 0.0f);
+            dirAZ.normalize();
+
+            float sinAZ = new Vector3f(orig).cross(dirAZ).get(axis);
+            if (negateSin) sinAZ = -sinAZ;
+            final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
+                (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
+            final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.get(axis));
+
+            final var mat = new Matrix4f().translate(0.5f, 0.5f, 0.5f);
+            if (dirRotFirst) {
+                mat.rotate(getDirRot(forgeDir)).rotateY(angAZ).rotateX(angEL);
+            }
+            else {
+                mat.rotateY(angAZ).rotateX(angEL).rotate(getDirRot(forgeDir));
+            }
+            return mat.translate(-0.5f, -0.5f, -0.5f);
+        }
+
         public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta, RelayType relayType) {
             this.relayType = relayType;
             this.gemRotation = relayType == RelayType.SPLITTER ? computeGemRotation(pos, targets) : 0.0f;
@@ -88,118 +128,8 @@ public class ModelAetherRelay extends JSONModel {
             this.matrices = new Matrix4f[targets.length + 1];
             this.matrices[0] = baseMat;
 
-            switch (forgeDir) {
-                case DOWN, UNKNOWN:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        final Vector3f dirAZ = new Vector3f(dir.x, 0.0f, dir.z).normalize();
-
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).y;
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.y);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .rotate(getDirRot(forgeDir))
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
-                case UP:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        dir.y = -dir.y;
-                        final Vector3f dirAZ = new Vector3f(dir.x, 0.0f, dir.z).normalize();
-
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).y;
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.y);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .rotate(getDirRot(forgeDir))
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
-                case NORTH:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        final Vector3f dirAZ = new Vector3f(dir.x, dir.y, 0.0f).normalize();
-
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).z;
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.z);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotate(getDirRot(forgeDir))
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
-                case SOUTH:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        dir.z = -dir.z;
-                        final Vector3f dirAZ = new Vector3f(dir.x, dir.y, 0.0f).normalize();
-
-                        final float sinAZ = -(new Vector3f(orig).cross(dirAZ).z);
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.z);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotate(getDirRot(forgeDir))
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
-                case WEST:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        final Vector3f dirAZ = new Vector3f(0.0f, dir.y, dir.z).normalize();
-
-                        final float sinAZ = new Vector3f(orig).cross(dirAZ).x;
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.x);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotate(getDirRot(forgeDir))
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
-                case EAST:
-                    for (int i = 1; i < this.matrices.length; ++i) {
-                        final Vector3f dir = new Vector3f(targets[i - 1].sub(pos)).normalize();
-                        dir.x = -dir.x;
-                        final Vector3f dirAZ = new Vector3f(0.0f, dir.y, dir.z).normalize();
-
-                        final float sinAZ = -(new Vector3f(orig).cross(dirAZ).x);
-                        final float angAZ = sinAZ == 0 ? (float) Math.acos(orig.dot(dirAZ)) :
-                            (float) Math.acos(orig.dot(dirAZ)) * Math.signum(sinAZ);
-                        final float angEL = (float) Math.acos(dirAZ.dot(dir)) * Math.signum(dir.x);
-
-                        this.matrices[i] = new Matrix4f()
-                            .translate(0.5f, 0.5f, 0.5f)
-                            .rotate(getDirRot(forgeDir))
-                            .rotateY(angAZ)
-                            .rotateX(angEL)
-                            .translate(-0.5f, -0.5f, -0.5f);
-                    }
-                    break;
+            for (int i = 1; i < this.matrices.length; ++i) {
+                this.matrices[i] = computeArmMatrix(targets[i - 1], pos, orig, forgeDir);
             }
         }
 
@@ -265,6 +195,36 @@ public class ModelAetherRelay extends JSONModel {
         }
     }
 
+    private static void componentMinMax(Vector3f a, Vector3f b, Vector3f min, Vector3f max) {
+        min.set(a);
+        max.set(b);
+        if (a.x > b.x) {
+            min.x = b.x;
+            max.x = a.x;
+        }
+        if (a.y > b.y) {
+            min.y = b.y;
+            max.y = a.y;
+        }
+        if (a.z > b.z) {
+            min.z = b.z;
+            max.z = a.z;
+        }
+    }
+
+    private void addGemQuad(ModelQuad quad, ForgeDirection lightFace,
+                            HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore) {
+        quad.setEmissiveness(0);
+        quad.setDirectionalShading(true);
+        quad.setHasAmbientOcclusion(true);
+        quad.setLightFace(ModelQuadFacing.fromForgeDir(lightFace));
+        quad.setColorIndex(-1);
+        quad.setTransparent();
+        this.bakeSprite(quad, "luxaetheria:models/crystal");
+        sidedQuadStore.computeIfAbsent(ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN), d -> new ArrayList<>())
+            .add(quad);
+    }
+
     protected void generateQuads(ModelDeserializer.ModelElement e,
                                  HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
                                  boolean isTransparent, int tintIndex) {
@@ -274,8 +234,8 @@ public class ModelAetherRelay extends JSONModel {
             // Assign vertexes
             final var quad = new ModelQuad();
             for (int i = 0; i < 4; ++i) {
-                final Vector3f vert = mapSideToVertex(e.from(), e.to(), i,
-                    f.name()).mulPosition(rot).mulPosition(affine);
+                final Vector3f vert = mapSideToVertex(e.from(), e.to(), i, f.name()).mulPosition(rot)
+                    .mulPosition(affine);
                 quad.setX(i, vert.x);
                 quad.setY(i, vert.y);
                 quad.setZ(i, vert.z);
@@ -369,54 +329,9 @@ public class ModelAetherRelay extends JSONModel {
             final boolean isTransparent = eNameParts.length > 3 && eNameParts[3].equals("t");
             final Vector3f r1 = new Vector3f(e.from()).mulPosition(baseRot);
             final Vector3f r2 = new Vector3f(e.to()).mulPosition(baseRot);
-            final Vector3f cFrom;
-            final Vector3f cTo;
-
-            // 3-comparison method so that cFrom is the min components and cTo the max
-            if (r1.x < r2.x) {
-                if (r1.y < r2.y) {
-                    if (r1.z < r2.z) {
-                        cFrom = r1;
-                        cTo = r2;
-                    }
-                    else {
-                        cFrom = new Vector3f(r1.x, r1.y, r2.z);
-                        cTo = new Vector3f(r2.x, r2.y, r1.z);
-                    }
-                }
-                else {
-                    if (r1.z < r2.z) {
-                        cFrom = new Vector3f(r1.x, r2.y, r1.z);
-                        cTo = new Vector3f(r2.x, r1.y, r2.z);
-                    }
-                    else {
-                        cFrom = new Vector3f(r1.x, r2.y, r2.z);
-                        cTo = new Vector3f(r2.x, r1.y, r1.z);
-                    }
-                }
-            }
-            else {
-                if (r1.y < r2.y) {
-                    if (r1.z < r2.z) {
-                        cFrom = new Vector3f(r2.x, r1.y, r1.z);
-                        cTo = new Vector3f(r1.x, r2.y, r2.z);
-                    }
-                    else {
-                        cFrom = new Vector3f(r2.x, r1.y, r2.z);
-                        cTo = new Vector3f(r1.x, r2.y, r1.z);
-                    }
-                }
-                else {
-                    if (r1.z < r2.z) {
-                        cFrom = new Vector3f(r2.x, r2.y, r1.z);
-                        cTo = new Vector3f(r1.x, r1.y, r2.z);
-                    }
-                    else {
-                        cFrom = r2;
-                        cTo = r1;
-                    }
-                }
-            }
+            final var cFrom = new Vector3f();
+            final var cTo = new Vector3f();
+            componentMinMax(r1, r2, cFrom, cTo);
             colBoxes[colIdx++] = cFrom;
             colBoxes[colIdx++] = cTo;
             this.generateQuads(e, sidedQuadStore, baseRot, isTransparent, -1);
@@ -427,66 +342,19 @@ public class ModelAetherRelay extends JSONModel {
             final var partRot = data.getAffineMatrix(i);
             int cullIdx = Integer.MAX_VALUE;
 
-            // Find the first element that collides with a collision Box
+            // Find the first element that collides with a collision box
             for (ModelDeserializer.ModelElement e : part) {
                 final var eID = Integer.parseInt(e.name().split(":")[2]);
                 if (eID > cullIdx) continue;
-                final Vector3f from = e.from();
-                final Vector3f to = e.to();
+                final Vector3f r1 = new Vector3f(e.from()).mulPosition(partRot);
+                final Vector3f r2 = new Vector3f(e.to()).mulPosition(partRot);
+                final var rFrom = new Vector3f();
+                final var rTo = new Vector3f();
+                componentMinMax(r1, r2, rFrom, rTo);
 
                 for (int c = 0; c < (colCount * 2) - 1; c += 2) {
                     final Vector3f cFrom = colBoxes[c];
                     final Vector3f cTo = colBoxes[c + 1];
-                    final Vector3f r1 = new Vector3f(from).mulPosition(partRot);
-                    final Vector3f r2 = new Vector3f(to).mulPosition(partRot);
-                    final Vector3f rFrom;
-                    final Vector3f rTo;
-
-                    // 3-comparison method so that rFrom is the min components and rTo the max
-                    if (r1.x < r2.x) {
-                        if (r1.y < r2.y) {
-                            if (r1.z < r2.z) {
-                                rFrom = r1;
-                                rTo = r2;
-                            }
-                            else {
-                                rFrom = new Vector3f(r1.x, r1.y, r2.z);
-                                rTo = new Vector3f(r2.x, r2.y, r1.z);
-                            }
-                        }
-                        else {
-                            if (r1.z < r2.z) {
-                                rFrom = new Vector3f(r1.x, r2.y, r1.z);
-                                rTo = new Vector3f(r2.x, r1.y, r2.z);
-                            }
-                            else {
-                                rFrom = new Vector3f(r1.x, r2.y, r2.z);
-                                rTo = new Vector3f(r2.x, r1.y, r1.z);
-                            }
-                        }
-                    }
-                    else {
-                        if (r1.y < r2.y) {
-                            if (r1.z < r2.z) {
-                                rFrom = new Vector3f(r2.x, r1.y, r1.z);
-                                rTo = new Vector3f(r1.x, r2.y, r2.z);
-                            }
-                            else {
-                                rFrom = new Vector3f(r2.x, r1.y, r2.z);
-                                rTo = new Vector3f(r1.x, r2.y, r1.z);
-                            }
-                        }
-                        else {
-                            if (r1.z < r2.z) {
-                                rFrom = new Vector3f(r2.x, r2.y, r1.z);
-                                rTo = new Vector3f(r1.x, r1.y, r2.z);
-                            }
-                            else {
-                                rFrom = r2;
-                                rTo = r1;
-                            }
-                        }
-                    }
 
                     if (rTo.x < cFrom.x || cTo.x < rFrom.x) continue;
                     if (rTo.y < cFrom.y || cTo.y < rFrom.y) continue;
@@ -539,8 +407,7 @@ public class ModelAetherRelay extends JSONModel {
             new Vector3f(pos.x + offsetXZ, pos.y, pos.z - offsetXZ).mulPosition(affine),
             new Vector3f(pos.x + offsetXZ, pos.y, pos.z + offsetXZ).mulPosition(affine),
             new Vector3f(pos.x - offsetXZ, pos.y, pos.z + offsetXZ).mulPosition(affine),
-            usedTwice
-        };
+            usedTwice };
         final ForgeDirection[] dirs = { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH,
             ForgeDirection.WEST };
 
@@ -586,23 +453,13 @@ public class ModelAetherRelay extends JSONModel {
                 quad.setTexU(3, 16.0F);
                 quad.setTexV(3, 16.0F);
 
-                quad.setEmissiveness(0);
-                quad.setDirectionalShading(true);
-                quad.setHasAmbientOcclusion(true);
-                quad.setLightFace(ModelQuadFacing.fromForgeDir(dirs[j - 2]));
-                quad.setColorIndex(-1);
-                quad.setTransparent();
-
-                this.bakeSprite(quad, "luxaetheria:models/crystal");
-
-                ModelQuadFacing cullFace = ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN);
-                sidedQuadStore.computeIfAbsent(cullFace, d -> new ArrayList<>()).add(quad);
+                this.addGemQuad(quad, dirs[j - 2], sidedQuadStore);
             }
         }
     }
 
-    private void generateTriPrismGem(HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore, Matrix4fc affine,
-                                     float gemRotation) {
+    private void generateTriPrismGem(HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore,
+                                     Matrix4fc affine, float gemRotation) {
         final Vector3f center = new Vector3f(0.5F, 0.484373F, 0.5F);
         final float halfHeight = 0.25F;
         final float R = 0.125F;
@@ -624,18 +481,15 @@ public class ModelAetherRelay extends JSONModel {
         final Vector3f[] top = {
             new Vector3f(center.x, topY, center.z - R).mulPosition(combinedAffine),
             new Vector3f(center.x + R * sin60, topY, center.z + R * 0.5f).mulPosition(combinedAffine),
-            new Vector3f(center.x - R * sin60, topY, center.z + R * 0.5f).mulPosition(combinedAffine),
-        };
+            new Vector3f(center.x - R * sin60, topY, center.z + R * 0.5f).mulPosition(combinedAffine), };
         final Vector3f[] bot = {
             new Vector3f(center.x, botY, center.z - R).mulPosition(combinedAffine),
             new Vector3f(center.x + R * sin60, botY, center.z + R * 0.5f).mulPosition(combinedAffine),
-            new Vector3f(center.x - R * sin60, botY, center.z + R * 0.5f).mulPosition(combinedAffine),
-        };
+            new Vector3f(center.x - R * sin60, botY, center.z + R * 0.5f).mulPosition(combinedAffine), };
 
         // 3 rectangular side faces
         final int[][] edges = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
         final ForgeDirection[] faceDirs = { ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST };
-        final ModelQuadFacing noCull = ModelQuadFacing.fromForgeDir(ForgeDirection.UNKNOWN);
 
         for (int f = 0; f < 3; f++) {
             final int a = edges[f][0], b = edges[f][1];
@@ -662,31 +516,31 @@ public class ModelAetherRelay extends JSONModel {
             quad.setTexU(3, 16.0F);
             quad.setTexV(3, 0.0F);
 
-            quad.setEmissiveness(0);
-            quad.setDirectionalShading(true);
-            quad.setHasAmbientOcclusion(true);
-            quad.setLightFace(ModelQuadFacing.fromForgeDir(faceDirs[f]));
-            quad.setColorIndex(-1);
-            quad.setTransparent();
-            this.bakeSprite(quad, "luxaetheria:models/crystal");
-            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
+            this.addGemQuad(quad, faceDirs[f], sidedQuadStore);
         }
 
-        // Top triangle cap
-        {
+        // Triangle caps (top: CCW winding, bottom: CW winding)
+        final Vector3f[][] capVerts = { top, bot };
+        final int[][] capWindings = { { 0, 2, 1 }, { 0, 1, 2 } };
+        final ForgeDirection[] capDirs = { ForgeDirection.UP, ForgeDirection.DOWN };
+
+        for (int c = 0; c < 2; c++) {
             final var quad = new ModelQuad();
-            quad.setX(0, top[0].x);
-            quad.setY(0, top[0].y);
-            quad.setZ(0, top[0].z);
-            quad.setX(1, top[2].x);
-            quad.setY(1, top[2].y);
-            quad.setZ(1, top[2].z);
-            quad.setX(2, top[1].x);
-            quad.setY(2, top[1].y);
-            quad.setZ(2, top[1].z);
-            quad.setX(3, top[1].x);
-            quad.setY(3, top[1].y);
-            quad.setZ(3, top[1].z);
+            final var v = capVerts[c];
+            final var w = capWindings[c];
+            quad.setX(0, v[w[0]].x);
+            quad.setY(0, v[w[0]].y);
+            quad.setZ(0, v[w[0]].z);
+            quad.setX(1, v[w[1]].x);
+            quad.setY(1, v[w[1]].y);
+            quad.setZ(1, v[w[1]].z);
+            quad.setX(2, v[w[2]].x);
+            quad.setY(2, v[w[2]].y);
+            quad.setZ(2, v[w[2]].z);
+            // Degenerate quad: v3=v2
+            quad.setX(3, v[w[2]].x);
+            quad.setY(3, v[w[2]].y);
+            quad.setZ(3, v[w[2]].z);
 
             quad.setTexU(0, 8.0F);
             quad.setTexV(0, 0.0F);
@@ -697,49 +551,7 @@ public class ModelAetherRelay extends JSONModel {
             quad.setTexU(3, 16.0F);
             quad.setTexV(3, 16.0F);
 
-            quad.setEmissiveness(0);
-            quad.setDirectionalShading(true);
-            quad.setHasAmbientOcclusion(true);
-            quad.setLightFace(ModelQuadFacing.fromForgeDir(ForgeDirection.UP));
-            quad.setColorIndex(-1);
-            quad.setTransparent();
-            this.bakeSprite(quad, "luxaetheria:models/crystal");
-            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
-        }
-
-        // Bottom triangle cap
-        {
-            final var quad = new ModelQuad();
-            quad.setX(0, bot[0].x);
-            quad.setY(0, bot[0].y);
-            quad.setZ(0, bot[0].z);
-            quad.setX(1, bot[1].x);
-            quad.setY(1, bot[1].y);
-            quad.setZ(1, bot[1].z);
-            quad.setX(2, bot[2].x);
-            quad.setY(2, bot[2].y);
-            quad.setZ(2, bot[2].z);
-            quad.setX(3, bot[2].x);
-            quad.setY(3, bot[2].y);
-            quad.setZ(3, bot[2].z);
-
-            quad.setTexU(0, 8.0F);
-            quad.setTexV(0, 0.0F);
-            quad.setTexU(1, 0.0F);
-            quad.setTexV(1, 16.0F);
-            quad.setTexU(2, 16.0F);
-            quad.setTexV(2, 16.0F);
-            quad.setTexU(3, 16.0F);
-            quad.setTexV(3, 16.0F);
-
-            quad.setEmissiveness(0);
-            quad.setDirectionalShading(true);
-            quad.setHasAmbientOcclusion(true);
-            quad.setLightFace(ModelQuadFacing.fromForgeDir(ForgeDirection.DOWN));
-            quad.setColorIndex(-1);
-            quad.setTransparent();
-            this.bakeSprite(quad, "luxaetheria:models/crystal");
-            sidedQuadStore.computeIfAbsent(noCull, d -> new ArrayList<>()).add(quad);
+            this.addGemQuad(quad, capDirs[c], sidedQuadStore);
         }
     }
 }
