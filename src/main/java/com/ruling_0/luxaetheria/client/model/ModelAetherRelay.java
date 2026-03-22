@@ -1,7 +1,7 @@
 package com.ruling_0.luxaetheria.client.model;
 
 import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelDeserializer.ModelElement.Rotation.NOOP;
-import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry.MODEL_LOGGER;
+import static com.ruling_0.luxaetheria.client.model.LAModelRegistry.LA_MODEL_LOGGER;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -260,7 +260,7 @@ public class ModelAetherRelay extends JSONModel {
             var texKey = f.texture();
             var texName = this.textures.get(texKey);
             if (texName.startsWith("#")) {
-                MODEL_LOGGER.warn("Model {} has unflattened texture variable {} when baking!", this, texName);
+                LA_MODEL_LOGGER.warn("Model {} has unflattened texture variable {} when baking!", this, texName);
                 this.textures.put(texKey, "minecraft:missing");
                 texName = "minecraft:missing";
             }
