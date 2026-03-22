@@ -181,6 +181,9 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         return false;
     }
 
+    /// Checks that the path to the given `sinkCoords` is clear of obstructions.
+    /// Returns false if there is no collision.
+    /// If there is a collision, returns true, and `returnedAether` is merged to `this.aetherRelease`.
     protected boolean handleSinkCollision(AethericEnergyUnit returnedAether, InterDimCoords sinkCoords) {
         this.aetherSinks.setAeu(sinkCoords, returnedAether);
 
