@@ -106,14 +106,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public double getMaxSinkDistance() { return this.aetherSinks.getMaxSinkDistance(); }
 
-    /**
-     * Returns true if the manipulator was able to manipulate the aether.
-     * Sets the last manipulator tick if true or if the manipulator is inactive.
-     */
-    protected boolean handleManipulator(long tick) {
-        boolean didChange = false;
-
-        if (tick == lastManipulatorTick) return false;
+    public boolean hasManipulator() {
         if (this.manipulator == null) {
             if (this.manipCoords != null) {
                 World world = this.manipCoords.getWorld();
@@ -121,25 +114,32 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
                 if (te instanceof IAetherManipulator manip) {
                     this.manipulator = manip;
                     manip.bindRelay(this.getInterDimCoords());
+                    return true;
                 }
             }
-            this.lastManipulatorTick = tick;
             return false;
         }
+        return true;
+    }
 
-        if (this.wasManipulated) didChange = true;
+    /**
+     * Returns true if the manipulator was able to manipulate the aether.
+     * Sets the last manipulator tick if true or if the manipulator is inactive.
+     */
+    protected boolean handleManipulator(long tick) {
+        boolean oldStatus = this.wasManipulated;
         this.wasManipulated = false;
 
         if (!manipulator.isActive(this.owner)) {
             this.lastManipulatorTick = tick;
-            if (didChange) this.markForUpdate();
+            if (oldStatus) this.markForUpdate();
             return false;
         }
 
         if (manipulator.manipulate(this.aetherIn)) {
             this.lastManipulatorTick = tick;
             this.wasManipulated = true;
-            if (!didChange) this.markForUpdate();
+            if (!oldStatus) this.markForUpdate();
             return true;
         }
 
@@ -162,7 +162,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
-            if (this.lastManipulatorTick == tick) {
+            if (!this.hasManipulator() || this.lastManipulatorTick == tick) {
                 if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
                 return true;
             }
@@ -254,6 +254,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
             this.wasManipulated = false;
             this.markForUpdate();
         }
+        this.aetherSources.clear();
         Iterator<SinkConnection> iter = this.aetherSinks.iterator();
         while (iter.hasNext()) {
             iter.next().aeu.reset();
