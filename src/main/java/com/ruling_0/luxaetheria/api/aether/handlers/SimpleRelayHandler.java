@@ -250,6 +250,10 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         this.aetherIn.reset();
         this.aetherRelease.reset();
         this.encounteredIDs.clear();
+        if (this.wasManipulated) {
+            this.wasManipulated = false;
+            this.markForUpdate();
+        }
         Iterator<SinkConnection> iter = this.aetherSinks.iterator();
         while (iter.hasNext()) {
             iter.next().aeu.reset();

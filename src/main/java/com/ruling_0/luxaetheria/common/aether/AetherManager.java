@@ -82,10 +82,33 @@ public class AetherManager {
     }
 
     public void bulkOrphanSinks(IAetherRelay manipulator) {
-        Iterator<ImmutableSinkConnection> iterSinks = manipulator.getAetherHandler().getAetherSinksIter();
-        while (iterSinks.hasNext()) {
-            orphanedManipulators.add(iterSinks.next().getSink());
+        Iterator<SinkConnection> mutIterSinks = manipulator.getAetherHandler().getMutableSinksIter();
+        while (mutIterSinks.hasNext()) {
+            SinkConnection sinkConn = mutIterSinks.next();
+            if (handleInvalidSink(sinkConn)) {
+                mutIterSinks.remove();
+                continue;
+            }
+            orphanedManipulators.add(sinkConn.getSink());
         }
+    }
+
+    /// Sinks in `SinkConnection`s are null on world load (stored via coords).
+    /// This sets the reference for the actual sink object using the coords.
+    /// Returns true if the sink is now invalid, false otherwise.
+    /// Inverted return since generally an action is conditioned on an invalid sink.
+    private static boolean handleInvalidSink(SinkConnection sinkConn) {
+        if (sinkConn.sink == null) {
+            InterDimCoords coords = sinkConn.sinkCoords;
+            TileEntity te = coords.getWorld().getTileEntity(coords.getX(), coords.getY(), coords.getZ());
+            if (te instanceof IAetherRelay sink) {
+                sinkConn.sink = sink;
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void onServerTick(TickEvent.ServerTickEvent event) {
@@ -96,6 +119,7 @@ public class AetherManager {
          * Force-reset orphans, in case they are not updated in the final loop.
          * Ideally, this is more performant than enqueuing into the final
          * loop and having extra checks.
+         * Does not call handleInvalidSink since that is handled in bulkOrphanSinks
          */
         aetherSearchQueue.addAll(orphanedManipulators);
         while (!aetherSearchQueue.isEmpty()) {
@@ -104,8 +128,7 @@ public class AetherManager {
             handler.resetAether();
             Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                IAetherRelay next = iterSinks.next().getSink();
-                if (next != null) aetherSearchQueue.push(next);
+                aetherSearchQueue.push(iterSinks.next().getSink());
             }
             InterDimCoords coords = curr.getInterDimCoords();
             coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
@@ -124,16 +147,7 @@ public class AetherManager {
             Iterator<SinkConnection> mutIterSinks = currHandler.getMutableSinksIter();
             while (mutIterSinks.hasNext()) {
                 SinkConnection sinkConn = mutIterSinks.next();
-                if (sinkConn.sink == null) {
-                    InterDimCoords coords = sinkConn.sinkCoords;
-                    TileEntity te = coords.getWorld().getTileEntity(coords.getX(), coords.getY(), coords.getZ());
-                    if (te instanceof IAetherRelay sink) {
-                        sinkConn.sink = sink;
-                    }
-                    else {
-                        mutIterSinks.remove();
-                    }
-                }
+                if (handleInvalidSink(sinkConn)) mutIterSinks.remove();
             }
             Iterator<ImmutableSinkConnection> iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
