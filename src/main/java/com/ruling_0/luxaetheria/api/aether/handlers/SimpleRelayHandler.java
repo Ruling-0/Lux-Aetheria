@@ -162,7 +162,8 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
-            if (!this.hasManipulator() || this.lastManipulatorTick == tick) {
+            if (this.lastManipulatorTick == tick || !this.hasManipulator()) {
+                this.lastManipulatorTick = tick;
                 if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
                 return true;
             }
