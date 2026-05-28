@@ -21,7 +21,7 @@ public class BlockAetherSplitter extends BlockAetherRelay {
 
     @Override
     public int colorMultiplier(IBlockAccess world, int x, int y, int z, int tintIndex) {
-        if (tintIndex >= 0 && tintIndex < 5) return 0xCD7F32;
+        if (tintIndex >= 0 && tintIndex < TileEntityAetherSplitter.MAX_OUTPUTS) return 0xCD7F32;
         return -1;
     }
 }

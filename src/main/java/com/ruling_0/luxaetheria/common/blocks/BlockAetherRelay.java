@@ -44,7 +44,7 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     }
 
     @Override
-    public void nhlib$setModeled(boolean var1) {}
+    public void nhlib$setModeled(boolean modeled) {}
 
     public BlockAetherRelay() {
         super(Material.glass);

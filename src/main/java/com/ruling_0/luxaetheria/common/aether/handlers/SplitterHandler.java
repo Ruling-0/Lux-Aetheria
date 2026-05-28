@@ -18,20 +18,21 @@ public class SplitterHandler extends SimpleRelayHandler {
     @Nonnull
     @Override
     public AethericEnergyUnit getAetherForSink(long tick, @Nonnull IRelayHandler sinkHandler, double dist) {
+        AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
+        final int connections = this.aetherSinks.numConnections();
+        if (this.lastManipulatorTick != tick || connections == 0) return returnedAether;
         if (tick != this.lastSinkTick) {
             this.lastSinkTick = tick;
-            long remainder = this.aetherIn.getAmount() % this.aetherSinks.numConnections();
+            long remainder = this.aetherIn.getAmount() % connections;
             if (remainder > 0) {
                 AethericEnergyUnit toRelease = new AethericEnergyUnit(this.aetherIn);
                 toRelease.setAmount(remainder);
                 this.aetherRelease.merge(toRelease);
             }
         }
-        AethericEnergyUnit returnedAether = new AethericEnergyUnit(this.aetherIn);
-        if (this.lastManipulatorTick != tick) return returnedAether;
         InterDimCoords sinkCoords = sinkHandler.getInterDimCoords();
 
-        returnedAether.setAmount(this.aetherIn.getAmount() / this.aetherSinks.numConnections());
+        returnedAether.setAmount(this.aetherIn.getAmount() / connections);
         if (this.handleSinkCollision(returnedAether, sinkCoords)) return returnedAether;
         this.handleLoss(dist, returnedAether);
 

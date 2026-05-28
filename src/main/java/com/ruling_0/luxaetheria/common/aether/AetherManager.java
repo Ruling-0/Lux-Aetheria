@@ -8,9 +8,11 @@ import java.util.Iterator;
 import javax.annotation.Nonnull;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 import com.gtnewhorizon.gtnhlib.datastructs.space.ArrayProximityMap4D;
 import com.gtnewhorizon.gtnhlib.datastructs.space.VolumeShape;
+import com.ruling_0.luxaetheria.LuxAetheria;
 import com.ruling_0.luxaetheria.api.aether.AetherConstants;
 import com.ruling_0.luxaetheria.api.aether.IAetherCollector;
 import com.ruling_0.luxaetheria.api.aether.IAetherRelay;
@@ -100,11 +102,16 @@ public class AetherManager {
     private static boolean handleInvalidSink(SinkConnection sinkConn) {
         if (sinkConn.sink == null) {
             InterDimCoords coords = sinkConn.sinkCoords;
-            TileEntity te = coords.getWorld().getTileEntity(coords.getX(), coords.getY(), coords.getZ());
+            World world = coords.getWorld();
+            // An unloaded chunk reports no tile entity; keep the connection and retry once it loads.
+            if (!world.blockExists(coords.getX(), coords.getY(), coords.getZ())) return false;
+            TileEntity te = world.getTileEntity(coords.getX(), coords.getY(), coords.getZ());
             if (te instanceof IAetherRelay sink) {
                 sinkConn.sink = sink;
             }
             else {
+                LuxAetheria.LOG.warn("Dropping Aether sink connection: no relay at ({}, {}, {}) in dim {}",
+                    coords.getX(), coords.getY(), coords.getZ(), coords.getDimID());
                 return true;
             }
         }

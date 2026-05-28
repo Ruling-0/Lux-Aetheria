@@ -5,7 +5,7 @@ import com.ruling_0.luxaetheria.common.aether.handlers.SplitterHandler;
 
 public class TileEntityAetherSplitter extends BaseAetherRelay {
 
-    private static final int MAX_OUTPUTS = 5;
+    public static final int MAX_OUTPUTS = 5;
 
     public TileEntityAetherSplitter() {
         super(MAX_OUTPUTS);

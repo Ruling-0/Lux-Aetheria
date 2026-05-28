@@ -106,7 +106,7 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public double getMaxSinkDistance() { return this.aetherSinks.getMaxSinkDistance(); }
 
-    public boolean hasManipulator() {
+    private boolean tryBindManipulator() {
         if (this.manipulator == null) {
             if (this.manipCoords != null) {
                 World world = this.manipCoords.getWorld();
@@ -116,6 +116,8 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
                     manip.bindRelay(this.getInterDimCoords());
                     return true;
                 }
+                LuxAetheria.LOG.warn("Relay at {} expected a manipulator at ({}, {}, {}) but found none",
+                    this.getInterDimCoords(), this.manipCoords.x, this.manipCoords.y, this.manipCoords.z);
             }
             return false;
         }
@@ -162,8 +164,16 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
-            if (this.lastManipulatorTick == tick || !this.hasManipulator()) {
+            if (this.lastManipulatorTick == tick) {
+                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
+                return true;
+            }
+            if (!this.tryBindManipulator()) {
                 this.lastManipulatorTick = tick;
+                if (this.wasManipulated) {
+                    this.wasManipulated = false;
+                    this.markForUpdate();
+                }
                 if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
                 return true;
             }
