@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria.api.aether.handlers;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -24,6 +25,7 @@ import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 import com.ruling_0.luxaetheria.utils.LAUtils;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -164,8 +166,6 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         }
         double dist = this.aetherSources.getDouble(source);
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
-        // A new AEUID is a fresh contribution; accumulate it. A repeat is the same packet arriving via a
-        // second path (loop), so release the excess instead of double-counting it.
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
             return true;
@@ -177,22 +177,15 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     @Override
     public void finalizeTick(long tick) {
         if (this.lastManipulatorTick == tick) return;
-        if (!this.tryBindManipulator()) {
-            this.lastManipulatorTick = tick;
-            if (this.wasManipulated) {
-                this.wasManipulated = false;
-                this.markForUpdate();
-            }
-            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
-            return;
+        this.lastManipulatorTick = tick;
+        if (this.tryBindManipulator()) {
+            this.handleManipulator(tick);
         }
-        if (!this.handleManipulator(tick)) {
-            this.aetherRelease.merge(this.aetherIn);
+        else if (this.wasManipulated) {
+            this.wasManipulated = false;
+            this.markForUpdate();
         }
-        else {
-            this.aetherRelease.reset();
-            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
-        }
+        if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
     }
 
     /// Checks that the path to the given `sinkCoords` is clear of obstructions.
@@ -309,14 +302,21 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
 
     @Override
     public void markForUpdate() {
-        final InterDimCoords coords = this.getInterDimCoords();
-        final World world = coords.getWorld();
-        world.markBlockForUpdate(coords.x, coords.y, coords.z);
-        Iterator<SinkConnection> sinkIter = this.aetherSinks.iterator();
-        while (sinkIter.hasNext()) {
-            SinkConnection sinkConn = sinkIter.next();
-            if (sinkConn.getSink() == null) continue;
-            sinkConn.getSink().getAetherHandler().markForUpdate();
+        // Iterative traversal with a visited set since the sink graph can contain cycles
+        ObjectOpenHashSet<IRelayHandler> visited = new ObjectOpenHashSet<>();
+        ArrayDeque<IRelayHandler> queue = new ArrayDeque<>();
+        queue.add(this);
+        while (!queue.isEmpty()) {
+            IRelayHandler handler = queue.poll();
+            if (!visited.add(handler)) continue;
+            final InterDimCoords coords = handler.getInterDimCoords();
+            coords.getWorld().markBlockForUpdate(coords.x, coords.y, coords.z);
+            Iterator<ImmutableSinkConnection> sinkIter = handler.getAetherSinksIter();
+            while (sinkIter.hasNext()) {
+                IAetherRelay sink = sinkIter.next().getSink();
+                if (sink == null) continue;
+                queue.add(sink.getAetherHandler());
+            }
         }
     }
 

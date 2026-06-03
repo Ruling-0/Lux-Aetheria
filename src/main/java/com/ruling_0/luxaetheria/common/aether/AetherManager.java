@@ -2,14 +2,11 @@ package com.ruling_0.luxaetheria.common.aether;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -27,6 +24,8 @@ import com.ruling_0.luxaetheria.api.aether.handlers.IRelayHandler;
 import com.ruling_0.luxaetheria.api.utils.InterDimCoords;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 /**
  * The class responsible for managing Aether flow. Only one should exist at a time.
@@ -131,14 +130,18 @@ public class AetherManager {
          * loop and having extra checks.
          * Does not call handleInvalidSink since that is handled in bulkOrphanSinks
          */
+        HashSet<IAetherRelay> resetVisited = new HashSet<>();
         aetherSearchQueue.addAll(orphanedManipulators);
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
+            // The sink graph may contain cycles
+            if (!resetVisited.add(curr)) continue;
             IRelayHandler handler = curr.getAetherHandler();
             handler.resetAether();
             Iterator<ImmutableSinkConnection> iterSinks = handler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
-                aetherSearchQueue.push(iterSinks.next().getSink());
+                IAetherRelay sink = iterSinks.next().getSink();
+                if (sink != null) aetherSearchQueue.push(sink);
             }
             InterDimCoords coords = curr.getInterDimCoords();
             coords.getWorld().markBlockForUpdate(coords.getX(), coords.getY(), coords.getZ());
@@ -164,7 +167,7 @@ public class AetherManager {
                 }
                 IAetherRelay sink = sinkConn.getSink();
                 if (sink == null) continue; // sink chunk not loaded yet; retry next tick
-                pendingSources.merge(sink, 1, Integer::sum);
+                pendingSources.addTo(sink, 1);
                 if (reachable.add(sink)) aetherSearchQueue.push(sink);
             }
         }
@@ -175,6 +178,7 @@ public class AetherManager {
          */
         this.serverTick++;
         ObjectOpenHashSet<IAetherRelay> processed = new ObjectOpenHashSet<>();
+        ObjectOpenHashSet<IAetherRelay> cycleEntrances = new ObjectOpenHashSet<>();
         aetherSearchQueue.addAll(aetherRootCollectors);
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
@@ -186,18 +190,21 @@ public class AetherManager {
                 IAetherRelay next = iterSinks.next().getSink();
                 if (next == null) continue;
                 next.getAetherHandler().getAetherFromSource(curr, this.serverTick);
-                Integer left = pendingSources.computeIfPresent(next, (k, v) -> v - 1);
-                if (left != null && left == 0) aetherSearchQueue.push(next);
+                int left = pendingSources.addTo(next, -1) - 1;
+                if (left == 0) {
+                    aetherSearchQueue.push(next);
+                    cycleEntrances.remove(next);
+                }
+                else cycleEntrances.add(next);
             }
             if (currHandler.isUpdatable()) aetherUpdateQueue.add(curr);
         }
 
         /*
-         * Cycle fallback: any reachable node never processed above is in (or downstream of) a cycle, so its
-         * in-degree never reached zero. Process them now, they shall handle cycles in getAetherFromSource.
+         * Cycle fallback: For found cycle entrances, getAetherFromSource will handle the cycles based on AEUIDs
          */
-        for (IAetherRelay node : reachable) {
-            if (!processed.contains(node)) aetherSearchQueue.add(node);
+        for (IAetherRelay node : cycleEntrances) {
+            if (!processed.contains(node)) aetherSearchQueue.push(node);
         }
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
