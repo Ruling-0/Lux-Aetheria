@@ -68,6 +68,10 @@ public class AethericEnergyUnit {
             this.dim = dim;
         }
 
+        public AEUID(@Nonnull AEUID other) {
+            this(other.origin, other.tick, other.output, other.dim);
+        }
+
         public void setVals(@Nonnull TileEntity te, long tick, int output) {
             this.origin = CoordinatePacker.pack(te.xCoord, te.yCoord, te.zCoord);
             this.tick = tick;
@@ -92,6 +96,15 @@ public class AethericEnergyUnit {
             return this.dim == that.dim;
         }
 
+        @Override
+        public int hashCode() {
+            int result = (int) (this.origin ^ (this.origin >>> 32));
+            result = 31 * result + (int) (this.tick ^ (this.tick >>> 32));
+            result = 31 * result + this.output;
+            result = 31 * result + this.dim;
+            return result;
+        }
+
         public void writeToNBT(@Nonnull NBTTagCompound compound) {
             compound.setLong("origin", this.origin);
             compound.setLong("tick", this.tick);
@@ -110,7 +123,7 @@ public class AethericEnergyUnit {
     public void setToOther(@Nonnull AethericEnergyUnit otherAeU) {
         this.amount = otherAeU.amount;
         this.aspectRatios = otherAeU.aspectRatios.clone();
-        this.id = otherAeU.id;
+        this.id = new AEUID(otherAeU.id);
     }
 
     @Override
@@ -132,7 +145,7 @@ public class AethericEnergyUnit {
         for (int i = 0; i < this.aspectRatios.length; i++) {
             if (this.aspectRatios[i] != that.aspectRatios[i]) return false;
         }
-        return this.id == that.id;
+        return this.id.equals(that.id);
     }
 
     public void updateID(long tick, int output) {
