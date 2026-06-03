@@ -2,11 +2,14 @@ package com.ruling_0.luxaetheria.common.aether;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.annotation.Nonnull;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -143,27 +146,72 @@ public class AetherManager {
         }
 
         /*
-         * Starting with known collectors, calculate Aether propagation using BFS.
-         * Loops are handled in manipulators' getAetherFromSource
+         * Pre-pass: resolve/validate every sink once (so the edge set is stable for the rest of the tick),
+         * discover the subgraph reachable from the root collectors, and count each node's in-degree
+         * (how many reachable sources point at it).
          */
+        Object2IntOpenHashMap<IAetherRelay> pendingSources = new Object2IntOpenHashMap<>();
+        ObjectOpenHashSet<IAetherRelay> reachable = new ObjectOpenHashSet<>(aetherRootCollectors);
         aetherSearchQueue.addAll(aetherRootCollectors);
-        this.serverTick++;
         while (!aetherSearchQueue.isEmpty()) {
             IAetherRelay curr = aetherSearchQueue.pop();
-            IRelayHandler currHandler = curr.getAetherHandler();
-            Iterator<SinkConnection> mutIterSinks = currHandler.getMutableSinksIter();
+            Iterator<SinkConnection> mutIterSinks = curr.getAetherHandler().getMutableSinksIter();
             while (mutIterSinks.hasNext()) {
                 SinkConnection sinkConn = mutIterSinks.next();
-                if (handleInvalidSink(sinkConn)) mutIterSinks.remove();
+                if (handleInvalidSink(sinkConn)) {
+                    mutIterSinks.remove();
+                    continue;
+                }
+                IAetherRelay sink = sinkConn.getSink();
+                if (sink == null) continue; // sink chunk not loaded yet; retry next tick
+                pendingSources.merge(sink, 1, Integer::sum);
+                if (reachable.add(sink)) aetherSearchQueue.push(sink);
             }
+        }
+
+        /*
+         * Topological propagation: process each node exactly once, only after every one of its sources has
+         * delivered. This guarantees a node accumulates its full input before it emits to each sink a single time.
+         */
+        this.serverTick++;
+        ObjectOpenHashSet<IAetherRelay> processed = new ObjectOpenHashSet<>();
+        aetherSearchQueue.addAll(aetherRootCollectors);
+        while (!aetherSearchQueue.isEmpty()) {
+            IAetherRelay curr = aetherSearchQueue.pop();
+            if (!processed.add(curr)) continue;
+            IRelayHandler currHandler = curr.getAetherHandler();
+            currHandler.finalizeTick(this.serverTick);
             Iterator<ImmutableSinkConnection> iterSinks = currHandler.getAetherSinksIter();
             while (iterSinks.hasNext()) {
                 IAetherRelay next = iterSinks.next().getSink();
-                boolean shouldPropagate = next.getAetherHandler().getAetherFromSource(curr, this.serverTick);
-                if (shouldPropagate) aetherSearchQueue.push(next);
+                if (next == null) continue;
+                next.getAetherHandler().getAetherFromSource(curr, this.serverTick);
+                Integer left = pendingSources.computeIfPresent(next, (k, v) -> v - 1);
+                if (left != null && left == 0) aetherSearchQueue.push(next);
             }
             if (currHandler.isUpdatable()) aetherUpdateQueue.add(curr);
         }
+
+        /*
+         * Cycle fallback: any reachable node never processed above is in (or downstream of) a cycle, so its
+         * in-degree never reached zero. Process them now, they shall handle cycles in getAetherFromSource.
+         */
+        for (IAetherRelay node : reachable) {
+            if (!processed.contains(node)) aetherSearchQueue.add(node);
+        }
+        while (!aetherSearchQueue.isEmpty()) {
+            IAetherRelay curr = aetherSearchQueue.pop();
+            IRelayHandler currHandler = curr.getAetherHandler();
+            currHandler.finalizeTick(this.serverTick);
+            Iterator<ImmutableSinkConnection> iterSinks = currHandler.getAetherSinksIter();
+            while (iterSinks.hasNext()) {
+                IAetherRelay next = iterSinks.next().getSink();
+                if (next == null) continue;
+                if (next.getAetherHandler().getAetherFromSource(curr, this.serverTick)) aetherSearchQueue.push(next);
+            }
+            if (currHandler.isUpdatable()) aetherUpdateQueue.add(curr);
+        }
+
         for (IAetherRelay curr : aetherUpdateQueue) {
             curr.getAetherHandler().updateAether();
         }

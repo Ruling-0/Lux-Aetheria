@@ -46,10 +46,12 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
     protected boolean wasManipulated = false;
 
     private final IAetherRelay owner;
+    protected final TileEntity ownerTE;
 
     public SimpleRelayHandler(int maxAetherSinks, TileEntity te) {
         this.maxAetherSinks = maxAetherSinks;
         this.owner = (IAetherRelay) te;
+        this.ownerTE = te;
         this.aetherSinks = new AetherSinkArray(this.maxAetherSinks, this);
     }
 
@@ -162,34 +164,35 @@ public class SimpleRelayHandler implements IRelayHandler, IReleaserHandler, IWDM
         }
         double dist = this.aetherSources.getDouble(source);
         AethericEnergyUnit incoming = sourceHandler.getAetherForSink(tick, this, dist);
+        // A new AEUID is a fresh contribution; accumulate it. A repeat is the same packet arriving via a
+        // second path (loop), so release the excess instead of double-counting it.
         if (this.encounteredIDs.add(incoming.getID())) {
             this.aetherIn.merge(incoming);
-            if (this.lastManipulatorTick == tick) {
-                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
-                return true;
-            }
-            if (!this.tryBindManipulator()) {
-                this.lastManipulatorTick = tick;
-                if (this.wasManipulated) {
-                    this.wasManipulated = false;
-                    this.markForUpdate();
-                }
-                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(incoming);
-                return true;
-            }
-            if (!this.handleManipulator(tick)) {
-                this.aetherRelease.merge(incoming);
-            }
-            else {
-                this.aetherRelease.reset();
-                if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
-            }
             return true;
         }
-        else {
-            this.aetherRelease.merge(incoming);
-        }
+        this.aetherRelease.merge(incoming);
         return false;
+    }
+
+    @Override
+    public void finalizeTick(long tick) {
+        if (this.lastManipulatorTick == tick) return;
+        if (!this.tryBindManipulator()) {
+            this.lastManipulatorTick = tick;
+            if (this.wasManipulated) {
+                this.wasManipulated = false;
+                this.markForUpdate();
+            }
+            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
+            return;
+        }
+        if (!this.handleManipulator(tick)) {
+            this.aetherRelease.merge(this.aetherIn);
+        }
+        else {
+            this.aetherRelease.reset();
+            if (this.aetherSinks.isEmpty()) this.aetherRelease.merge(this.aetherIn);
+        }
     }
 
     /// Checks that the path to the given `sinkCoords` is clear of obstructions.
