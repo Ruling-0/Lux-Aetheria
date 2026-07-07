@@ -112,17 +112,30 @@ public interface IRelayHandler {
     double getMaxSinkDistance();
 
     /**
-     * Called by the {@link AetherManager} during BFS traversal.
-     * Should use {@link #getAetherForSink} to retrieve an {@link AethericEnergyUnit} to process.
+     * Called by the {@link AetherManager} during traversal, once per upstream source, to accumulate that source's
+     * Aether into this handler's input. Should use {@link #getAetherForSink} to retrieve the
+     * {@link AethericEnergyUnit} to process.
      * If this receives an {@link AethericEnergyUnit} with an {@link AethericEnergyUnit.AEUID} already encountered
-     * since the last call to {@link #resetAether()}, it should return false to prevent further processing and
-     * handle the excess Aether (such as by releasing to the environment).
+     * since the last call to {@link #resetAether()}, it should return false (the same packet arrived via a second
+     * path, e.g. a loop) and handle the excess Aether (such as by releasing to the environment).
+     * This must not run any manipulator or distribute to sinks; that happens once in {@link #finalizeTick} after
+     * all sources have contributed.
      *
      * @param source The upstream manipulator
      * @param tick   The tick this is calculated on
-     * @return True if this should be added to the BFS queue for downstream processing, false otherwise.
+     * @return True if a new contribution was accumulated, false if it was a repeat that was released.
      */
     boolean getAetherFromSource(@Nonnull IAetherRelay source, long tick);
+
+    /**
+     * Called by the {@link AetherManager} exactly once per tick, after every upstream source has delivered via
+     * {@link #getAetherFromSource} and before any downstream sink pulls from {@link #getAetherForSink}. This is
+     * where the bound manipulator (if any) runs against the fully accumulated input, and where a terminal node
+     * (no sinks) releases its input to the environment.
+     *
+     * @param tick The tick this is calculated on.
+     */
+    void finalizeTick(long tick);
 
     /**
      * Provides an {@link AethericEnergyUnit} to a connected sink. If this is a root node of the

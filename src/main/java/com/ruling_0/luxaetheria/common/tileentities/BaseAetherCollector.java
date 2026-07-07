@@ -32,7 +32,6 @@ public abstract class BaseAetherCollector extends TileEntity implements IAetherC
     public void enable() {
         if (this.isEnabled) return;
         this.isEnabled = true;
-        this.collectorHandler.ambientAether.updateID(0, 0, this);
         if (this.worldObj.isRemote) return;
         LuxAetheria.proxy.aetherManager
             .enableCollector(this, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord);

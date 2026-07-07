@@ -4,6 +4,7 @@ import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
 import com.ruling_0.luxaetheria.client.renderer.AetherBeamRenderer;
 import com.ruling_0.luxaetheria.client.renderer.AetherRelayRenderer;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherRelay;
+import com.ruling_0.luxaetheria.common.tileentities.TileEntityAetherSplitter;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityAspectSplitter;
 import com.ruling_0.luxaetheria.common.tileentities.TileEntityCollectorPylon;
 
@@ -27,6 +28,7 @@ public class LAClientProxy extends LAProxy {
 
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCollectorPylon.class, new AetherBeamRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAetherRelay.class, new AetherRelayRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAetherSplitter.class, new AetherRelayRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TileEntityAspectSplitter.class, new AetherRelayRenderer());
     }
 

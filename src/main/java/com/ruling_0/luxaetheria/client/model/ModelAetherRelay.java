@@ -1,7 +1,7 @@
 package com.ruling_0.luxaetheria.client.model;
 
 import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelDeserializer.ModelElement.Rotation.NOOP;
-import static com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry.MODEL_LOGGER;
+import static com.ruling_0.luxaetheria.client.model.LAModelRegistry.LA_MODEL_LOGGER;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -39,6 +39,7 @@ public class ModelAetherRelay extends JSONModel {
 
         public enum RelayType {
             RELAY,
+            SPLITTER,
             ASPECT_SPLITTER
         }
 
@@ -111,7 +112,7 @@ public class ModelAetherRelay extends JSONModel {
 
         public RelayBakeData(Vector3i pos, Vector3i[] targets, int meta, RelayType relayType) {
             this.relayType = relayType;
-            this.gemRotation = relayType == RelayType.ASPECT_SPLITTER ? computeGemRotation(pos, targets) : 0.0f;
+            this.gemRotation = relayType != RelayType.RELAY ? computeGemRotation(pos, targets) : 0.0f;
             final ForgeDirection forgeDir = ForgeDirection.getOrientation(meta);
             final Vector3fc orig = getOrig(forgeDir);
 
@@ -259,7 +260,7 @@ public class ModelAetherRelay extends JSONModel {
             var texKey = f.texture();
             var texName = this.textures.get(texKey);
             if (texName.startsWith("#")) {
-                MODEL_LOGGER.warn("Model {} has unflattened texture variable {} when baking!", this, texName);
+                LA_MODEL_LOGGER.warn("Model {} has unflattened texture variable {} when baking!", this, texName);
                 this.textures.put(texKey, "minecraft:missing");
                 texName = "minecraft:missing";
             }
@@ -371,23 +372,17 @@ public class ModelAetherRelay extends JSONModel {
 
                 int tintIndex = -1;
                 if (eNameParts[0].equals("lens") && eID != 0) {
-                    if (data.relayType() == RelayBakeData.RelayType.ASPECT_SPLITTER) {
-                        tintIndex = i - 1;
-                    }
-                    else {
-                        tintIndex = 0;
-                    }
+                    tintIndex = data.relayType() == RelayBakeData.RelayType.ASPECT_SPLITTER ? i - 1 : 0;
                 }
                 this.generateQuads(e, sidedQuadStore, partRot, isTransparent, tintIndex);
             }
         }
 
         // Generate gem
-        if (data.relayType() == RelayBakeData.RelayType.ASPECT_SPLITTER) {
-            this.generateTriPrismGem(sidedQuadStore, baseRot, data.gemRotation());
-        }
-        else {
-            this.generateGem(sidedQuadStore, baseRot);
+        switch (data.relayType()) {
+            case ASPECT_SPLITTER -> this.generateTriPrismGem(sidedQuadStore, baseRot, data.gemRotation());
+            case SPLITTER -> this.generateDecahedronGem(sidedQuadStore, baseRot, data.gemRotation());
+            default -> this.generateGem(sidedQuadStore, baseRot);
         }
 
         return new PileOfQuads(sidedQuadStore, this.display, this.getParticle());
@@ -551,6 +546,95 @@ public class ModelAetherRelay extends JSONModel {
             quad.setTexV(3, 16.0F);
 
             this.addGemQuad(quad, capDirs[c], sidedQuadStore);
+        }
+    }
+
+    private void generateDecahedronGem(HashMap<ModelQuadFacing, ArrayList<ModelQuadView>> sidedQuadStore,
+                                       Matrix4fc affine, float gemRotation) {
+        final Vector3f center = new Vector3f(0.5F, 0.484373F, 0.5F);
+        final float halfHeight = 0.25F;
+        final float R = 0.125F;
+
+        final Matrix4f combinedAffine = new Matrix4f()
+            .translate(0.5f, 0.5f, 0.5f)
+            .rotateY(gemRotation)
+            .translate(-0.5f, -0.5f, -0.5f)
+            .mul(affine);
+
+        // 5 vertices around equator, vertex 0 points +Z (along middle output vector after rotation)
+        final Vector3f[] equator = new Vector3f[5];
+        for (int i = 0; i < 5; i++) {
+            float angle = (float) (i * 2 * Math.PI / 5);
+            equator[i] = new Vector3f(
+                center.x + R * (float) Math.sin(angle),
+                center.y,
+                center.z + R * (float) Math.cos(angle)).mulPosition(combinedAffine);
+        }
+        final Vector3f top = new Vector3f(center.x, center.y + halfHeight, center.z).mulPosition(combinedAffine);
+        final Vector3f bot = new Vector3f(center.x, center.y - halfHeight, center.z).mulPosition(combinedAffine);
+
+        final ForgeDirection[] sideDirs = { ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.NORTH,
+            ForgeDirection.WEST, ForgeDirection.SOUTH };
+
+        // 5 top triangles and 5 bottom triangles
+        for (int i = 0; i < 5; i++) {
+            final int next = (i + 1) % 5;
+
+            // Top face: apex, equator[i], equator[next] (CCW from outside)
+            {
+                final var quad = new ModelQuad();
+                quad.setX(0, top.x);
+                quad.setY(0, top.y);
+                quad.setZ(0, top.z);
+                quad.setX(1, equator[i].x);
+                quad.setY(1, equator[i].y);
+                quad.setZ(1, equator[i].z);
+                quad.setX(2, equator[next].x);
+                quad.setY(2, equator[next].y);
+                quad.setZ(2, equator[next].z);
+                quad.setX(3, equator[next].x);
+                quad.setY(3, equator[next].y);
+                quad.setZ(3, equator[next].z);
+
+                quad.setTexU(0, 8.0F);
+                quad.setTexV(0, 0.0F);
+                quad.setTexU(1, 0.0F);
+                quad.setTexV(1, 16.0F);
+                quad.setTexU(2, 16.0F);
+                quad.setTexV(2, 16.0F);
+                quad.setTexU(3, 16.0F);
+                quad.setTexV(3, 16.0F);
+
+                this.addGemQuad(quad, sideDirs[i], sidedQuadStore);
+            }
+
+            // Bottom face: apex, equator[next], equator[i] (CW from outside)
+            {
+                final var quad = new ModelQuad();
+                quad.setX(0, bot.x);
+                quad.setY(0, bot.y);
+                quad.setZ(0, bot.z);
+                quad.setX(1, equator[next].x);
+                quad.setY(1, equator[next].y);
+                quad.setZ(1, equator[next].z);
+                quad.setX(2, equator[i].x);
+                quad.setY(2, equator[i].y);
+                quad.setZ(2, equator[i].z);
+                quad.setX(3, equator[i].x);
+                quad.setY(3, equator[i].y);
+                quad.setZ(3, equator[i].z);
+
+                quad.setTexU(0, 8.0F);
+                quad.setTexV(0, 0.0F);
+                quad.setTexU(1, 0.0F);
+                quad.setTexV(1, 16.0F);
+                quad.setTexU(2, 16.0F);
+                quad.setTexV(2, 16.0F);
+                quad.setTexU(3, 16.0F);
+                quad.setTexV(3, 16.0F);
+
+                this.addGemQuad(quad, sideDirs[i], sidedQuadStore);
+            }
         }
     }
 }

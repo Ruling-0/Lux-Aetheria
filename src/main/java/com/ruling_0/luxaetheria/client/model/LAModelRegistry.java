@@ -5,7 +5,12 @@ import com.gtnewhorizon.gtnhlib.client.model.loading.ModelRegistry;
 import com.gtnewhorizon.gtnhlib.client.model.loading.ResourceLoc;
 import com.gtnewhorizon.gtnhlib.concurrent.ThreadsafeCache;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class LAModelRegistry {
+
+    public static final Logger LA_MODEL_LOGGER = LogManager.getLogger("luxaetheria|Models");
 
     private static final ResourceLoc.ModelLoc AETHER_RELAY_LOC = new ResourceLoc.ModelLoc("luxaetheria",
         "blocks/aether_relay");

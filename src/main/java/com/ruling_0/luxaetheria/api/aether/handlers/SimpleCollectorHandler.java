@@ -97,7 +97,8 @@ public class SimpleCollectorHandler extends SimpleRelayHandler implements IColle
         long loss = returnedAether.calculateLoss(dist);
         returnedAether.setAmount(returnedAether.getAmount() - loss);
 
-        returnedAether.updateID(tick, this.getOutputIndex(sinkCoords));
+        // Origin must be this collector so two collectors into one node aren't seen as the same looped packet.
+        returnedAether.updateID(tick, this.getOutputIndex(sinkCoords), this.ownerTE);
         this.totalLoss += loss;
         return returnedAether;
     }

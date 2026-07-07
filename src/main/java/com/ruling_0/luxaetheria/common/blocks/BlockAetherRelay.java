@@ -19,9 +19,9 @@ import net.minecraft.world.World;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.gtnewhorizon.gtnhlib.api.BlockModelInfo;
 import com.gtnewhorizon.gtnhlib.api.IBlockModelProvider;
 import com.gtnewhorizon.gtnhlib.client.model.BakedModelQuadContext;
-import com.gtnewhorizon.gtnhlib.client.model.ModelISBRH;
 import com.gtnewhorizon.gtnhlib.client.model.baked.BakedModel;
 import com.gtnewhorizon.gtnhlib.client.model.color.IBlockColor;
 import com.ruling_0.luxaetheria.api.aether.IAetherManipulator;
@@ -36,7 +36,15 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import org.joml.Vector3i;
 
-public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider, IBlockColor {
+public class BlockAetherRelay extends BlockContainer implements IBlockModelProvider, IBlockColor, BlockModelInfo {
+
+    @Override
+    public boolean nhlib$isModeled() {
+        return true;
+    }
+
+    @Override
+    public void nhlib$setModeled(boolean modeled) {}
 
     public BlockAetherRelay() {
         super(Material.glass);
@@ -46,9 +54,6 @@ public class BlockAetherRelay extends BlockContainer implements IBlockModelProvi
     public TileEntity createNewTileEntity(World world, int meta) {
         return new TileEntityAetherRelay();
     }
-
-    @Override
-    public int getRenderType() { return ModelISBRH.JSON_ISBRH_ID; }
 
     @Override
     public boolean renderAsNormalBlock() {
