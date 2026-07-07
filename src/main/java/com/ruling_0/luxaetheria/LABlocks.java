@@ -1,5 +1,6 @@
 package com.ruling_0.luxaetheria;
 
+import com.ruling_0.luxaetheria.common.blocks.BlockAetherSplitter;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
